@@ -41,15 +41,27 @@
     header h1 { font-size: 1.2rem; font-weight: 700; color: var(--brand); letter-spacing: -0.01em; }
     header p  { color: var(--muted); font-size: 0.875rem; margin-top: 0.2rem; }
 
+    /* ---- Restore notice ---- */
+    #restore-notice {
+      background: var(--brand-light); border: 1px solid #c5c9e0; border-radius: var(--radius);
+      padding: 0.5rem 0.85rem; font-size: 0.82rem; color: var(--brand);
+      margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;
+    }
+    #restore-notice button {
+      background: none; border: none; color: var(--muted); font-size: 0.82rem;
+      cursor: pointer; padding: 0; text-decoration: underline;
+    }
+
     /* ---- Field ---- */
     .field { margin-bottom: 1.5rem; }
     label  { display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.4rem; }
-    input[type="text"] {
+    input[type="text"], textarea {
       width: 100%; padding: 0.6rem 0.75rem;
       border: 1px solid var(--border); border-radius: var(--radius);
       font-size: 1rem; font-family: inherit; background: var(--surface); color: var(--text);
     }
-    input[type="text"]:focus { outline: 2px solid var(--brand); outline-offset: 1px; border-color: transparent; }
+    input[type="text"]:focus, textarea:focus { outline: 2px solid var(--brand); outline-offset: 1px; border-color: transparent; }
+    textarea { resize: vertical; min-height: 5rem; }
 
     /* ---- Signal groups ---- */
     .signal-groups { margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem; }
@@ -95,6 +107,7 @@
     .btn-primary:not(:disabled):hover { opacity: 0.88; }
     .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); font-size: 0.875rem; font-weight: 400; }
     .btn-ghost:hover { background: var(--brand-light); }
+    .btn-sm { padding: 0.45rem 1rem; font-size: 0.875rem; }
 
     /* ---- Result blocks ---- */
     #results-section { margin-top: 2.5rem; }
@@ -170,6 +183,25 @@
     .loading { color: var(--muted); font-style: italic; }
     .commentary-error { color: var(--critical); font-size: 0.875rem; }
 
+    /* ---- RAID item section ---- */
+    #raid-item-section { margin-top: 2.5rem; }
+    #raid-item-section .result-block { margin-bottom: 0; }
+    .raid-locked-notice { color: var(--muted); font-size: 0.875rem; font-style: italic; }
+
+    .raid-type-selector { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1rem; }
+    .raid-type-btn {
+      padding: 0.4rem 0.85rem; border-radius: var(--radius);
+      border: 1px solid var(--border); background: transparent;
+      font-size: 0.875rem; font-family: inherit; cursor: pointer; color: var(--text);
+    }
+    .raid-type-btn:hover:not(:disabled) { background: var(--brand-light); }
+    .raid-type-btn.active { background: var(--brand); color: #fff; border-color: var(--brand); }
+    .raid-type-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .raid-type-hint { font-size: 0.78rem; color: var(--muted); margin-bottom: 0.75rem; min-height: 1.1em; }
+
+    #raid-item-output { margin-top: 1rem; }
+
     .reset-row { margin-top: 1.5rem; }
     .badges-row { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.5rem; }
   </style>
@@ -180,6 +212,11 @@
     <h1>Risk and Impact Assessor</h1>
     <p>Score 28 sub-criteria across 7 dimensions. Get panel analysis, synthesis, and persona commentary.</p>
   </header>
+
+  <div id="restore-notice" hidden>
+    <span>Project context restored from your last session.</span>
+    <button id="restore-dismiss">Dismiss</button>
+  </div>
 
   <section id="form-section">
     <div class="field">
@@ -248,15 +285,33 @@
       <button id="reset-btn" class="btn btn-ghost">Reset</button>
     </div>
   </section>
+
+  <section id="raid-item-section">
+    <div class="result-block">
+      <div class="section-label">Analyse a specific item</div>
+      <div id="raid-locked" class="raid-locked-notice">Run an assessment first to analyse a specific Risk, Issue, Assumption, Dependency, or Change.</div>
+      <div id="raid-form" hidden>
+        <div class="raid-type-selector" id="raid-type-selector"></div>
+        <p class="raid-type-hint" id="raid-type-hint"></p>
+        <div class="field">
+          <label for="raid-description">Describe the item</label>
+          <textarea id="raid-description" placeholder="e.g. The vendor API integration has no documented authentication method and the vendor has not responded to queries in three weeks."></textarea>
+        </div>
+        <button id="raid-analyse-btn" class="btn btn-primary btn-sm" disabled>Analyse</button>
+        <div id="raid-item-output"></div>
+      </div>
+    </div>
+  </section>
 </main>
 
 <script type="module">
-  import { assess }              from './src/assess.js';
-  import { buildPanelPrompt }    from './src/panel.js';
-  import { buildSynthesisPrompt } from './src/synthesis.js';
-  import { buildPersonaPrompt }  from './src/persona-prompts.js';
-  import { ARCHETYPE_LABELS }    from './src/archetypes.js';
-  import { DIMENSION_LABELS }    from './src/dimensions.js';
+  import { assess }               from './src/assess.js';
+  import { buildPanelPrompt }     from './src/panel.js';
+  import { buildPersonaPrompt }   from './src/persona-prompts.js';
+  import { ARCHETYPE_LABELS }     from './src/archetypes.js';
+  import { DIMENSION_LABELS }     from './src/dimensions.js';
+  import { RAID_ITEM_TYPES, buildRaidItemPrompt } from './src/raid-item.js';
+  import { saveProjectState, loadProjectState, clearProjectState } from './src/persistence.js';
 
   const WORKER_URL = document.querySelector('meta[name="worker-url"]').content;
 
@@ -414,34 +469,74 @@
     personaTabsEl.appendChild(btn);
   }
 
+  // Build RAID type buttons
+  const raidTypeSelectorEl = document.getElementById('raid-type-selector');
+  for (const { key, label, description } of Object.values(RAID_ITEM_TYPES)) {
+    const btn = document.createElement('button');
+    btn.className = 'raid-type-btn'; btn.dataset.raidType = key; btn.textContent = label;
+    btn.addEventListener('click', () => selectRaidType(key, btn, description));
+    raidTypeSelectorEl.appendChild(btn);
+  }
+
   // ---------------------------------------------------------------------------
   // DOM refs
   // ---------------------------------------------------------------------------
 
-  const projectNameInput   = document.getElementById('project-name');
-  const assessBtn          = document.getElementById('assess-btn');
-  const resultsSection     = document.getElementById('results-section');
-  const archetypeLabelEl   = document.getElementById('archetype-label');
-  const archetypeDescEl    = document.getElementById('archetype-description');
-  const bandBadgeEl        = document.getElementById('band-badge');
-  const tradAgileBadgeEl   = document.getElementById('trad-agile-badge');
-  const dimGridEl          = document.getElementById('dim-grid');
-  const weightedFindingsEl = document.getElementById('weighted-findings');
-  const contradictionsEl   = document.getElementById('contradictions-list');
+  const projectNameInput    = document.getElementById('project-name');
+  const assessBtn           = document.getElementById('assess-btn');
+  const resultsSection      = document.getElementById('results-section');
+  const archetypeLabelEl    = document.getElementById('archetype-label');
+  const archetypeDescEl     = document.getElementById('archetype-description');
+  const bandBadgeEl         = document.getElementById('band-badge');
+  const tradAgileBadgeEl    = document.getElementById('trad-agile-badge');
+  const dimGridEl           = document.getElementById('dim-grid');
+  const weightedFindingsEl  = document.getElementById('weighted-findings');
+  const contradictionsEl    = document.getElementById('contradictions-list');
   const contradictionsBlock = document.getElementById('contradictions-block');
-  const topSignalsListEl   = document.getElementById('top-signals-list');
-  const recommendationEl   = document.getElementById('recommendation-text');
-  const rankingListEl      = document.getElementById('ranking-list');
-  const panelCommentaryEl  = document.getElementById('panel-commentary');
+  const topSignalsListEl    = document.getElementById('top-signals-list');
+  const recommendationEl    = document.getElementById('recommendation-text');
+  const rankingListEl       = document.getElementById('ranking-list');
+  const panelCommentaryEl   = document.getElementById('panel-commentary');
   const personaCommentaryEl = document.getElementById('persona-commentary');
-  const resetBtn           = document.getElementById('reset-btn');
+  const resetBtn            = document.getElementById('reset-btn');
+  const restoreNotice       = document.getElementById('restore-notice');
+  const raidLockedEl        = document.getElementById('raid-locked');
+  const raidFormEl          = document.getElementById('raid-form');
+  const raidDescEl          = document.getElementById('raid-description');
+  const raidAnalyseBtn      = document.getElementById('raid-analyse-btn');
+  const raidItemOutputEl    = document.getElementById('raid-item-output');
+  const raidTypeHintEl      = document.getElementById('raid-type-hint');
 
   // ---------------------------------------------------------------------------
   // State
   // ---------------------------------------------------------------------------
 
-  let currentReport = null;
+  let currentReport   = null;
+  let selectedRaidType = null;
   const commentaryCache = { panel: new Map(), persona: new Map() };
+
+  // ---------------------------------------------------------------------------
+  // Persistence — restore on load
+  // ---------------------------------------------------------------------------
+
+  const savedState = loadProjectState();
+  if (savedState) {
+    projectNameInput.value = savedState.projectName;
+    assessBtn.disabled = false;
+    for (const [key, val] of Object.entries(savedState.inputs)) {
+      const slider = document.querySelector(`input[data-signal="${key}"]`);
+      if (slider) {
+        slider.value = String(val);
+        const valSpan = slider.closest('div')?.querySelector('.signal-value');
+        if (valSpan) valSpan.textContent = String(val);
+      }
+    }
+    restoreNotice.hidden = false;
+  }
+
+  document.getElementById('restore-dismiss').addEventListener('click', () => {
+    restoreNotice.hidden = true;
+  });
 
   // ---------------------------------------------------------------------------
   // Assess
@@ -464,7 +559,10 @@
     currentReport = report;
     commentaryCache.panel.clear();
     commentaryCache.persona.clear();
+    saveProjectState(projectName, inputs);
     renderResults(report);
+    unlockRaidSection();
+    clearRaidOutput();
   });
 
   function readInputs() {
@@ -583,11 +681,9 @@
 
     let systemPrompt;
     try {
-      if (type === 'panel') {
-        systemPrompt = buildPanelPrompt(key, currentReport);
-      } else {
-        systemPrompt = buildPersonaPrompt(key, currentReport);
-      }
+      systemPrompt = type === 'panel'
+        ? buildPanelPrompt(key, currentReport)
+        : buildPersonaPrompt(key, currentReport);
     } catch (err) {
       areaEl.innerHTML = `<span class="commentary-error">Error building prompt: ${err.message}</span>`;
       setTabsDisabled(tabsEl, false);
@@ -631,6 +727,78 @@
   }
 
   // ---------------------------------------------------------------------------
+  // RAID item analysis
+  // ---------------------------------------------------------------------------
+
+  function unlockRaidSection() {
+    raidLockedEl.hidden = true;
+    raidFormEl.hidden   = false;
+  }
+
+  function lockRaidSection() {
+    raidLockedEl.hidden = false;
+    raidFormEl.hidden   = true;
+  }
+
+  function selectRaidType(key, btn, description) {
+    selectedRaidType = key;
+    raidTypeSelectorEl.querySelectorAll('.raid-type-btn').forEach(b => {
+      b.classList.toggle('active', b === btn);
+    });
+    raidTypeHintEl.textContent = description;
+    updateRaidAnalyseBtn();
+  }
+
+  function updateRaidAnalyseBtn() {
+    raidAnalyseBtn.disabled = !selectedRaidType || raidDescEl.value.trim() === '';
+  }
+
+  raidDescEl.addEventListener('input', updateRaidAnalyseBtn);
+
+  raidAnalyseBtn.addEventListener('click', async () => {
+    const description = raidDescEl.value.trim();
+    if (!selectedRaidType || !description || !currentReport) return;
+
+    let systemPrompt;
+    try {
+      systemPrompt = buildRaidItemPrompt(selectedRaidType, description, currentReport);
+    } catch (err) {
+      raidItemOutputEl.innerHTML = `<span class="commentary-error">Error: ${err.message}</span>`;
+      return;
+    }
+
+    raidAnalyseBtn.disabled = true;
+    raidItemOutputEl.innerHTML = '<span class="loading">Analysing\u2026</span>';
+
+    try {
+      const res  = await fetch(WORKER_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ systemPrompt, userMessage: 'Analyse this item.' })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        raidItemOutputEl.innerHTML = `<span class="commentary-error">${data.error ?? `Error ${res.status}. Please try again.`}</span>`;
+      } else {
+        raidItemOutputEl.innerHTML = '';
+        const out = document.createElement('div');
+        out.className = 'commentary-area';
+        out.style.marginTop = '0.75rem';
+        out.textContent = data.commentary ?? '';
+        raidItemOutputEl.appendChild(out);
+      }
+    } catch {
+      raidItemOutputEl.innerHTML = '<span class="commentary-error">Could not reach the commentary service. Check your connection and try again.</span>';
+    }
+
+    raidAnalyseBtn.disabled = false;
+  });
+
+  function clearRaidOutput() {
+    raidItemOutputEl.innerHTML = '';
+  }
+
+  // ---------------------------------------------------------------------------
   // Reset
   // ---------------------------------------------------------------------------
 
@@ -641,9 +809,17 @@
     projectNameInput.value = '';
     assessBtn.disabled = true;
     currentReport = null;
+    selectedRaidType = null;
     clearTabState('panel');
     clearTabState('persona');
+    clearRaidOutput();
+    lockRaidSection();
+    raidDescEl.value = '';
+    raidTypeHintEl.textContent = '';
+    raidTypeSelectorEl.querySelectorAll('.raid-type-btn').forEach(b => b.classList.remove('active'));
     resultsSection.hidden = true;
+    clearProjectState();
+    restoreNotice.hidden = true;
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 </script>
