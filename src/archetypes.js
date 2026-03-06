@@ -31,7 +31,7 @@ export const ARCHETYPE_DESCRIPTIONS = {
 
 // Signal weights per archetype. Each signal is 0–5.
 // Weighted sum determines archetype score; highest wins.
-const SIGNAL_WEIGHTS = {
+export const SIGNAL_WEIGHTS = {
   HAUNTED_HOUSE: {
     unspokenRisk: 3,
     statusHiding: 3,
