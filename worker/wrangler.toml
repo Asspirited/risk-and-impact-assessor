@@ -1,6 +1,7 @@
 name = "ria-proxy"
 main = "index.js"
 compatibility_date = "2024-09-23"
+account_id = "ce5ebfc99d1b37a7537a039d0b09d0b6"
 
 # Deploy: wrangler deploy
 # Set API key: wrangler secret put ANTHROPIC_API_KEY
