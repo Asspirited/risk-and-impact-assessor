@@ -258,6 +258,36 @@
 
     .reset-row { margin-top: 1.5rem; }
     .divider { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+
+    /* ---- Intro ---- */
+    .intro {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.1rem 1.25rem;
+      margin-bottom: 1.75rem; font-size: 0.875rem; color: var(--muted); line-height: 1.7;
+    }
+    .intro strong { color: var(--text); }
+
+    /* ---- Project list ---- */
+    #project-list-section { margin-bottom: 1.75rem; }
+    #project-list-section .section-label { margin-bottom: 0.6rem; }
+    .project-card {
+      display: flex; align-items: center; gap: 0.75rem;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 0.65rem 1rem;
+      margin-bottom: 0.4rem;
+    }
+    .project-card-name { flex: 1; font-size: 0.875rem; font-weight: 600; color: var(--text); }
+    .project-card-meta { display: flex; gap: 0.35rem; align-items: center; }
+    .project-card-date { font-size: 0.72rem; color: var(--muted); white-space: nowrap; }
+    .project-card-actions { display: flex; gap: 0.4rem; }
+    .card-btn {
+      padding: 0.25rem 0.65rem; border-radius: var(--radius);
+      font-size: 0.75rem; font-family: inherit; cursor: pointer; border: 1px solid var(--border);
+    }
+    .card-btn-load   { background: var(--teal); color: #fff; border-color: var(--teal); }
+    .card-btn-load:hover { opacity: 0.88; }
+    .card-btn-delete { background: transparent; color: var(--muted); }
+    .card-btn-delete:hover { background: var(--critical-bg); color: var(--critical); border-color: var(--critical); }
   </style>
 </head>
 <body>
@@ -267,6 +297,33 @@
 </div>
 
 <main>
+
+  <!-- ================================================================
+       Intro
+  ================================================================ -->
+  <div class="intro">
+    Score your project's risk profile once, then ask focused questions about specific
+    Risks, Issues, Assumptions, Dependencies, and Changes — as many as you need, against the same context.
+    <br><br>
+    <strong>Step 1</strong> scores 28 sub-criteria across seven delivery dimensions,
+    or load a delivery preset and adjust from there.
+    The tool identifies the dominant risk archetype, severity band, and panel findings.
+    Your project context saves automatically between sessions.
+    <br><br>
+    <strong>Step 2</strong> is the repeatable part: describe a specific item and get contextual analysis
+    grounded in your project's risk profile. Each question stands alone — ask as many as you need
+    without re-running the full assessment.
+    <br><br>
+    Working across multiple projects? Each context saves separately and can be reloaded from the project list below.
+  </div>
+
+  <!-- ================================================================
+       Saved projects
+  ================================================================ -->
+  <div id="project-list-section" hidden>
+    <div class="section-label">Saved projects</div>
+    <div id="project-list"></div>
+  </div>
 
   <!-- ================================================================
        STEP 1 — Project Context
@@ -405,7 +462,10 @@
   import { ARCHETYPE_LABELS }     from './src/archetypes.js';
   import { DIMENSION_LABELS }     from './src/dimensions.js';
   import { RAID_ITEM_TYPES, buildRaidItemPrompt } from './src/raid-item.js';
-  import { saveProjectState, loadProjectState, clearProjectState } from './src/persistence.js';
+  import {
+    saveProject, listProjects, loadProject, deleteProject, clearAllProjects,
+    saveProjectState, loadProjectState, clearProjectState
+  } from './src/persistence.js';
   import { DELIVERY_PRESETS, getPresetInputs } from './src/presets.js';
 
   const WORKER_URL = document.querySelector('meta[name="worker-url"]').content;
@@ -632,8 +692,10 @@
   const rankingListEl       = document.getElementById('ranking-list');
   const panelCommentaryEl   = document.getElementById('panel-commentary');
   const personaCommentaryEl = document.getElementById('persona-commentary');
-  const resetBtn            = document.getElementById('reset-btn');
-  const resetRowEl          = document.getElementById('reset-row');
+  const resetBtn              = document.getElementById('reset-btn');
+  const resetRowEl            = document.getElementById('reset-row');
+  const projectListSectionEl  = document.getElementById('project-list-section');
+  const projectListEl         = document.getElementById('project-list');
 
   // ---------------------------------------------------------------------------
   // State
@@ -644,14 +706,72 @@
   const commentaryCache = { panel: new Map(), persona: new Map() };
 
   // ---------------------------------------------------------------------------
-  // Restore on load
+  // Project list
   // ---------------------------------------------------------------------------
 
-  const savedState = loadProjectState();
-  if (savedState) {
-    projectNameInput.value = savedState.projectName;
+  function renderProjectList() {
+    const projects = listProjects();
+    if (projects.length === 0) {
+      projectListSectionEl.hidden = true;
+      return;
+    }
+    projectListSectionEl.hidden = false;
+    projectListEl.innerHTML = '';
+    for (const p of projects) {
+      const card = document.createElement('div');
+      card.className = 'project-card';
+
+      const nameEl = document.createElement('div');
+      nameEl.className = 'project-card-name';
+      nameEl.textContent = p.projectName;
+
+      const metaEl = document.createElement('div');
+      metaEl.className = 'project-card-meta';
+      if (p.band) {
+        const bandBadge = document.createElement('span');
+        bandBadge.className = `badge ${BAND_CLASS[p.band] ?? ''}`;
+        bandBadge.textContent = p.band;
+        metaEl.appendChild(bandBadge);
+      }
+      if (p.archetypeLabel) {
+        const archEl = document.createElement('span');
+        archEl.style.cssText = 'font-size:0.75rem;color:var(--muted)';
+        archEl.textContent = p.archetypeLabel;
+        metaEl.appendChild(archEl);
+      }
+
+      const dateEl = document.createElement('div');
+      dateEl.className = 'project-card-date';
+      dateEl.textContent = p.savedAt ? new Date(p.savedAt).toLocaleDateString() : '';
+
+      const actionsEl = document.createElement('div');
+      actionsEl.className = 'project-card-actions';
+
+      const loadBtn = document.createElement('button');
+      loadBtn.className = 'card-btn card-btn-load';
+      loadBtn.textContent = 'Load';
+      loadBtn.addEventListener('click', () => loadProjectContext(p.projectName));
+
+      const delBtn = document.createElement('button');
+      delBtn.className = 'card-btn card-btn-delete';
+      delBtn.textContent = 'Delete';
+      delBtn.addEventListener('click', () => {
+        deleteProject(p.projectName);
+        renderProjectList();
+      });
+
+      actionsEl.append(loadBtn, delBtn);
+      card.append(nameEl, metaEl, dateEl, actionsEl);
+      projectListEl.appendChild(card);
+    }
+  }
+
+  function loadProjectContext(projectName) {
+    const p = loadProject(projectName);
+    if (!p) return;
+    projectNameInput.value = p.projectName;
     assessBtn.disabled = false;
-    for (const [key, val] of Object.entries(savedState.inputs)) {
+    for (const [key, val] of Object.entries(p.inputs)) {
       const slider = document.querySelector(`input[data-signal="${key}"]`);
       if (slider) {
         slider.value = String(val);
@@ -659,12 +779,34 @@
         if (valSpan) valSpan.textContent = String(val);
       }
     }
+    // Clear any active preset highlight
+    presetButtonsEl.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+    // Rehydrate and apply context
     try {
-      const report = assess(savedState.projectName, savedState.inputs);
+      const report = assess(p.projectName, p.inputs);
+      commentaryCache.panel.clear();
+      commentaryCache.persona.clear();
       applyContext(report);
+      clearRaidOutput();
+      selectedRaidType = null;
+      raidTypeSelectorEl.querySelectorAll('.raid-type-btn').forEach(b => b.classList.remove('active'));
+      raidTypeHintEl.textContent = '';
+      raidDescEl.value = '';
+      updateRaidAnalyseBtn();
     } catch {
-      // corrupt state — ignore and show form
+      // inputs from storage may be invalid — show the form for manual entry
     }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Restore on load
+  // ---------------------------------------------------------------------------
+
+  renderProjectList();
+  // Auto-load the most recently saved project
+  const projects = listProjects();
+  if (projects.length > 0) {
+    loadProjectContext(projects[0].projectName);
   }
 
   // ---------------------------------------------------------------------------
@@ -685,7 +827,12 @@
       alert(`Assessment error: ${err.message}`);
       return;
     }
-    saveProjectState(projectName, inputs);
+    saveProject(projectName, inputs, {
+      archetypeLabel: report.archetypeLabel,
+      band:           report.band,
+      tradAgileLabel: report.tradAgileLabel
+    });
+    renderProjectList();
     commentaryCache.panel.clear();
     commentaryCache.persona.clear();
     applyContext(report);
@@ -968,7 +1115,8 @@
     selectedRaidType = null;
     commentaryCache.panel.clear();
     commentaryCache.persona.clear();
-    clearProjectState();
+    clearAllProjects();
+    renderProjectList();
 
     // Reset step 1
     contextSummaryEl.hidden = true;
