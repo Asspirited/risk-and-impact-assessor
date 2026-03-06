@@ -36,9 +36,19 @@
 
     main { max-width: 700px; margin: 0 auto; padding: 1.5rem 1rem 5rem; }
 
+    /* ---- Top banner ---- */
+    .top-banner {
+      background: var(--brand);
+      padding: 0.8rem 1.5rem;
+    }
+    .top-banner-inner {
+      max-width: 700px; margin: 0 auto;
+      font-size: 0.95rem; font-weight: 700; color: #fff;
+      letter-spacing: 0.06em; text-transform: uppercase;
+    }
+
     /* ---- Header ---- */
-    header { margin-bottom: 2rem; border-bottom: 2px solid var(--brand); padding-bottom: 1rem; }
-    header h1 { font-size: 1.2rem; font-weight: 700; color: var(--brand); letter-spacing: -0.01em; }
+    header { margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem; }
     header p  { color: var(--muted); font-size: 0.875rem; margin-top: 0.2rem; }
 
     /* ---- Restore notice ---- */
@@ -207,9 +217,11 @@
   </style>
 </head>
 <body>
+<div class="top-banner">
+  <div class="top-banner-inner">Risk and Impact Assessor</div>
+</div>
 <main>
   <header>
-    <h1>Risk and Impact Assessor</h1>
     <p>Score 28 sub-criteria across 7 dimensions. Get panel analysis, synthesis, and persona commentary.</p>
   </header>
 
