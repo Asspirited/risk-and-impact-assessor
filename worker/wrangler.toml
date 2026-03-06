@@ -1,0 +1,7 @@
+name = "ria-proxy"
+main = "index.js"
+compatibility_date = "2024-09-23"
+
+# Deploy: wrangler deploy
+# Set API key: wrangler secret put ANTHROPIC_API_KEY
+# Worker URL after deploy: https://ria-proxy.<your-subdomain>.workers.dev

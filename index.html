@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Replace this URL after deploying the Cloudflare Worker -->
+  <meta name="worker-url" content="https://ria-proxy.YOUR_SUBDOMAIN.workers.dev/commentary">
+  <title>Risk and Impact Assessor</title>
+  <style>
+    :root {
+      --bg: #f7f7f5;
+      --surface: #ffffff;
+      --border: #ddddd8;
+      --text: #1a1a18;
+      --muted: #64645e;
+      --accent: #1e3a5f;
+      --accent-light: #e8eef5;
+      --low: #2a7a38;
+      --low-bg: #e8f4ea;
+      --medium: #7a5c00;
+      --medium-bg: #fdf3d0;
+      --high: #b84f00;
+      --high-bg: #fdeee4;
+      --critical: #b01f0f;
+      --critical-bg: #fde8e5;
+      --radius: 6px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      font-size: 1rem;
+    }
+
+    main {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 1.5rem 1rem 4rem;
+    }
+
+    header { margin-bottom: 2rem; }
+    header h1 { font-size: 1.25rem; font-weight: 600; letter-spacing: -0.01em; }
+    header p { color: var(--muted); font-size: 0.9rem; margin-top: 0.25rem; }
+
+    /* ---- Form ---- */
+
+    .field { margin-bottom: 1.5rem; }
+
+    label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin-bottom: 0.4rem;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 0.6rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 1rem;
+      font-family: inherit;
+      background: var(--surface);
+      color: var(--text);
+    }
+    input[type="text"]:focus {
+      outline: 2px solid var(--accent);
+      outline-offset: 1px;
+      border-color: transparent;
+    }
+
+    /* ---- Signal groups ---- */
+
+    .signal-groups { margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem; }
+
+    details.signal-group {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+
+    details.signal-group summary {
+      padding: 0.75rem 1rem;
+      font-weight: 500;
+      font-size: 0.9rem;
+      cursor: pointer;
+      user-select: none;
+      list-style: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    details.signal-group summary::-webkit-details-marker { display: none; }
+    details.signal-group summary::after {
+      content: '＋';
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    details.signal-group[open] summary::after { content: '－'; }
+
+    .signals { padding: 0.5rem 1rem 1rem; display: flex; flex-direction: column; gap: 1rem; }
+
+    .signal {}
+
+    .signal-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .signal-header label {
+      flex: 1;
+      margin: 0;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    .info-btn {
+      width: 1.25rem;
+      height: 1.25rem;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      font-size: 0.7rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+    .info-btn:hover { background: var(--accent-light); }
+
+    .signal-value {
+      font-variant-numeric: tabular-nums;
+      font-weight: 600;
+      font-size: 0.875rem;
+      min-width: 1.2rem;
+      text-align: right;
+    }
+
+    .signal-desc {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 0.35rem;
+      line-height: 1.4;
+    }
+    .signal-desc.hidden { display: none; }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+      height: 1.5rem;
+      cursor: pointer;
+    }
+
+    /* ---- Buttons ---- */
+
+    .btn {
+      display: inline-block;
+      padding: 0.65rem 1.5rem;
+      border-radius: var(--radius);
+      border: none;
+      font-size: 1rem;
+      font-family: inherit;
+      font-weight: 500;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:not(:disabled):hover { opacity: 0.88; }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      font-size: 0.875rem;
+    }
+    .btn-ghost:hover { background: var(--accent-light); }
+
+    /* ---- Results ---- */
+
+    #results-section { margin-top: 2.5rem; }
+
+    .result-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+    }
+
+    .section-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+
+    #archetype-label { font-size: 1.75rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 0.4rem; }
+    #archetype-description { color: var(--muted); font-size: 0.95rem; margin-bottom: 0.75rem; }
+
+    .band-badge {
+      display: inline-block;
+      padding: 0.2rem 0.65rem;
+      border-radius: 3px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .band-low    { background: var(--low-bg);      color: var(--low); }
+    .band-medium { background: var(--medium-bg);   color: var(--medium); }
+    .band-high   { background: var(--high-bg);     color: var(--high); }
+    .band-critical { background: var(--critical-bg); color: var(--critical); }
+
+    #top-signals-list { list-style: none; display: flex; flex-direction: column; gap: 0.3rem; }
+    #top-signals-list li::before { content: '— '; color: var(--muted); }
+
+    #recommendation-text { font-size: 0.95rem; line-height: 1.7; }
+
+    /* ---- Ranking ---- */
+
+    .ranking-row {
+      display: grid;
+      grid-template-columns: 140px 1fr 2.5rem;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .ranking-label { font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .ranking-bar-track {
+      height: 6px;
+      background: var(--bg);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .ranking-bar-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 3px;
+      transition: width 0.4s ease;
+    }
+
+    .ranking-score { font-size: 0.8rem; color: var(--muted); text-align: right; }
+
+    /* ---- Persona tabs ---- */
+
+    #persona-section { margin-top: 0; }
+
+    #persona-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-bottom: 1rem;
+    }
+
+    .persona-tab {
+      padding: 0.45rem 0.9rem;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: transparent;
+      font-size: 0.875rem;
+      font-family: inherit;
+      cursor: pointer;
+      color: var(--text);
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .persona-tab:hover:not(:disabled) { background: var(--accent-light); }
+    .persona-tab.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    .persona-tab:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    #commentary-area {
+      min-height: 4rem;
+      font-size: 0.95rem;
+      line-height: 1.75;
+      white-space: pre-wrap;
+      color: var(--text);
+    }
+
+    .loading { color: var(--muted); font-style: italic; }
+
+    .commentary-error { color: var(--critical); font-size: 0.9rem; }
+
+    .reset-row { margin-top: 1.5rem; }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Risk and Impact Assessor</h1>
+    <p>Score eleven signals 0–5. Get an archetype, a severity band, and persona commentary.</p>
+  </header>
+
+  <section id="form-section">
+    <div class="field">
+      <label for="project-name">Project name</label>
+      <input type="text" id="project-name" placeholder="e.g. Project Albatross" autocomplete="off">
+    </div>
+
+    <div class="signal-groups" id="signal-groups">
+      <!-- Built by JS -->
+    </div>
+
+    <button id="assess-btn" class="btn btn-primary" disabled>Assess</button>
+  </section>
+
+  <section id="results-section" hidden>
+    <div class="result-block">
+      <div class="section-label">Archetype</div>
+      <h2 id="archetype-label"></h2>
+      <p id="archetype-description"></p>
+      <span id="band-badge" class="band-badge"></span>
+    </div>
+
+    <div class="result-block">
+      <div class="section-label">Top signals</div>
+      <ul id="top-signals-list"></ul>
+    </div>
+
+    <div class="result-block">
+      <div class="section-label">Recommendation</div>
+      <p id="recommendation-text"></p>
+    </div>
+
+    <div class="result-block">
+      <div class="section-label">All archetypes</div>
+      <div id="ranking-list"></div>
+    </div>
+
+    <div class="result-block" id="persona-section">
+      <div class="section-label">Commentary</div>
+      <div id="persona-tabs" role="tablist"></div>
+      <div id="commentary-area" aria-live="polite"></div>
+    </div>
+
+    <div class="reset-row">
+      <button id="reset-btn" class="btn btn-ghost">Reset</button>
+    </div>
+  </section>
+</main>
+
+<script type="module">
+  import { assess }             from './src/assess.js';
+  import { buildPersonaPrompt } from './src/persona-prompts.js';
+  import { ARCHETYPE_LABELS }   from './src/archetypes.js';
+
+  const WORKER_URL = document.querySelector('meta[name="worker-url"]').content;
+
+  // ---------------------------------------------------------------------------
+  // Signal metadata
+  // ---------------------------------------------------------------------------
+
+  const SIGNAL_LABELS = {
+    unspokenRisk:           'Unspoken Risk',
+    statusHiding:           'Status Hiding',
+    meetingTheater:         'Meeting Theatre',
+    stakeholderPerformance: 'Stakeholder Performance',
+    velocityDrift:          'Velocity Drift',
+    scopeChurn:             'Scope Churn',
+    qualityDrift:           'Quality Drift',
+    technicalDebt:          'Technical Debt',
+    teamAttrition:          'Team Attrition',
+    processRigidity:        'Process Rigidity',
+    metricsWithoutMeaning:  'Metrics Without Meaning'
+  };
+
+  const SIGNAL_DESCRIPTIONS = {
+    unspokenRisk:           'Known risks not being discussed openly in the team or with stakeholders.',
+    statusHiding:           'Progress or problems reported more favourably than the evidence warrants.',
+    meetingTheater:         'Meetings that exist to perform activity rather than make decisions or solve problems.',
+    stakeholderPerformance: 'Stakeholder-facing communication managed for appearance rather than accuracy.',
+    velocityDrift:          'Gradual decline in the team\'s delivery rate that has not been named or addressed.',
+    scopeChurn:             'Scope changing frequently without adjustment to timeline or resources.',
+    qualityDrift:           'Gradual decline in code quality, test coverage, or standards going unaddressed.',
+    technicalDebt:          'Accumulated shortcuts and deferred work slowing delivery or increasing risk.',
+    teamAttrition:          'Team members leaving or disengaging at a rate that threatens continuity.',
+    processRigidity:        'Adherence to process steps regardless of whether they produce value.',
+    metricsWithoutMeaning:  'Metrics tracked and reported that do not connect to meaningful outcomes.'
+  };
+
+  const SIGNAL_GROUPS = [
+    { label: 'Culture & Communication', signals: ['unspokenRisk', 'statusHiding', 'meetingTheater', 'stakeholderPerformance'] },
+    { label: 'Execution & Flow',        signals: ['velocityDrift', 'scopeChurn', 'qualityDrift', 'technicalDebt'] },
+    { label: 'Team & Structure',        signals: ['teamAttrition', 'processRigidity', 'metricsWithoutMeaning'] }
+  ];
+
+  const PERSONAS = [
+    { key: 'WELLER',  label: 'Paul Weller' },
+    { key: 'SKEPTIC', label: 'The Skeptic' },
+    { key: 'COACH',   label: 'The Coach' },
+    { key: 'AUDITOR', label: 'The Auditor' }
+  ];
+
+  const BAND_CLASS = { LOW: 'band-low', MEDIUM: 'band-medium', HIGH: 'band-high', CRITICAL: 'band-critical' };
+
+  // ---------------------------------------------------------------------------
+  // Build signal group UI
+  // ---------------------------------------------------------------------------
+
+  const signalGroupsEl = document.getElementById('signal-groups');
+
+  for (const group of SIGNAL_GROUPS) {
+    const details = document.createElement('details');
+    details.className = 'signal-group';
+
+    const summary = document.createElement('summary');
+    summary.textContent = group.label;
+    details.appendChild(summary);
+
+    const signalsDiv = document.createElement('div');
+    signalsDiv.className = 'signals';
+
+    for (const key of group.signals) {
+      const wrap = document.createElement('div');
+      wrap.className = 'signal';
+
+      const header = document.createElement('div');
+      header.className = 'signal-header';
+
+      const lbl = document.createElement('label');
+      lbl.htmlFor = `sig-${key}`;
+      lbl.textContent = SIGNAL_LABELS[key];
+
+      const infoBtn = document.createElement('button');
+      infoBtn.type = 'button';
+      infoBtn.className = 'info-btn';
+      infoBtn.setAttribute('aria-label', `About ${SIGNAL_LABELS[key]}`);
+      infoBtn.textContent = '?';
+
+      const valSpan = document.createElement('span');
+      valSpan.className = 'signal-value';
+      valSpan.textContent = '0';
+
+      header.append(lbl, infoBtn, valSpan);
+
+      const desc = document.createElement('p');
+      desc.className = 'signal-desc hidden';
+      desc.textContent = SIGNAL_DESCRIPTIONS[key];
+
+      const slider = document.createElement('input');
+      slider.type = 'range';
+      slider.id = `sig-${key}`;
+      slider.min = '0';
+      slider.max = '5';
+      slider.step = '1';
+      slider.value = '0';
+      slider.dataset.signal = key;
+      slider.addEventListener('input', () => { valSpan.textContent = slider.value; });
+
+      infoBtn.addEventListener('click', () => desc.classList.toggle('hidden'));
+
+      wrap.append(header, desc, slider);
+      signalsDiv.appendChild(wrap);
+    }
+
+    details.appendChild(signalsDiv);
+    signalGroupsEl.appendChild(details);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Build persona tabs
+  // ---------------------------------------------------------------------------
+
+  const personaTabsEl = document.getElementById('persona-tabs');
+
+  for (const { key, label } of PERSONAS) {
+    const btn = document.createElement('button');
+    btn.className = 'persona-tab';
+    btn.dataset.persona = key;
+    btn.textContent = label;
+    btn.setAttribute('role', 'tab');
+    btn.setAttribute('aria-selected', 'false');
+    btn.addEventListener('click', () => handlePersonaClick(key, btn));
+    personaTabsEl.appendChild(btn);
+  }
+
+  // ---------------------------------------------------------------------------
+  // DOM refs
+  // ---------------------------------------------------------------------------
+
+  const projectNameInput   = document.getElementById('project-name');
+  const assessBtn          = document.getElementById('assess-btn');
+  const resultsSection     = document.getElementById('results-section');
+  const archetypeLabelEl   = document.getElementById('archetype-label');
+  const archetypeDescEl    = document.getElementById('archetype-description');
+  const bandBadgeEl        = document.getElementById('band-badge');
+  const topSignalsListEl   = document.getElementById('top-signals-list');
+  const recommendationEl   = document.getElementById('recommendation-text');
+  const rankingListEl      = document.getElementById('ranking-list');
+  const commentaryAreaEl   = document.getElementById('commentary-area');
+  const resetBtn           = document.getElementById('reset-btn');
+
+  // ---------------------------------------------------------------------------
+  // State
+  // ---------------------------------------------------------------------------
+
+  let currentReport = null;
+  const commentaryCache = new Map();
+
+  // ---------------------------------------------------------------------------
+  // Assess
+  // ---------------------------------------------------------------------------
+
+  projectNameInput.addEventListener('input', () => {
+    assessBtn.disabled = projectNameInput.value.trim() === '';
+  });
+
+  assessBtn.addEventListener('click', () => {
+    const projectName = projectNameInput.value.trim();
+    const signals = readSignals();
+
+    let report;
+    try {
+      report = assess(projectName, signals);
+    } catch (err) {
+      alert(`Assessment error: ${err.message}`);
+      return;
+    }
+
+    currentReport = report;
+    commentaryCache.clear();
+    renderResults(report);
+  });
+
+  function readSignals() {
+    const signals = {};
+    document.querySelectorAll('input[type="range"][data-signal]').forEach(s => {
+      signals[s.dataset.signal] = Number(s.value);
+    });
+    return signals;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Render results
+  // ---------------------------------------------------------------------------
+
+  function renderResults(report) {
+    archetypeLabelEl.textContent = report.archetypeLabel;
+    archetypeDescEl.textContent  = report.archetypeDescription;
+
+    bandBadgeEl.textContent  = report.band;
+    bandBadgeEl.className    = `band-badge ${BAND_CLASS[report.band]}`;
+
+    topSignalsListEl.innerHTML = '';
+    if (report.topSignals.length === 0) {
+      const li = document.createElement('li');
+      li.textContent = 'No dominant signals detected.';
+      topSignalsListEl.appendChild(li);
+    } else {
+      for (const key of report.topSignals) {
+        const li = document.createElement('li');
+        li.textContent = SIGNAL_LABELS[key] ?? key;
+        topSignalsListEl.appendChild(li);
+      }
+    }
+
+    recommendationEl.textContent = report.recommendation;
+
+    rankingListEl.innerHTML = '';
+    const maxScore = report.rankedArchetypes[0]?.score || 1;
+    for (const item of report.rankedArchetypes) {
+      const row = document.createElement('div');
+      row.className = 'ranking-row';
+
+      const lbl = document.createElement('span');
+      lbl.className = 'ranking-label';
+      lbl.textContent = ARCHETYPE_LABELS[item.archetype];
+
+      const track = document.createElement('div');
+      track.className = 'ranking-bar-track';
+      const fill = document.createElement('div');
+      fill.className = 'ranking-bar-fill';
+      fill.style.width = maxScore > 0 ? `${(item.score / maxScore) * 100}%` : '0%';
+      track.appendChild(fill);
+
+      const score = document.createElement('span');
+      score.className = 'ranking-score';
+      score.textContent = item.score;
+
+      row.append(lbl, track, score);
+      rankingListEl.appendChild(row);
+    }
+
+    clearPersonaState();
+
+    resultsSection.hidden = false;
+    resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // ---------------------------------------------------------------------------
+  // Persona commentary
+  // ---------------------------------------------------------------------------
+
+  async function handlePersonaClick(persona, tabEl) {
+    personaTabsEl.querySelectorAll('.persona-tab').forEach(t => {
+      t.classList.toggle('active', t === tabEl);
+      t.setAttribute('aria-selected', t === tabEl ? 'true' : 'false');
+    });
+
+    if (commentaryCache.has(persona)) {
+      commentaryAreaEl.textContent = commentaryCache.get(persona);
+      return;
+    }
+
+    setPersonaTabsDisabled(true);
+    commentaryAreaEl.innerHTML = '<span class="loading">Fetching commentary\u2026</span>';
+
+    let systemPrompt;
+    try {
+      systemPrompt = buildPersonaPrompt(persona, currentReport);
+    } catch (err) {
+      commentaryAreaEl.innerHTML = `<span class="commentary-error">Error building prompt: ${err.message}</span>`;
+      setPersonaTabsDisabled(false);
+      return;
+    }
+
+    try {
+      const res = await fetch(WORKER_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          systemPrompt,
+          userMessage: 'Give your honest assessment of this project.'
+        })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        commentaryAreaEl.innerHTML = `<span class="commentary-error">${data.error ?? `Error ${res.status}. Please try again.`}</span>`;
+        setPersonaTabsDisabled(false);
+        return;
+      }
+
+      const commentary = data.commentary ?? '';
+      commentaryCache.set(persona, commentary);
+      commentaryAreaEl.textContent = commentary;
+
+    } catch {
+      commentaryAreaEl.innerHTML = '<span class="commentary-error">Could not reach the commentary service. Check your connection and try again.</span>';
+    }
+
+    setPersonaTabsDisabled(false);
+  }
+
+  function setPersonaTabsDisabled(disabled) {
+    personaTabsEl.querySelectorAll('.persona-tab').forEach(t => { t.disabled = disabled; });
+  }
+
+  function clearPersonaState() {
+    personaTabsEl.querySelectorAll('.persona-tab').forEach(t => {
+      t.classList.remove('active');
+      t.setAttribute('aria-selected', 'false');
+      t.disabled = false;
+    });
+    commentaryAreaEl.textContent = '';
+    commentaryCache.clear();
+  }
+
+  // ---------------------------------------------------------------------------
+  // Reset
+  // ---------------------------------------------------------------------------
+
+  resetBtn.addEventListener('click', () => {
+    document.querySelectorAll('input[type="range"][data-signal]').forEach(s => {
+      s.value = '0';
+      s.dispatchEvent(new Event('input'));
+    });
+    projectNameInput.value = '';
+    assessBtn.disabled = true;
+    currentReport = null;
+    clearPersonaState();
+    resultsSection.hidden = true;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+</script>
+</body>
+</html>
