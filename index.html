@@ -133,6 +133,17 @@
     .signal-desc.hidden { display: none; }
     input[type="range"] { width: 100%; accent-color: var(--teal); height: 1.5rem; cursor: pointer; }
 
+    /* ---- Preset buttons ---- */
+    .preset-row { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1rem; align-items: center; }
+    .preset-label { font-size: 0.75rem; color: var(--muted); margin-right: 0.25rem; white-space: nowrap; }
+    .preset-btn {
+      padding: 0.3rem 0.75rem; border-radius: var(--radius);
+      border: 1px solid var(--border); background: transparent;
+      font-size: 0.8rem; font-family: inherit; cursor: pointer; color: var(--text);
+    }
+    .preset-btn:hover { background: var(--brand-light); }
+    .preset-btn.active { background: var(--brand); color: #fff; border-color: var(--brand); }
+
     /* ---- Buttons ---- */
     .btn { display: inline-block; padding: 0.65rem 1.5rem; border-radius: var(--radius); border: none; font-size: 0.95rem; font-family: inherit; font-weight: 600; cursor: pointer; }
     .btn:disabled { opacity: 0.4; cursor: not-allowed; }
@@ -285,6 +296,10 @@
         <label for="project-name">Project name</label>
         <input type="text" id="project-name" placeholder="e.g. Project Albatross" autocomplete="off">
       </div>
+      <div class="preset-row">
+        <span class="preset-label">Quick start:</span>
+        <div id="preset-buttons"></div>
+      </div>
       <div class="signal-groups" id="signal-groups"></div>
       <button id="assess-btn" class="btn btn-primary" disabled>Save context</button>
     </div>
@@ -391,6 +406,7 @@
   import { DIMENSION_LABELS }     from './src/dimensions.js';
   import { RAID_ITEM_TYPES, buildRaidItemPrompt } from './src/raid-item.js';
   import { saveProjectState, loadProjectState, clearProjectState } from './src/persistence.js';
+  import { DELIVERY_PRESETS, getPresetInputs } from './src/presets.js';
 
   const WORKER_URL = document.querySelector('meta[name="worker-url"]').content;
 
@@ -528,6 +544,31 @@
     }
     details.appendChild(signalsDiv);
     signalGroupsEl.appendChild(details);
+  }
+
+  // Build preset buttons
+  const presetButtonsEl = document.getElementById('preset-buttons');
+  presetButtonsEl.style.cssText = 'display:flex;flex-wrap:wrap;gap:0.4rem';
+  for (const preset of Object.values(DELIVERY_PRESETS)) {
+    const btn = document.createElement('button');
+    btn.className = 'preset-btn';
+    btn.dataset.preset = preset.key;
+    btn.title = preset.description;
+    btn.textContent = preset.label;
+    btn.addEventListener('click', () => loadPreset(preset.key, btn));
+    presetButtonsEl.appendChild(btn);
+  }
+
+  function loadPreset(key, btn) {
+    const inputs = getPresetInputs(key);
+    for (const [signal, val] of Object.entries(inputs)) {
+      const slider = document.querySelector(`input[data-signal="${signal}"]`);
+      if (slider) {
+        slider.value = String(val);
+        slider.dispatchEvent(new Event('input'));
+      }
+    }
+    presetButtonsEl.querySelectorAll('.preset-btn').forEach(b => b.classList.toggle('active', b === btn));
   }
 
   // Build panel tabs
@@ -914,10 +955,11 @@
   // ---------------------------------------------------------------------------
 
   resetBtn.addEventListener('click', () => {
-    // Clear sliders
+    // Clear sliders and preset selection
     document.querySelectorAll('input[type="range"][data-signal]').forEach(s => {
       s.value = '0'; s.dispatchEvent(new Event('input'));
     });
+    presetButtonsEl.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
     projectNameInput.value = '';
     assessBtn.disabled = true;
 
