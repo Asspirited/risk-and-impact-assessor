@@ -81,9 +81,11 @@ export default {
 
     if (!apiResponse.ok) {
       const status = apiResponse.status;
+      let detail = '';
+      try { detail = await apiResponse.text(); } catch {}
       const message = status === 429
         ? 'Rate limit reached. Please wait a moment and try again.'
-        : 'Anthropic API error. Please try again.';
+        : `Anthropic API error ${status}: ${detail}`;
       return json({ error: message }, status);
     }
 
