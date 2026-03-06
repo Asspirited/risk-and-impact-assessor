@@ -11,6 +11,7 @@
   <style>
     :root {
       --brand:       #1c2041;
+      --teal:        #0d9488;
       --brand-light: #e8eaf2;
       --bg:          #f7f7f5;
       --surface:     #ffffff;
@@ -51,34 +52,52 @@
       color: #fff; letter-spacing: 0.01em;
     }
 
-    /* ---- Header ---- */
-    header { margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem; }
-    header p  { color: var(--muted); font-size: 0.875rem; margin-top: 0.2rem; }
+    /* ---- Step chrome ---- */
+    .step {
+      margin-bottom: 1.5rem;
+    }
+    .step-header {
+      display: flex; align-items: baseline; gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+    .step-number {
+      flex-shrink: 0;
+      width: 1.6rem; height: 1.6rem; border-radius: 50%;
+      background: var(--brand); color: #fff;
+      font-size: 0.75rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .step-number.complete { background: var(--teal); }
+    .step-title { font-size: 0.95rem; font-weight: 600; color: var(--brand); }
+    .step-subtitle { font-size: 0.82rem; color: var(--muted); margin-top: 0.1rem; }
 
-    /* ---- Restore notice ---- */
-    #restore-notice {
-      background: var(--brand-light); border: 1px solid #c5c9e0; border-radius: var(--radius);
-      padding: 0.5rem 0.85rem; font-size: 0.82rem; color: var(--brand);
-      margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;
+    /* ---- Context summary card ---- */
+    #context-summary {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1rem 1.25rem;
+      display: flex; justify-content: space-between; align-items: flex-start;
+      gap: 1rem;
     }
-    #restore-notice button {
-      background: none; border: none; color: var(--muted); font-size: 0.82rem;
-      cursor: pointer; padding: 0; text-decoration: underline;
-    }
+    #context-summary-text { flex: 1; }
+    #context-project-name { font-size: 1.05rem; font-weight: 700; color: var(--brand); margin-bottom: 0.3rem; }
+    #context-meta { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.4rem; }
+    #context-recommendation { font-size: 0.82rem; color: var(--muted); }
 
     /* ---- Field ---- */
-    .field { margin-bottom: 1.5rem; }
+    .field { margin-bottom: 1.25rem; }
     label  { display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.4rem; }
-    input[type="text"], textarea {
+    input[type="text"], textarea, select {
       width: 100%; padding: 0.6rem 0.75rem;
       border: 1px solid var(--border); border-radius: var(--radius);
       font-size: 1rem; font-family: inherit; background: var(--surface); color: var(--text);
     }
-    input[type="text"]:focus, textarea:focus { outline: 2px solid var(--brand); outline-offset: 1px; border-color: transparent; }
+    input[type="text"]:focus, textarea:focus, select:focus {
+      outline: 2px solid var(--teal); outline-offset: 1px; border-color: transparent;
+    }
     textarea { resize: vertical; min-height: 5rem; }
 
     /* ---- Signal groups ---- */
-    .signal-groups { margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem; }
+    .signal-groups { margin-bottom: 1.25rem; display: flex; flex-direction: column; gap: 0.4rem; }
 
     details.signal-group {
       background: var(--surface);
@@ -86,7 +105,7 @@
       border-radius: var(--radius);
     }
     details.signal-group summary {
-      padding: 0.75rem 1rem;
+      padding: 0.65rem 1rem;
       font-weight: 600; font-size: 0.875rem;
       color: var(--brand);
       cursor: pointer; user-select: none; list-style: none;
@@ -112,28 +131,19 @@
     .signal-value { font-variant-numeric: tabular-nums; font-weight: 700; font-size: 0.875rem; min-width: 1rem; text-align: right; color: var(--brand); }
     .signal-desc  { font-size: 0.78rem; color: var(--muted); margin-bottom: 0.3rem; line-height: 1.4; }
     .signal-desc.hidden { display: none; }
-    input[type="range"] { width: 100%; accent-color: var(--brand); height: 1.5rem; cursor: pointer; }
+    input[type="range"] { width: 100%; accent-color: var(--teal); height: 1.5rem; cursor: pointer; }
 
     /* ---- Buttons ---- */
     .btn { display: inline-block; padding: 0.65rem 1.5rem; border-radius: var(--radius); border: none; font-size: 0.95rem; font-family: inherit; font-weight: 600; cursor: pointer; }
     .btn:disabled { opacity: 0.4; cursor: not-allowed; }
-    .btn-primary { background: var(--brand); color: #fff; }
+    .btn-primary { background: var(--teal); color: #fff; }
     .btn-primary:not(:disabled):hover { opacity: 0.88; }
     .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); font-size: 0.875rem; font-weight: 400; }
     .btn-ghost:hover { background: var(--brand-light); }
-    .btn-sm { padding: 0.45rem 1rem; font-size: 0.875rem; }
+    .btn-sm { padding: 0.4rem 0.9rem; font-size: 0.82rem; }
 
-    /* ---- Result blocks ---- */
-    #results-section { margin-top: 2.5rem; }
-    .result-block { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; margin-bottom: 1rem; }
-    .section-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.6rem; }
-
-    /* Archetype */
-    #archetype-label { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em; color: var(--brand); margin-bottom: 0.35rem; }
-    #archetype-description { color: var(--muted); font-size: 0.9rem; margin-bottom: 0.75rem; }
-
-    /* Badges */
-    .badge { display: inline-block; padding: 0.2rem 0.65rem; border-radius: 3px; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; margin-right: 0.4rem; }
+    /* ---- Badges ---- */
+    .badge { display: inline-block; padding: 0.2rem 0.65rem; border-radius: 3px; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; }
     .band-low      { background: var(--low-bg);      color: var(--low); }
     .band-medium   { background: var(--medium-bg);   color: var(--medium); }
     .band-high     { background: var(--high-bg);     color: var(--high); }
@@ -142,182 +152,235 @@
     .badge-hybrid  { background: var(--hybrid-bg);   color: var(--hybrid); }
     .badge-agile   { background: var(--agile-bg);    color: var(--agile); }
 
-    /* Top signals */
+    /* ---- RAID item form (Step 2) ---- */
+    #step2-block {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.25rem;
+    }
+    #step2-locked { color: var(--muted); font-size: 0.875rem; font-style: italic; }
+
+    .raid-type-selector { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.75rem; }
+    .raid-type-btn {
+      padding: 0.4rem 0.9rem; border-radius: var(--radius);
+      border: 1px solid var(--border); background: transparent;
+      font-size: 0.875rem; font-family: inherit; cursor: pointer; color: var(--text);
+      transition: background 0.1s;
+    }
+    .raid-type-btn:hover:not(:disabled) { background: var(--brand-light); }
+    .raid-type-btn.active { background: var(--teal); color: #fff; border-color: var(--teal); }
+    .raid-type-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .raid-type-hint { font-size: 0.78rem; color: var(--muted); margin-bottom: 0.75rem; min-height: 1.2em; }
+
+    .raid-action-row { display: flex; align-items: center; gap: 1rem; margin-top: 0.75rem; }
+    #raid-char-count { font-size: 0.75rem; color: var(--muted); }
+
+    #raid-item-output { margin-top: 1.25rem; }
+    .raid-result {
+      background: var(--bg); border-radius: var(--radius); padding: 1rem 1.25rem;
+      font-size: 0.92rem; line-height: 1.75; white-space: pre-wrap;
+    }
+
+    /* ---- Full assessment (collapsible) ---- */
+    details.assessment-details {
+      margin-top: 1.5rem;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+    details.assessment-details > summary {
+      padding: 0.85rem 1.25rem;
+      font-size: 0.875rem; font-weight: 600; color: var(--brand);
+      cursor: pointer; user-select: none; list-style: none;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    details.assessment-details > summary::-webkit-details-marker { display: none; }
+    details.assessment-details > summary::after { content: 'Show ▾'; font-size: 0.75rem; font-weight: 400; color: var(--muted); }
+    details.assessment-details[open] > summary::after { content: 'Hide ▴'; }
+    .assessment-details-inner { padding: 0 1.25rem 1.25rem; }
+
+    /* ---- Result blocks ---- */
+    .result-block { margin-bottom: 1.25rem; padding-top: 1.25rem; border-top: 1px solid var(--border); }
+    .result-block:first-child { border-top: none; padding-top: 0; }
+    .section-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.6rem; }
+
+    #archetype-label { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.02em; color: var(--brand); margin-bottom: 0.25rem; }
+    #archetype-description { color: var(--muted); font-size: 0.875rem; margin-bottom: 0.6rem; }
+    .badges-row { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+
     #top-signals-list { list-style: none; display: flex; flex-direction: column; gap: 0.25rem; }
     #top-signals-list li::before { content: '— '; color: var(--muted); }
 
-    /* Ranking */
     .ranking-row { display: grid; grid-template-columns: 140px 1fr 2.5rem; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem; }
     .ranking-label { font-size: 0.82rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .ranking-bar-track { height: 5px; background: var(--bg); border-radius: 3px; overflow: hidden; }
-    .ranking-bar-fill  { height: 100%; background: var(--brand); border-radius: 3px; transition: width 0.5s ease; }
+    .ranking-bar-fill  { height: 100%; background: var(--teal); border-radius: 3px; transition: width 0.5s ease; }
     .ranking-score { font-size: 0.78rem; color: var(--muted); text-align: right; }
 
-    /* Weighted findings */
     .finding-row { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem; font-size: 0.875rem; }
     .finding-dim { flex: 1; }
     .consensus-CRITICAL { background: var(--critical-bg); color: var(--critical); }
     .consensus-HIGH     { background: var(--high-bg);     color: var(--high); }
     .consensus-MEDIUM   { background: var(--medium-bg);   color: var(--medium); }
 
-    /* Contradictions */
     .contradiction-row { font-size: 0.82rem; color: var(--muted); margin-bottom: 0.3rem; }
     .contradiction-row strong { color: var(--text); }
 
-    /* Dimension scores */
     .dim-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.5rem; }
     .dim-cell { background: var(--bg); border-radius: var(--radius); padding: 0.5rem 0.75rem; }
     .dim-name  { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 0.15rem; }
     .dim-score { font-size: 1.1rem; font-weight: 700; color: var(--brand); }
 
-    /* Panel tabs */
-    .panel-tabs { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1rem; }
-    .panel-tab {
-      padding: 0.45rem 0.9rem; border-radius: var(--radius);
-      border: 1px solid var(--border); background: transparent;
-      font-size: 0.875rem; font-family: inherit; cursor: pointer; color: var(--text);
-    }
-    .panel-tab:hover:not(:disabled) { background: var(--brand-light); }
-    .panel-tab.active { background: var(--brand); color: #fff; border-color: var(--brand); }
-    .panel-tab:disabled { opacity: 0.4; cursor: not-allowed; }
-
-    /* Persona tabs */
-    .persona-tabs { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1rem; }
-    .persona-tab {
+    /* Panel / persona tabs */
+    .tab-row { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.75rem; }
+    .tab-btn {
       padding: 0.4rem 0.85rem; border-radius: var(--radius);
       border: 1px solid var(--border); background: transparent;
       font-size: 0.82rem; font-family: inherit; cursor: pointer; color: var(--muted);
     }
-    .persona-tab:hover:not(:disabled) { background: var(--brand-light); }
-    .persona-tab.active { background: var(--brand); color: #fff; border-color: var(--brand); }
-    .persona-tab:disabled { opacity: 0.4; cursor: not-allowed; }
+    .tab-btn:hover:not(:disabled) { background: var(--brand-light); }
+    .tab-btn.active { background: var(--brand); color: #fff; border-color: var(--brand); }
+    .tab-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-    /* Commentary */
     .commentary-area { min-height: 3rem; font-size: 0.92rem; line-height: 1.75; white-space: pre-wrap; }
     .loading { color: var(--muted); font-style: italic; }
     .commentary-error { color: var(--critical); font-size: 0.875rem; }
 
-    /* ---- RAID item section ---- */
-    #raid-item-section { margin-top: 2.5rem; }
-    #raid-item-section .result-block { margin-bottom: 0; }
-    .raid-locked-notice { color: var(--muted); font-size: 0.875rem; font-style: italic; }
-
-    .raid-type-selector { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1rem; }
-    .raid-type-btn {
-      padding: 0.4rem 0.85rem; border-radius: var(--radius);
-      border: 1px solid var(--border); background: transparent;
-      font-size: 0.875rem; font-family: inherit; cursor: pointer; color: var(--text);
-    }
-    .raid-type-btn:hover:not(:disabled) { background: var(--brand-light); }
-    .raid-type-btn.active { background: var(--brand); color: #fff; border-color: var(--brand); }
-    .raid-type-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-    .raid-type-hint { font-size: 0.78rem; color: var(--muted); margin-bottom: 0.75rem; min-height: 1.1em; }
-
-    #raid-item-output { margin-top: 1rem; }
-
     .reset-row { margin-top: 1.5rem; }
-    .badges-row { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.5rem; }
+    .divider { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
   </style>
 </head>
 <body>
+
 <div class="top-banner">
   <div class="top-banner-inner">Risk and Impact Assessor</div>
 </div>
+
 <main>
-  <header>
-    <p>Score 28 sub-criteria across 7 dimensions. Get panel analysis, synthesis, and persona commentary.</p>
-  </header>
 
-  <div id="restore-notice" hidden>
-    <span>Project context restored from your last session.</span>
-    <button id="restore-dismiss">Dismiss</button>
-  </div>
-
-  <section id="form-section">
-    <div class="field">
-      <label for="project-name">Project name</label>
-      <input type="text" id="project-name" placeholder="e.g. Project Albatross" autocomplete="off">
-    </div>
-    <div class="signal-groups" id="signal-groups"></div>
-    <button id="assess-btn" class="btn btn-primary" disabled>Assess</button>
-  </section>
-
-  <section id="results-section" hidden>
-
-    <div class="result-block">
-      <div class="section-label">Archetype</div>
-      <h2 id="archetype-label"></h2>
-      <p id="archetype-description"></p>
-      <div class="badges-row">
-        <span id="band-badge" class="badge"></span>
-        <span id="trad-agile-badge" class="badge"></span>
+  <!-- ================================================================
+       STEP 1 — Project Context
+  ================================================================ -->
+  <div class="step" id="step1">
+    <div class="step-header">
+      <div class="step-number" id="step1-number">1</div>
+      <div>
+        <div class="step-title">Project context</div>
+        <div class="step-subtitle">Score 28 sub-criteria across 7 dimensions. Saved automatically.</div>
       </div>
     </div>
 
-    <div class="result-block">
-      <div class="section-label">Dimension scores</div>
-      <div id="dim-grid" class="dim-grid"></div>
+    <!-- Summary card (shown when context is set) -->
+    <div id="context-summary" hidden>
+      <div id="context-summary-text">
+        <div id="context-project-name"></div>
+        <div id="context-meta"></div>
+        <div id="context-recommendation"></div>
+      </div>
+      <button class="btn btn-ghost btn-sm" id="update-context-btn">Update context</button>
     </div>
 
-    <div class="result-block">
-      <div class="section-label">Panel consensus findings</div>
-      <div id="weighted-findings"></div>
+    <!-- Assessment form (shown when no context, or updating) -->
+    <div id="context-form">
+      <div class="field">
+        <label for="project-name">Project name</label>
+        <input type="text" id="project-name" placeholder="e.g. Project Albatross" autocomplete="off">
+      </div>
+      <div class="signal-groups" id="signal-groups"></div>
+      <button id="assess-btn" class="btn btn-primary" disabled>Save context</button>
+    </div>
+  </div>
+
+  <!-- ================================================================
+       STEP 2 — Ask a question
+  ================================================================ -->
+  <div class="step" id="step2">
+    <div class="step-header">
+      <div class="step-number" id="step2-number">2</div>
+      <div>
+        <div class="step-title">Ask a question</div>
+        <div class="step-subtitle">Describe a specific Change, Risk, Assumption, Issue, or Dependency for analysis against your project context.</div>
+      </div>
     </div>
 
-    <div class="result-block" id="contradictions-block">
-      <div class="section-label">Contradictions between panel members</div>
-      <div id="contradictions-list"></div>
-    </div>
-
-    <div class="result-block">
-      <div class="section-label">Top signals</div>
-      <ul id="top-signals-list"></ul>
-    </div>
-
-    <div class="result-block">
-      <div class="section-label">Recommendation</div>
-      <p id="recommendation-text"></p>
-    </div>
-
-    <div class="result-block">
-      <div class="section-label">All archetypes</div>
-      <div id="ranking-list"></div>
-    </div>
-
-    <div class="result-block">
-      <div class="section-label">Panel — ask a member for their perspective</div>
-      <div class="panel-tabs" id="panel-tabs"></div>
-      <div class="commentary-area" id="panel-commentary"></div>
-    </div>
-
-    <div class="result-block">
-      <div class="section-label">Persona commentary — ask a persona to comment on the synthesis</div>
-      <div class="persona-tabs" id="persona-tabs"></div>
-      <div class="commentary-area" id="persona-commentary"></div>
-    </div>
-
-    <div class="reset-row">
-      <button id="reset-btn" class="btn btn-ghost">Reset</button>
-    </div>
-  </section>
-
-  <section id="raid-item-section">
-    <div class="result-block">
-      <div class="section-label">Analyse a specific item</div>
-      <div id="raid-locked" class="raid-locked-notice">Run an assessment first to analyse a specific Risk, Issue, Assumption, Dependency, or Change.</div>
-      <div id="raid-form" hidden>
+    <div id="step2-block">
+      <div id="step2-locked">Set your project context in step 1 first.</div>
+      <div id="step2-form" hidden>
         <div class="raid-type-selector" id="raid-type-selector"></div>
         <p class="raid-type-hint" id="raid-type-hint"></p>
         <div class="field">
           <label for="raid-description">Describe the item</label>
           <textarea id="raid-description" placeholder="e.g. The vendor API integration has no documented authentication method and the vendor has not responded to queries in three weeks."></textarea>
         </div>
-        <button id="raid-analyse-btn" class="btn btn-primary btn-sm" disabled>Analyse</button>
+        <div class="raid-action-row">
+          <button id="raid-analyse-btn" class="btn btn-primary btn-sm" disabled>Analyse</button>
+          <span id="raid-char-count"></span>
+        </div>
         <div id="raid-item-output"></div>
       </div>
     </div>
-  </section>
+  </div>
+
+  <!-- ================================================================
+       Full assessment detail (collapsible, shown when context is set)
+  ================================================================ -->
+  <details class="assessment-details" id="full-assessment" hidden>
+    <summary>Full assessment detail</summary>
+    <div class="assessment-details-inner">
+
+      <div class="result-block">
+        <div class="section-label">Archetype</div>
+        <h2 id="archetype-label"></h2>
+        <p id="archetype-description"></p>
+        <div class="badges-row" style="margin-top:0.5rem">
+          <span id="band-badge" class="badge"></span>
+          <span id="trad-agile-badge" class="badge"></span>
+        </div>
+      </div>
+
+      <div class="result-block">
+        <div class="section-label">Dimension scores</div>
+        <div id="dim-grid" class="dim-grid"></div>
+      </div>
+
+      <div class="result-block">
+        <div class="section-label">Panel consensus findings</div>
+        <div id="weighted-findings"></div>
+      </div>
+
+      <div class="result-block" id="contradictions-block">
+        <div class="section-label">Contradictions between panel members</div>
+        <div id="contradictions-list"></div>
+      </div>
+
+      <div class="result-block">
+        <div class="section-label">Top signals</div>
+        <ul id="top-signals-list"></ul>
+      </div>
+
+      <div class="result-block">
+        <div class="section-label">All archetypes</div>
+        <div id="ranking-list"></div>
+      </div>
+
+      <div class="result-block">
+        <div class="section-label">Panel — ask a member for their perspective</div>
+        <div class="tab-row" id="panel-tabs"></div>
+        <div class="commentary-area" id="panel-commentary"></div>
+      </div>
+
+      <div class="result-block">
+        <div class="section-label">Persona commentary</div>
+        <div class="tab-row" id="persona-tabs"></div>
+        <div class="commentary-area" id="persona-commentary"></div>
+      </div>
+
+    </div>
+  </details>
+
+  <div class="reset-row" id="reset-row" hidden>
+    <button id="reset-btn" class="btn btn-ghost">Reset everything</button>
+  </div>
+
 </main>
 
 <script type="module">
@@ -332,7 +395,7 @@
   const WORKER_URL = document.querySelector('meta[name="worker-url"]').content;
 
   // ---------------------------------------------------------------------------
-  // Metadata
+  // Static metadata
   // ---------------------------------------------------------------------------
 
   const SUB_CRITERIA_LABELS = {
@@ -408,9 +471,9 @@
   ];
 
   const PANEL_CONFIG = [
-    { key: 'SUNI',  label: 'Suni — Business Stakeholder' },
-    { key: 'PETER', label: 'Peter — Project Manager' },
-    { key: 'DAVOS', label: 'Davos — Development Team' }
+    { key: 'SUNI',  label: 'Suni' },
+    { key: 'PETER', label: 'Peter' },
+    { key: 'DAVOS', label: 'Davos' }
   ];
 
   const PERSONA_CONFIG = [
@@ -425,7 +488,7 @@
   const CONSENSUS_CLS = { CRITICAL: 'consensus-CRITICAL', HIGH: 'consensus-HIGH', MEDIUM: 'consensus-MEDIUM' };
 
   // ---------------------------------------------------------------------------
-  // Build form
+  // Build form — signal groups
   // ---------------------------------------------------------------------------
 
   const signalGroupsEl = document.getElementById('signal-groups');
@@ -438,7 +501,7 @@
     const signalsDiv = document.createElement('div');
     signalsDiv.className = 'signals';
     for (const key of group.keys) {
-      const wrap = document.createElement('div');
+      const wrap   = document.createElement('div');
       const header = document.createElement('div');
       header.className = 'signal-header';
       const lbl = document.createElement('label');
@@ -471,7 +534,7 @@
   const panelTabsEl = document.getElementById('panel-tabs');
   for (const { key, label } of PANEL_CONFIG) {
     const btn = document.createElement('button');
-    btn.className = 'panel-tab'; btn.dataset.persona = key; btn.textContent = label;
+    btn.className = 'tab-btn'; btn.dataset.key = key; btn.textContent = label;
     btn.addEventListener('click', () => handleCommentaryClick(key, btn, 'panel'));
     panelTabsEl.appendChild(btn);
   }
@@ -480,7 +543,7 @@
   const personaTabsEl = document.getElementById('persona-tabs');
   for (const { key, label } of PERSONA_CONFIG) {
     const btn = document.createElement('button');
-    btn.className = 'persona-tab'; btn.dataset.persona = key; btn.textContent = label;
+    btn.className = 'tab-btn'; btn.dataset.key = key; btn.textContent = label;
     btn.addEventListener('click', () => handleCommentaryClick(key, btn, 'persona'));
     personaTabsEl.appendChild(btn);
   }
@@ -500,7 +563,22 @@
 
   const projectNameInput    = document.getElementById('project-name');
   const assessBtn           = document.getElementById('assess-btn');
-  const resultsSection      = document.getElementById('results-section');
+  const contextSummaryEl    = document.getElementById('context-summary');
+  const contextFormEl       = document.getElementById('context-form');
+  const contextProjectName  = document.getElementById('context-project-name');
+  const contextMetaEl       = document.getElementById('context-meta');
+  const contextRecEl        = document.getElementById('context-recommendation');
+  const updateContextBtn    = document.getElementById('update-context-btn');
+  const step1NumberEl       = document.getElementById('step1-number');
+  const step2NumberEl       = document.getElementById('step2-number');
+  const step2LockedEl       = document.getElementById('step2-locked');
+  const step2FormEl         = document.getElementById('step2-form');
+  const raidDescEl          = document.getElementById('raid-description');
+  const raidAnalyseBtn      = document.getElementById('raid-analyse-btn');
+  const raidItemOutputEl    = document.getElementById('raid-item-output');
+  const raidTypeHintEl      = document.getElementById('raid-type-hint');
+  const raidCharCountEl     = document.getElementById('raid-char-count');
+  const fullAssessmentEl    = document.getElementById('full-assessment');
   const archetypeLabelEl    = document.getElementById('archetype-label');
   const archetypeDescEl     = document.getElementById('archetype-description');
   const bandBadgeEl         = document.getElementById('band-badge');
@@ -510,29 +588,22 @@
   const contradictionsEl    = document.getElementById('contradictions-list');
   const contradictionsBlock = document.getElementById('contradictions-block');
   const topSignalsListEl    = document.getElementById('top-signals-list');
-  const recommendationEl    = document.getElementById('recommendation-text');
   const rankingListEl       = document.getElementById('ranking-list');
   const panelCommentaryEl   = document.getElementById('panel-commentary');
   const personaCommentaryEl = document.getElementById('persona-commentary');
   const resetBtn            = document.getElementById('reset-btn');
-  const restoreNotice       = document.getElementById('restore-notice');
-  const raidLockedEl        = document.getElementById('raid-locked');
-  const raidFormEl          = document.getElementById('raid-form');
-  const raidDescEl          = document.getElementById('raid-description');
-  const raidAnalyseBtn      = document.getElementById('raid-analyse-btn');
-  const raidItemOutputEl    = document.getElementById('raid-item-output');
-  const raidTypeHintEl      = document.getElementById('raid-type-hint');
+  const resetRowEl          = document.getElementById('reset-row');
 
   // ---------------------------------------------------------------------------
   // State
   // ---------------------------------------------------------------------------
 
-  let currentReport   = null;
+  let currentReport    = null;
   let selectedRaidType = null;
   const commentaryCache = { panel: new Map(), persona: new Map() };
 
   // ---------------------------------------------------------------------------
-  // Persistence — restore on load
+  // Restore on load
   // ---------------------------------------------------------------------------
 
   const savedState = loadProjectState();
@@ -547,15 +618,16 @@
         if (valSpan) valSpan.textContent = String(val);
       }
     }
-    restoreNotice.hidden = false;
+    try {
+      const report = assess(savedState.projectName, savedState.inputs);
+      applyContext(report);
+    } catch {
+      // corrupt state — ignore and show form
+    }
   }
 
-  document.getElementById('restore-dismiss').addEventListener('click', () => {
-    restoreNotice.hidden = true;
-  });
-
   // ---------------------------------------------------------------------------
-  // Assess
+  // Assess / save context
   // ---------------------------------------------------------------------------
 
   projectNameInput.addEventListener('input', () => {
@@ -572,13 +644,16 @@
       alert(`Assessment error: ${err.message}`);
       return;
     }
-    currentReport = report;
+    saveProjectState(projectName, inputs);
     commentaryCache.panel.clear();
     commentaryCache.persona.clear();
-    saveProjectState(projectName, inputs);
-    renderResults(report);
-    unlockRaidSection();
+    applyContext(report);
     clearRaidOutput();
+    selectedRaidType = null;
+    raidTypeSelectorEl.querySelectorAll('.raid-type-btn').forEach(b => b.classList.remove('active'));
+    raidTypeHintEl.textContent = '';
+    raidDescEl.value = '';
+    updateRaidAnalyseBtn();
   });
 
   function readInputs() {
@@ -590,20 +665,66 @@
   }
 
   // ---------------------------------------------------------------------------
-  // Render
+  // Apply context — render summary card, unlock step 2, populate full detail
   // ---------------------------------------------------------------------------
 
-  function renderResults(r) {
-    archetypeLabelEl.textContent  = r.archetypeLabel;
-    archetypeDescEl.textContent   = r.archetypeDescription;
+  function applyContext(report) {
+    currentReport = report;
+
+    // Summary card
+    contextProjectName.textContent = report.projectName;
+    contextMetaEl.innerHTML = '';
+    const bandSpan = document.createElement('span');
+    bandSpan.className = `badge ${BAND_CLASS[report.band]}`;
+    bandSpan.textContent = report.band;
+    const taSpan = document.createElement('span');
+    taSpan.className = `badge ${TA_CLASS[report.tradAgileLabel]}`;
+    taSpan.textContent = report.tradAgileLabel;
+    const archSpan = document.createElement('span');
+    archSpan.style.cssText = 'font-size:0.82rem;color:var(--muted);align-self:center';
+    archSpan.textContent = report.archetypeLabel;
+    contextMetaEl.append(bandSpan, taSpan, archSpan);
+    contextRecEl.textContent = report.recommendation;
+
+    // Show summary, hide form
+    contextSummaryEl.hidden = false;
+    contextFormEl.hidden    = true;
+    step1NumberEl.classList.add('complete');
+
+    // Unlock step 2
+    step2LockedEl.hidden = true;
+    step2FormEl.hidden   = false;
+    step2NumberEl.classList.add('complete');
+
+    // Full assessment detail
+    renderFullAssessment(report);
+    fullAssessmentEl.hidden = false;
+    resetRowEl.hidden = false;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Update context
+  // ---------------------------------------------------------------------------
+
+  updateContextBtn.addEventListener('click', () => {
+    contextSummaryEl.hidden = true;
+    contextFormEl.hidden    = false;
+    contextFormEl.querySelector('input').focus();
+  });
+
+  // ---------------------------------------------------------------------------
+  // Render full assessment detail
+  // ---------------------------------------------------------------------------
+
+  function renderFullAssessment(r) {
+    archetypeLabelEl.textContent = r.archetypeLabel;
+    archetypeDescEl.textContent  = r.archetypeDescription;
 
     bandBadgeEl.textContent = r.band;
     bandBadgeEl.className   = `badge ${BAND_CLASS[r.band]}`;
-
     tradAgileBadgeEl.textContent = r.tradAgileLabel;
     tradAgileBadgeEl.className   = `badge ${TA_CLASS[r.tradAgileLabel]}`;
 
-    // Dimension scores
     dimGridEl.innerHTML = '';
     for (const [dim, score] of Object.entries(r.dimensionScores)) {
       const cell = document.createElement('div');
@@ -612,7 +733,6 @@
       dimGridEl.appendChild(cell);
     }
 
-    // Weighted findings
     weightedFindingsEl.innerHTML = '';
     if (r.weightedFindings.length === 0) {
       weightedFindingsEl.textContent = 'No dimensions flagged by any panel member.';
@@ -625,7 +745,6 @@
       }
     }
 
-    // Contradictions
     contradictionsEl.innerHTML = '';
     if (r.contradictions.length === 0) {
       contradictionsBlock.hidden = true;
@@ -639,28 +758,21 @@
       }
     }
 
-    // Top signals
     topSignalsListEl.innerHTML = '';
-    if (r.topSignals.length === 0) {
+    for (const key of r.topSignals.length ? r.topSignals : []) {
+      const li = document.createElement('li');
+      li.textContent = SUB_CRITERIA_LABELS[key] ?? key;
+      topSignalsListEl.appendChild(li);
+    }
+    if (!r.topSignals.length) {
       const li = document.createElement('li'); li.textContent = 'No dominant signals detected.';
       topSignalsListEl.appendChild(li);
-    } else {
-      for (const key of r.topSignals) {
-        const li = document.createElement('li');
-        li.textContent = SUB_CRITERIA_LABELS[key] ?? key;
-        topSignalsListEl.appendChild(li);
-      }
     }
 
-    // Recommendation
-    recommendationEl.textContent = r.recommendation;
-
-    // Ranking
     rankingListEl.innerHTML = '';
     const maxScore = r.rankedArchetypes[0]?.score || 1;
     for (const item of r.rankedArchetypes) {
-      const row = document.createElement('div');
-      row.className = 'ranking-row';
+      const row = document.createElement('div'); row.className = 'ranking-row';
       const lbl = document.createElement('span'); lbl.className = 'ranking-label'; lbl.textContent = ARCHETYPE_LABELS[item.archetype];
       const track = document.createElement('div'); track.className = 'ranking-bar-track';
       const fill  = document.createElement('div'); fill.className  = 'ranking-bar-fill';
@@ -673,12 +785,10 @@
 
     clearTabState('panel');
     clearTabState('persona');
-    resultsSection.hidden = false;
-    resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   // ---------------------------------------------------------------------------
-  // Commentary (panel + persona)
+  // Commentary (panel + persona — inside full assessment detail)
   // ---------------------------------------------------------------------------
 
   async function handleCommentaryClick(key, tabEl, type) {
@@ -686,14 +796,12 @@
     const areaEl = type === 'panel' ? panelCommentaryEl : personaCommentaryEl;
     const cache  = commentaryCache[type];
 
-    tabsEl.querySelectorAll(type === 'panel' ? '.panel-tab' : '.persona-tab').forEach(t => {
-      t.classList.toggle('active', t === tabEl);
-    });
+    tabsEl.querySelectorAll('.tab-btn').forEach(t => t.classList.toggle('active', t === tabEl));
 
     if (cache.has(key)) { areaEl.textContent = cache.get(key); return; }
 
     setTabsDisabled(tabsEl, true);
-    areaEl.innerHTML = '<span class="loading">Fetching commentary\u2026</span>';
+    areaEl.innerHTML = '<span class="loading">Fetching\u2026</span>';
 
     let systemPrompt;
     try {
@@ -701,20 +809,19 @@
         ? buildPanelPrompt(key, currentReport)
         : buildPersonaPrompt(key, currentReport);
     } catch (err) {
-      areaEl.innerHTML = `<span class="commentary-error">Error building prompt: ${err.message}</span>`;
+      areaEl.innerHTML = `<span class="commentary-error">Error: ${err.message}</span>`;
       setTabsDisabled(tabsEl, false);
       return;
     }
 
     try {
       const res  = await fetch(WORKER_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ systemPrompt, userMessage: 'Give your assessment.' })
       });
       const data = await res.json();
       if (!res.ok) {
-        areaEl.innerHTML = `<span class="commentary-error">${data.error ?? `Error ${res.status}. Please try again.`}</span>`;
+        areaEl.innerHTML = `<span class="commentary-error">${data.error ?? `Error ${res.status}.`}</span>`;
         setTabsDisabled(tabsEl, false);
         return;
       }
@@ -722,9 +829,8 @@
       cache.set(key, text);
       areaEl.textContent = text;
     } catch {
-      areaEl.innerHTML = '<span class="commentary-error">Could not reach the commentary service. Check your connection and try again.</span>';
+      areaEl.innerHTML = '<span class="commentary-error">Could not reach the commentary service.</span>';
     }
-
     setTabsDisabled(tabsEl, false);
   }
 
@@ -735,32 +841,18 @@
   function clearTabState(type) {
     const tabsEl = type === 'panel' ? panelTabsEl : personaTabsEl;
     const areaEl = type === 'panel' ? panelCommentaryEl : personaCommentaryEl;
-    tabsEl.querySelectorAll('button').forEach(t => {
-      t.classList.remove('active'); t.disabled = false;
-    });
+    tabsEl.querySelectorAll('button').forEach(t => { t.classList.remove('active'); t.disabled = false; });
     areaEl.textContent = '';
     commentaryCache[type].clear();
   }
 
   // ---------------------------------------------------------------------------
-  // RAID item analysis
+  // RAID item analysis (Step 2)
   // ---------------------------------------------------------------------------
-
-  function unlockRaidSection() {
-    raidLockedEl.hidden = true;
-    raidFormEl.hidden   = false;
-  }
-
-  function lockRaidSection() {
-    raidLockedEl.hidden = false;
-    raidFormEl.hidden   = true;
-  }
 
   function selectRaidType(key, btn, description) {
     selectedRaidType = key;
-    raidTypeSelectorEl.querySelectorAll('.raid-type-btn').forEach(b => {
-      b.classList.toggle('active', b === btn);
-    });
+    raidTypeSelectorEl.querySelectorAll('.raid-type-btn').forEach(b => b.classList.toggle('active', b === btn));
     raidTypeHintEl.textContent = description;
     updateRaidAnalyseBtn();
   }
@@ -769,7 +861,11 @@
     raidAnalyseBtn.disabled = !selectedRaidType || raidDescEl.value.trim() === '';
   }
 
-  raidDescEl.addEventListener('input', updateRaidAnalyseBtn);
+  raidDescEl.addEventListener('input', () => {
+    updateRaidAnalyseBtn();
+    const len = raidDescEl.value.trim().length;
+    raidCharCountEl.textContent = len > 0 ? `${len} characters` : '';
+  });
 
   raidAnalyseBtn.addEventListener('click', async () => {
     const description = raidDescEl.value.trim();
@@ -788,26 +884,25 @@
 
     try {
       const res  = await fetch(WORKER_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ systemPrompt, userMessage: 'Analyse this item.' })
       });
       const data = await res.json();
       if (!res.ok) {
-        raidItemOutputEl.innerHTML = `<span class="commentary-error">${data.error ?? `Error ${res.status}. Please try again.`}</span>`;
+        raidItemOutputEl.innerHTML = `<span class="commentary-error">${data.error ?? `Error ${res.status}.`}</span>`;
       } else {
-        raidItemOutputEl.innerHTML = '';
         const out = document.createElement('div');
-        out.className = 'commentary-area';
-        out.style.marginTop = '0.75rem';
+        out.className = 'raid-result';
         out.textContent = data.commentary ?? '';
+        raidItemOutputEl.innerHTML = '';
         raidItemOutputEl.appendChild(out);
       }
     } catch {
-      raidItemOutputEl.innerHTML = '<span class="commentary-error">Could not reach the commentary service. Check your connection and try again.</span>';
+      raidItemOutputEl.innerHTML = '<span class="commentary-error">Could not reach the commentary service.</span>';
     }
 
     raidAnalyseBtn.disabled = false;
+    updateRaidAnalyseBtn();
   });
 
   function clearRaidOutput() {
@@ -819,23 +914,39 @@
   // ---------------------------------------------------------------------------
 
   resetBtn.addEventListener('click', () => {
+    // Clear sliders
     document.querySelectorAll('input[type="range"][data-signal]').forEach(s => {
       s.value = '0'; s.dispatchEvent(new Event('input'));
     });
     projectNameInput.value = '';
     assessBtn.disabled = true;
-    currentReport = null;
+
+    // Reset state
+    currentReport    = null;
     selectedRaidType = null;
-    clearTabState('panel');
-    clearTabState('persona');
-    clearRaidOutput();
-    lockRaidSection();
+    commentaryCache.panel.clear();
+    commentaryCache.persona.clear();
+    clearProjectState();
+
+    // Reset step 1
+    contextSummaryEl.hidden = true;
+    contextFormEl.hidden    = false;
+    step1NumberEl.classList.remove('complete');
+
+    // Reset step 2
+    step2LockedEl.hidden = false;
+    step2FormEl.hidden   = true;
+    step2NumberEl.classList.remove('complete');
     raidDescEl.value = '';
     raidTypeHintEl.textContent = '';
+    raidCharCountEl.textContent = '';
     raidTypeSelectorEl.querySelectorAll('.raid-type-btn').forEach(b => b.classList.remove('active'));
-    resultsSection.hidden = true;
-    clearProjectState();
-    restoreNotice.hidden = true;
+    clearRaidOutput();
+
+    // Hide full assessment
+    fullAssessmentEl.hidden = true;
+    resetRowEl.hidden = true;
+
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 </script>
