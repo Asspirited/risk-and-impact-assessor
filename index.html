@@ -543,27 +543,27 @@
 
     <!-- ACC -->
     <div class="tool-panel active" id="tp-acc">
-      <div class="tool-panel-title">ACC Analysis</div>
-      <div class="tool-panel-desc">Identify Assumptions, Constraints and Concerns in a proposed change or initiative.</div>
+      <div class="tool-panel-title">ACC Matrix</div>
+      <div class="tool-panel-desc">Attributes, Components, Capabilities — a coverage heuristic from James Whittaker (Google) and <em>50 Quick Ideas to Improve Your Tests</em> (Adzic &amp; Evans). Map what your system does (Capabilities) through how it&rsquo;s built (Components) against quality goals (Attributes).</div>
       <div class="tool-field">
-        <label for="acc-title">Change or initiative</label>
-        <input type="text" id="acc-title" placeholder="e.g. Migrate billing to AWS">
+        <label for="acc-title">System or feature</label>
+        <input type="text" id="acc-title" placeholder="e.g. User authentication service">
       </div>
       <div class="tool-field">
-        <label for="acc-desc">Description</label>
-        <textarea id="acc-desc" placeholder="What are you doing and why?"></textarea>
+        <label for="acc-desc">Context</label>
+        <textarea id="acc-desc" placeholder="Brief description — what it does, who uses it, key constraints"></textarea>
       </div>
       <div class="tool-actions">
-        <button class="tool-btn-run" id="acc-run">Run ACC</button>
+        <button class="tool-btn-run" id="acc-run">Build ACC Matrix</button>
         <button class="tool-btn-clear" id="acc-clear">Clear</button>
       </div>
-      <div class="tool-msg tool-warning" id="acc-warning" hidden>Enter a change title first.</div>
-      <div class="tool-msg tool-loading" id="acc-loading" hidden>Analysing&#x2026;</div>
+      <div class="tool-msg tool-warning" id="acc-warning" hidden>Enter a system or feature name first.</div>
+      <div class="tool-msg tool-loading" id="acc-loading" hidden>Building&#x2026;</div>
       <div class="tool-msg tool-error" id="acc-error" hidden></div>
       <div class="tool-output" id="acc-output">
-        <div class="tool-section-lbl">Assumptions</div><div id="acc-assumptions"></div>
-        <div class="tool-section-lbl">Constraints</div><div id="acc-constraints"></div>
-        <div class="tool-section-lbl">Concerns</div><div id="acc-concerns"></div>
+        <div class="tool-section-lbl">Attributes — quality goals (scored 1–5)</div><div id="acc-attributes"></div>
+        <div class="tool-section-lbl">Components — parts of the system</div><div id="acc-components"></div>
+        <div class="tool-section-lbl">Capabilities — what it does, mapped to components &amp; attributes</div><div id="acc-capabilities"></div>
       </div>
     </div>
 
@@ -1768,25 +1768,26 @@
 
   // ── ACC ────────────────────────────────────────────────────────────────────
 
-  const ACC_SYS = `Analyse the given change for assumptions, constraints and concerns.
+  const ACC_SYS = `Build an ACC Matrix (Attributes, Components, Capabilities) for the described system or feature.
+ACC is a test coverage heuristic from James Whittaker and "50 Quick Ideas to Improve Your Tests" (Adzic & Evans).
 Return ONLY valid JSON (no markdown, no extra text):
-{"assumptions":[{"item":"...","risk":"low|medium|high","note":"..."}],"constraints":[{"item":"...","source":"...","note":"..."}],"concerns":[{"item":"...","likelihood":"low|medium|high","note":"..."}]}
-3-4 items per section. Be concise.`;
+{"attributes":[{"name":"...","description":"...","importance":1}],"components":[{"name":"...","description":"..."}],"capabilities":[{"name":"...","description":"...","components":["..."],"attributes":["..."]}]}
+attributes: 4-6 quality goals scored 1-5 for importance (5=critical). components: 4-6 distinct parts/subsystems. capabilities: 5-8 things the system does, each referencing which components it uses and which attributes it must satisfy. Be concise.`;
 
   document.getElementById('acc-run').addEventListener('click', () => {
     const title = document.getElementById('acc-title').value.trim();
     if (!title) { document.getElementById('acc-warning').hidden = false; return; }
     document.getElementById('acc-warning').hidden = true;
-    const desc  = document.getElementById('acc-desc').value.trim();
-    runToolCall(ACC_SYS, `Analyse: ${title}. ${desc}`,
+    const desc = document.getElementById('acc-desc').value.trim();
+    runToolCall(ACC_SYS, `System: ${title}. ${desc}`,
       { output:'acc-output', loading:'acc-loading', error:'acc-error', warning:'acc-warning' },
       (d) => {
-        renderList('acc-assumptions', d.assumptions, i =>
-          `<div class="tool-card"><div class="tool-card-head">${esc(i.item)}${tcTag(i.risk)}</div><div class="tool-card-note">${esc(i.note)}</div></div>`);
-        renderList('acc-constraints', d.constraints, i =>
-          `<div class="tool-card"><div class="tool-card-head">${esc(i.item)}${tcTag('band', i.source)}</div><div class="tool-card-note">${esc(i.note)}</div></div>`);
-        renderList('acc-concerns', d.concerns, i =>
-          `<div class="tool-card"><div class="tool-card-head">${esc(i.item)}${tcTag(i.likelihood)}</div><div class="tool-card-note">${esc(i.note)}</div></div>`);
+        renderList('acc-attributes', d.attributes ?? [], i =>
+          `<div class="tool-card"><div class="tool-card-head">${esc(i.name)}${tcTag('band', `${i.importance}/5`)}</div><div class="tool-card-note">${esc(i.description)}</div></div>`);
+        renderList('acc-components', d.components ?? [], i =>
+          `<div class="tool-card"><div class="tool-card-head">${esc(i.name)}</div><div class="tool-card-note">${esc(i.description)}</div></div>`);
+        renderList('acc-capabilities', d.capabilities ?? [], i =>
+          `<div class="tool-card"><div class="tool-card-head">${esc(i.name)}</div><div class="tool-card-note">${esc(i.description)}</div><div style="font-size:0.72rem;color:var(--muted);margin-top:0.2rem">Components: ${(i.components||[]).map(esc).join(', ')} &bull; Attributes: ${(i.attributes||[]).map(esc).join(', ')}</div></div>`);
       });
   });
   document.getElementById('acc-clear').addEventListener('click', () =>
