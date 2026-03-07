@@ -379,7 +379,16 @@
     .tools-close-btn:hover { color: #fff; }
 
     .tools-nav { padding: 0.7rem 0.8rem 0.5rem; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 0.55rem; overflow-y: auto; flex: 0 1 auto; min-height: 0; overscroll-behavior: contain; }
-    .tools-nav-group-label { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.2rem; }
+    .tools-nav-group-label {
+      font-size: 0.62rem; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 0.2rem;
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between;
+      user-select: none;
+    }
+    .tools-nav-group-label:hover { color: var(--brand); }
+    .tools-nav-group-caret { font-size: 0.6rem; transition: transform 0.15s ease; }
+    .tools-nav-group.collapsed .tools-nav-group-caret { transform: rotate(-90deg); }
+    .tools-nav-group.collapsed .tools-nav-btns { display: none; }
     .tools-nav-btns { display: flex; flex-direction: column; gap: 0.25rem; }
     .tool-nav-btn {
       padding: 0.42rem 0.7rem; border-radius: 3px;
@@ -619,8 +628,8 @@
     <button class="tools-close-btn" id="tools-close-btn" aria-label="Close">&#x2715;</button>
   </div>
   <div class="tools-nav">
-    <div>
-      <div class="tools-nav-group-label">Risk</div>
+    <div class="tools-nav-group">
+      <div class="tools-nav-group-label">Risk<span class="tools-nav-group-caret">&#9660;</span></div>
       <div class="tools-nav-btns">
         <button class="tool-nav-btn" data-tool="socratic"><span class="tool-nav-btn-label">Socratic</span><span class="tool-nav-btn-desc">Qualify &amp; sharpen any risk — probing questions to expose vagueness and push toward measurability</span></button>
         <button class="tool-nav-btn" data-tool="bowtie"><span class="tool-nav-btn-label">Bow-Tie</span><span class="tool-nav-btn-desc">Map threats → controls → hazard → controls → consequences — see where your barriers are thin</span></button>
@@ -629,8 +638,8 @@
         <button class="tool-nav-btn" data-tool="montecarlo"><span class="tool-nav-btn-label">Monte Carlo</span><span class="tool-nav-btn-desc">Simulate schedule or cost uncertainty — enter 3-point estimates, get P50/P80/P90 confidence bands</span></button>
       </div>
     </div>
-    <div>
-      <div class="tools-nav-group-label">Root Cause</div>
+    <div class="tools-nav-group">
+      <div class="tools-nav-group-label">Root Cause<span class="tools-nav-group-caret">&#9660;</span></div>
       <div class="tools-nav-btns">
         <button class="tool-nav-btn" data-tool="fivewhys"><span class="tool-nav-btn-label">5 Whys</span><span class="tool-nav-btn-desc">Ask why until the real cause surfaces — stops fixes treating symptoms</span></button>
         <button class="tool-nav-btn" data-tool="ishikawa"><span class="tool-nav-btn-label">Ishikawa</span><span class="tool-nav-btn-desc">Fishbone diagram — map all contributing causes across six categories</span></button>
@@ -638,8 +647,8 @@
         <button class="tool-nav-btn" data-tool="apollorca"><span class="tool-nav-btn-label">Apollo RCA</span><span class="tool-nav-btn-desc">Cause-and-effect map with actions, conditions, and evidence — finds multiple causal paths, not just one chain</span></button>
       </div>
     </div>
-    <div>
-      <div class="tools-nav-group-label">Quality</div>
+    <div class="tools-nav-group">
+      <div class="tools-nav-group-label">Quality<span class="tools-nav-group-caret">&#9660;</span></div>
       <div class="tools-nav-btns">
         <button class="tool-nav-btn" data-tool="acc"><span class="tool-nav-btn-label">ACC</span><span class="tool-nav-btn-desc">Attributes, Components, Capabilities — expose coverage gaps before they become risks</span></button>
         <button class="tool-nav-btn" data-tool="gqm"><span class="tool-nav-btn-label">GQM</span><span class="tool-nav-btn-desc">Goal–Question–Metric — every measurement traces back to something you actually care about</span></button>
@@ -648,8 +657,8 @@
         <button class="tool-nav-btn" data-tool="bdd"><span class="tool-nav-btn-label">BDD / Spec by Example</span><span class="tool-nav-btn-desc">Turn a feature or story into Given/When/Then scenarios — acceptance criteria that drive the build</span></button>
       </div>
     </div>
-    <div>
-      <div class="tools-nav-group-label">Delivery</div>
+    <div class="tools-nav-group">
+      <div class="tools-nav-group-label">Delivery<span class="tools-nav-group-caret">&#9660;</span></div>
       <div class="tools-nav-btns">
         <button class="tool-nav-btn" data-tool="pdca"><span class="tool-nav-btn-label">PDCA</span><span class="tool-nav-btn-desc">Plan–Do–Check–Act — structured improvement cycle with measurable hypotheses</span></button>
         <button class="tool-nav-btn" data-tool="vsm"><span class="tool-nav-btn-label">VSM</span><span class="tool-nav-btn-desc">Value Stream Mapping — find waste and friction slowing your flow</span></button>
@@ -657,8 +666,8 @@
         <button class="tool-nav-btn" data-tool="okr"><span class="tool-nav-btn-label">OKR</span><span class="tool-nav-btn-desc">Objectives and Key Results — one inspiring direction, measurable proof you got there</span></button>
       </div>
     </div>
-    <div>
-      <div class="tools-nav-group-label">Metrics</div>
+    <div class="tools-nav-group">
+      <div class="tools-nav-group-label">Metrics<span class="tools-nav-group-caret">&#9660;</span></div>
       <div class="tools-nav-btns">
         <button class="tool-nav-btn" data-tool="flowmetrics"><span class="tool-nav-btn-label">Flow Metrics</span><span class="tool-nav-btn-desc">Cycle time, throughput, WIP — predict delivery without estimates using Little's Law</span></button>
         <button class="tool-nav-btn" data-tool="dora"><span class="tool-nav-btn-label">DORA</span><span class="tool-nav-btn-desc">DevOps Research — four key delivery performance metrics</span></button>
@@ -666,8 +675,8 @@
         <button class="tool-nav-btn" data-tool="aie"><span class="tool-nav-btn-label">Applied Information Economics</span><span class="tool-nav-btn-desc">Quantify the value of reducing uncertainty — find out if more data is worth gathering before you act</span></button>
       </div>
     </div>
-    <div>
-      <div class="tools-nav-group-label">On the backlog</div>
+    <div class="tools-nav-group collapsed">
+      <div class="tools-nav-group-label">On the backlog<span class="tools-nav-group-caret">&#9660;</span></div>
       <div class="tools-nav-btns">
         <button class="tool-nav-btn" data-tool="premortem"><span class="tool-nav-btn-label">Pre-mortem</span><span class="tool-nav-btn-desc">Imagine the project has failed — work backwards to find what caused it before it happens</span></button>
         <button class="tool-nav-btn" data-tool="kt"><span class="tool-nav-btn-label">Kepner-Tregoe</span><span class="tool-nav-btn-desc">Is / Is Not analysis — bound a problem precisely to find its cause</span></button>
@@ -2865,6 +2874,7 @@
     assessmentViewEl.hidden = true;
     activeToolName = name;
 
+    openNavGroupForTool(name);
     window.scrollTo({ top: 0, behavior: 'smooth' });
     closeToolsDrawer(); // no-op on desktop
   }
@@ -2892,6 +2902,20 @@
   document.querySelectorAll('.tool-nav-btn:not([disabled])').forEach(b => {
     b.addEventListener('click', () => switchTool(b.dataset.tool));
   });
+
+  // ── Collapsible nav categories ───────────────────────────────────────────────
+  document.querySelectorAll('.tools-nav-group-label').forEach(label => {
+    label.addEventListener('click', () => {
+      label.closest('.tools-nav-group').classList.toggle('collapsed');
+    });
+  });
+
+  function openNavGroupForTool(toolName) {
+    const btn = document.querySelector(`.tool-nav-btn[data-tool="${toolName}"]`);
+    if (!btn) return;
+    const group = btn.closest('.tools-nav-group');
+    if (group) group.classList.remove('collapsed');
+  }
 
   function esc(s) {
     return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
