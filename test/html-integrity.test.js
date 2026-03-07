@@ -236,6 +236,22 @@ describe('tool nav category placement', () => {
   test('flowmetrics is in the Metrics section', () => {
     expect(getToolCategory('flowmetrics')).toBe('Metrics');
   });
+
+  test('cynefin is in the Risk section', () => {
+    expect(getToolCategory('cynefin')).toBe('Risk');
+  });
+
+  test('dmaic is in the Quality section', () => {
+    expect(getToolCategory('dmaic')).toBe('Quality');
+  });
+
+  test('toc is in the Delivery section', () => {
+    expect(getToolCategory('toc')).toBe('Delivery');
+  });
+
+  test('sevenwastes is in the Delivery section', () => {
+    expect(getToolCategory('sevenwastes')).toBe('Delivery');
+  });
 });
 
 // ============================================================================

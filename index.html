@@ -235,6 +235,40 @@
       font-size: 0.95rem; line-height: 1.75; font-style: italic;
     }
 
+    /* ---- Qualify & Quantify ---- */
+    .qq-section { display: flex; flex-direction: column; gap: 0.65rem; }
+    .qq-card {
+      border: 1px solid var(--border); border-radius: var(--radius);
+      background: #fff; overflow: hidden;
+    }
+    .qq-card-header {
+      padding: 0.45rem 0.85rem;
+      background: var(--brand-light);
+      font-size: 0.65rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--brand); border-bottom: 1px solid var(--border);
+    }
+    .qq-card-body { padding: 0.6rem 0.85rem; font-size: 0.85rem; line-height: 1.65; }
+    .qq-emv-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem;
+      text-align: center; padding: 0.6rem 0.85rem;
+    }
+    .qq-emv-val { font-size: 1.25rem; font-weight: 700; }
+    .qq-emv-lbl { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); margin-top: 0.1rem; }
+    .qq-pill-row { display: flex; flex-wrap: wrap; gap: 0.35rem; padding: 0.6rem 0.85rem; }
+    .qq-pill {
+      font-size: 0.72rem; padding: 0.18rem 0.5rem; border-radius: 99px;
+      background: var(--brand-light); color: var(--brand); border: 1px solid rgba(28,32,65,0.12);
+    }
+    .qq-q-row { display: flex; flex-direction: column; gap: 0.4rem; padding: 0.6rem 0.85rem; }
+    .qq-q-item { font-size: 0.82rem; }
+    .qq-q-item strong { display: block; }
+    .qq-q-item em { font-size: 0.75rem; color: var(--muted); font-style: normal; }
+    .qq-planguage-grid {
+      display: grid; grid-template-columns: 6rem 1fr; gap: 0.25rem 0.6rem;
+      padding: 0.6rem 0.85rem; font-size: 0.82rem; align-items: start;
+    }
+    .qq-planguage-key { font-weight: 700; color: var(--muted); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; padding-top: 0.1rem; }
+
     /* ---- Full assessment (collapsible) ---- */
     details.assessment-details {
       margin-top: 1.5rem;
@@ -614,7 +648,7 @@
 
 <div class="top-banner">
   <div class="top-banner-inner">
-  <span>Risk and Impact Assessor</span>
+  <span>RIA &mdash; Risk &amp; Impact....not Chris....or Gonor...</span>
   <button class="tools-toggle-btn" id="tools-toggle-btn">RIA Toolkit</button>
 </div>
 </div>
@@ -636,9 +670,10 @@
         <button class="tool-nav-btn" data-tool="fmea"><span class="tool-nav-btn-label">FMEA</span><span class="tool-nav-btn-desc">Failure Mode &amp; Effects Analysis — score and prioritise what could go wrong</span></button>
         <button class="tool-nav-btn" data-tool="swot"><span class="tool-nav-btn-label">SWOT</span><span class="tool-nav-btn-desc">Strengths, Weaknesses, Opportunities, Threats — strategic risk surface for any project or decision</span></button>
         <button class="tool-nav-btn" data-tool="montecarlo"><span class="tool-nav-btn-label">Monte Carlo</span><span class="tool-nav-btn-desc">Simulate schedule or cost uncertainty — enter 3-point estimates, get P50/P80/P90 confidence bands</span></button>
+        <button class="tool-nav-btn" data-tool="cynefin"><span class="tool-nav-btn-label">Cynefin</span><span class="tool-nav-btn-desc">Complexity framework — classify the type of problem before choosing your approach</span></button>
       </div>
     </div>
-    <div class="tools-nav-group">
+    <div class="tools-nav-group collapsed">
       <div class="tools-nav-group-label">Root Cause<span class="tools-nav-group-caret">&#9660;</span></div>
       <div class="tools-nav-btns">
         <button class="tool-nav-btn" data-tool="fivewhys"><span class="tool-nav-btn-label">5 Whys</span><span class="tool-nav-btn-desc">Ask why until the real cause surfaces — stops fixes treating symptoms</span></button>
@@ -647,7 +682,7 @@
         <button class="tool-nav-btn" data-tool="apollorca"><span class="tool-nav-btn-label">Apollo RCA</span><span class="tool-nav-btn-desc">Cause-and-effect map with actions, conditions, and evidence — finds multiple causal paths, not just one chain</span></button>
       </div>
     </div>
-    <div class="tools-nav-group">
+    <div class="tools-nav-group collapsed">
       <div class="tools-nav-group-label">Quality<span class="tools-nav-group-caret">&#9660;</span></div>
       <div class="tools-nav-btns">
         <button class="tool-nav-btn" data-tool="acc"><span class="tool-nav-btn-label">ACC</span><span class="tool-nav-btn-desc">Attributes, Components, Capabilities — expose coverage gaps before they become risks</span></button>
@@ -655,18 +690,21 @@
         <button class="tool-nav-btn" data-tool="spc"><span class="tool-nav-btn-label">SPC</span><span class="tool-nav-btn-desc">Statistical Process Control — tell the difference between noise and a real signal before you act</span></button>
         <button class="tool-nav-btn" data-tool="testquadrants"><span class="tool-nav-btn-label">Test Quadrants</span><span class="tool-nav-btn-desc">Map your testing by purpose — find the quadrant you're neglecting</span></button>
         <button class="tool-nav-btn" data-tool="bdd"><span class="tool-nav-btn-label">BDD / Spec by Example</span><span class="tool-nav-btn-desc">Turn a feature or story into Given/When/Then scenarios — acceptance criteria that drive the build</span></button>
+        <button class="tool-nav-btn" data-tool="dmaic"><span class="tool-nav-btn-label">DMAIC</span><span class="tool-nav-btn-desc">Define–Measure–Analyse–Improve–Control — Six Sigma structured problem solving with statistical rigour</span></button>
       </div>
     </div>
-    <div class="tools-nav-group">
+    <div class="tools-nav-group collapsed">
       <div class="tools-nav-group-label">Delivery<span class="tools-nav-group-caret">&#9660;</span></div>
       <div class="tools-nav-btns">
         <button class="tool-nav-btn" data-tool="pdca"><span class="tool-nav-btn-label">PDCA</span><span class="tool-nav-btn-desc">Plan–Do–Check–Act — structured improvement cycle with measurable hypotheses</span></button>
         <button class="tool-nav-btn" data-tool="vsm"><span class="tool-nav-btn-label">VSM</span><span class="tool-nav-btn-desc">Value Stream Mapping — find waste and friction slowing your flow</span></button>
         <button class="tool-nav-btn" data-tool="wsjf"><span class="tool-nav-btn-label">WSJF / CD3</span><span class="tool-nav-btn-desc">Cost of Delay ÷ Duration — rank work by what you lose from delaying it</span></button>
         <button class="tool-nav-btn" data-tool="okr"><span class="tool-nav-btn-label">OKR</span><span class="tool-nav-btn-desc">Objectives and Key Results — one inspiring direction, measurable proof you got there</span></button>
+        <button class="tool-nav-btn" data-tool="toc"><span class="tool-nav-btn-label">Theory of Constraints</span><span class="tool-nav-btn-desc">Find and exploit the single constraint limiting throughput — improving anything else is waste</span></button>
+        <button class="tool-nav-btn" data-tool="sevenwastes"><span class="tool-nav-btn-label">7 Wastes</span><span class="tool-nav-btn-desc">Lean waste identification — find and eliminate the seven categories of waste in your delivery process</span></button>
       </div>
     </div>
-    <div class="tools-nav-group">
+    <div class="tools-nav-group collapsed">
       <div class="tools-nav-group-label">Metrics<span class="tools-nav-group-caret">&#9660;</span></div>
       <div class="tools-nav-btns">
         <button class="tool-nav-btn" data-tool="flowmetrics"><span class="tool-nav-btn-label">Flow Metrics</span><span class="tool-nav-btn-desc">Cycle time, throughput, WIP — predict delivery without estimates using Little's Law</span></button>
@@ -680,10 +718,6 @@
       <div class="tools-nav-btns">
         <button class="tool-nav-btn" data-tool="premortem"><span class="tool-nav-btn-label">Pre-mortem</span><span class="tool-nav-btn-desc">Imagine the project has failed — work backwards to find what caused it before it happens</span></button>
         <button class="tool-nav-btn" data-tool="kt"><span class="tool-nav-btn-label">Kepner-Tregoe</span><span class="tool-nav-btn-desc">Is / Is Not analysis — bound a problem precisely to find its cause</span></button>
-        <button class="tool-nav-btn" data-tool="cynefin"><span class="tool-nav-btn-label">Cynefin</span><span class="tool-nav-btn-desc">Complexity framework — understand which type of problem you have before choosing your approach</span></button>
-        <button class="tool-nav-btn" data-tool="toc"><span class="tool-nav-btn-label">Theory of Constraints</span><span class="tool-nav-btn-desc">Find and exploit the single constraint limiting throughput — improving anything else is waste</span></button>
-        <button class="tool-nav-btn" data-tool="sevenwastes"><span class="tool-nav-btn-label">7 Wastes</span><span class="tool-nav-btn-desc">Lean waste identification — find and eliminate the seven categories of waste in your delivery process</span></button>
-        <button class="tool-nav-btn" data-tool="dmaic"><span class="tool-nav-btn-label">DMAIC</span><span class="tool-nav-btn-desc">Define–Measure–Analyse–Improve–Control — Six Sigma structured problem solving with statistical rigour</span></button>
       </div>
     </div>
   </div>
@@ -1939,6 +1973,14 @@
       </div>
     </div>
 
+    <!-- Q&Q block (shown after context is applied) -->
+    <div id="ctx-qq-block" hidden>
+      <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border)">
+        <button class="btn btn-ghost btn-sm" id="ctx-qq-btn">Qualify &amp; Quantify the project risk</button>
+      </div>
+      <div id="ctx-qq-output" style="margin-top:0.75rem"></div>
+    </div>
+
     <!-- Assessment form (shown when no context, or updating) -->
     <div id="context-form">
       <div class="field">
@@ -1980,6 +2022,12 @@
           <span id="raid-char-count"></span>
         </div>
         <div id="raid-item-output"></div>
+        <div id="qq-block" hidden>
+          <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border)">
+            <button class="btn btn-ghost btn-sm" id="qq-btn">Qualify &amp; Quantify this item</button>
+          </div>
+          <div id="qq-output" style="margin-top:0.75rem"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -2063,7 +2111,8 @@
            DORA_SYS, SEVENWASTES_SYS, TOC_SYS, CYNEFIN_SYS, DMAIC_SYS, SWOT_SYS,
            SPACE_SYS, FTA_SYS, SPC_SYS, TESTQUADRANTS_SYS, WSJF_SYS, FLOWMETRICS_SYS,
            GQM_SYS, KT_SYS, BOWTIE_SYS, PREMORTEM_SYS, SOCRATIC_SYS,
-           MONTECARLO_SYS, OKR_SYS, APOLLO_RCA_SYS, BDD_SYS, AIE_SYS } from './src/tool-prompts.js';
+           MONTECARLO_SYS, OKR_SYS, APOLLO_RCA_SYS, BDD_SYS, AIE_SYS,
+           QUALIFY_QUANTIFY_SYS } from './src/tool-prompts.js';
   import {
     saveProject, listProjects, loadProject, deleteProject, clearAllProjects,
     saveProjectState, loadProjectState, clearProjectState
@@ -2308,6 +2357,7 @@
 
   let currentReport    = null;
   let selectedRaidType = null;
+  let qqLastItem       = null; // { type, description, panelText } — set after RAID analysis
   const commentaryCache = { panel: new Map(), persona: new Map() };
 
   // ---------------------------------------------------------------------------
@@ -2498,6 +2548,8 @@
     contextSummaryEl.hidden = false;
     contextFormEl.hidden    = true;
     step1NumberEl.classList.add('complete');
+    document.getElementById('ctx-qq-block').hidden = false;
+    document.getElementById('ctx-qq-output').innerHTML = '';
 
     // Unlock step 2
     step2LockedEl.hidden = true;
@@ -2517,6 +2569,7 @@
   updateContextBtn.addEventListener('click', () => {
     contextSummaryEl.hidden = true;
     contextFormEl.hidden    = false;
+    document.getElementById('ctx-qq-block').hidden = true;
     contextFormEl.querySelector('input').focus();
   });
 
@@ -2753,6 +2806,9 @@
           const allText = [parsed.stakeholder, parsed.pm, parsed.dev, parsed.weller].join(' ');
           const textMatches = suggestToolsFromText(allText);
           showToolSuggestion(textMatches.length ? textMatches : null, selectedRaidType);
+          document.getElementById('qq-block').hidden = false;
+          document.getElementById('qq-output').innerHTML = '';
+          qqLastItem = { type: selectedRaidType, description, panelText: allText };
         } else {
           // Fallback: plain text render if JSON parse failed
           const out = document.createElement('div');
@@ -2764,6 +2820,9 @@
           raidItemOutputEl.appendChild(out);
           const textMatches = suggestToolsFromText(raw);
           showToolSuggestion(textMatches.length ? textMatches : null, selectedRaidType);
+          document.getElementById('qq-block').hidden = false;
+          document.getElementById('qq-output').innerHTML = '';
+          qqLastItem = { type: selectedRaidType, description, panelText: raw };
         }
       }
     } catch {
@@ -2776,7 +2835,226 @@
 
   function clearRaidOutput() {
     raidItemOutputEl.innerHTML = '';
+    document.getElementById('qq-block').hidden = true;
+    document.getElementById('qq-output').innerHTML = '';
+    qqLastItem = null;
   }
+
+  // ── Qualify & Quantify ───────────────────────────────────────────────────────
+
+  document.getElementById('qq-btn').addEventListener('click', async () => {
+    if (!qqLastItem || !currentReport) return;
+    const qqOutputEl = document.getElementById('qq-output');
+    const qqBtn = document.getElementById('qq-btn');
+    qqBtn.disabled = true;
+    qqOutputEl.innerHTML = '<span class="loading">Qualifying and quantifying\u2026</span>';
+
+    const userMsg = `RAID type: ${qqLastItem.type}
+Item description: ${qqLastItem.description}
+
+Panel commentary summary:
+${qqLastItem.panelText}
+
+Project context: ${currentReport.projectName} | ${currentReport.archetypeLabel ?? ''} | Severity: ${currentReport.band ?? ''}`;
+
+    try {
+      const res  = await fetch(WORKER_URL, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ systemPrompt: QUALIFY_QUANTIFY_SYS, userMessage: userMsg })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        qqOutputEl.innerHTML = `<span class="commentary-error">${data.error ?? `Error ${res.status}.`}</span>`;
+      } else {
+        const raw = (data.commentary ?? '').trim()
+          .replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '');
+        let q = null;
+        try { q = JSON.parse(raw); } catch { /* fall through */ }
+
+        if (!q) {
+          qqOutputEl.innerHTML = `<div class="raid-panel-card" style="padding:1rem;font-size:0.85rem">${esc(raw)}</div>`;
+          return;
+        }
+
+        const prob = q.probability ?? {};
+        const imp  = q.impact ?? {};
+        const emv  = q.emv ?? {};
+        const probPct = v => `${Math.round((+v || 0) * 100)}%`;
+
+        qqOutputEl.innerHTML = `<div class="qq-section">
+          <div class="qq-card">
+            <div class="qq-card-header">Qualified statement</div>
+            <div class="qq-card-body">${esc(q.qualified_statement)}</div>
+          </div>
+          <div class="qq-card">
+            <div class="qq-card-header">Planguage — Scale / Meter / Must / Plan</div>
+            <div class="qq-planguage-grid">
+              <div class="qq-planguage-key">Scale</div><div>${esc(q.scale)}</div>
+              <div class="qq-planguage-key">Meter</div><div>${esc(q.meter)}</div>
+              <div class="qq-planguage-key">Must</div><div>${esc(q.must)}</div>
+              <div class="qq-planguage-key">Plan</div><div>${esc(q.plan)}</div>
+            </div>
+          </div>
+          <div class="qq-card">
+            <div class="qq-card-header">Probability (90% CI)</div>
+            <div class="qq-emv-grid">
+              <div><div class="qq-emv-val" style="color:var(--teal)">${esc(probPct(prob.low))}</div><div class="qq-emv-lbl">Low</div></div>
+              <div><div class="qq-emv-val">${esc(probPct(prob.point))}</div><div class="qq-emv-lbl">Point</div></div>
+              <div><div class="qq-emv-val" style="color:#dc2626">${esc(probPct(prob.high))}</div><div class="qq-emv-lbl">High</div></div>
+            </div>
+            <div class="qq-card-body" style="padding-top:0;font-size:0.75rem;color:var(--muted)">${esc(prob.basis)}</div>
+          </div>
+          <div class="qq-card">
+            <div class="qq-card-header">Impact (90% CI) — ${esc(imp.unit ?? '')}</div>
+            <div class="qq-emv-grid">
+              <div><div class="qq-emv-val" style="color:var(--teal)">${esc(imp.low)}</div><div class="qq-emv-lbl">Low</div></div>
+              <div><div class="qq-emv-val">${esc(imp.point)}</div><div class="qq-emv-lbl">Point</div></div>
+              <div><div class="qq-emv-val" style="color:#dc2626">${esc(imp.high)}</div><div class="qq-emv-lbl">High</div></div>
+            </div>
+            <div class="qq-card-body" style="padding-top:0;font-size:0.75rem;color:var(--muted)">${esc(imp.basis)}</div>
+          </div>
+          <div class="qq-card">
+            <div class="qq-card-header">Expected Monetary Value (P &times; I)</div>
+            <div class="qq-emv-grid">
+              <div><div class="qq-emv-val" style="color:var(--teal)">${esc(emv.low)}</div><div class="qq-emv-lbl">EMV Low</div></div>
+              <div><div class="qq-emv-val;font-size:1.5rem">${esc(emv.point)}</div><div class="qq-emv-lbl">EMV Point</div></div>
+              <div><div class="qq-emv-val" style="color:#dc2626">${esc(emv.high)}</div><div class="qq-emv-lbl">EMV High</div></div>
+            </div>
+          </div>
+          <div class="qq-card">
+            <div class="qq-card-header">Questions to answer</div>
+            <div class="qq-q-row">${(q.questions ?? []).map((qn, i) =>
+              `<div class="qq-q-item"><strong>${i + 1}. ${esc(qn.question)}</strong><em>${esc(qn.why_it_matters)}</em></div>`
+            ).join('')}</div>
+          </div>
+          <div class="qq-card">
+            <div class="qq-card-header">Assumptions baked in</div>
+            <div class="qq-pill-row">${(q.assumptions ?? []).map(a =>
+              `<span class="qq-pill">${esc(a)}</span>`
+            ).join('')}</div>
+          </div>
+          <div class="qq-card">
+            <div class="qq-card-header">Response threshold</div>
+            <div class="qq-card-body">${esc(q.response_threshold)}</div>
+          </div>
+          <div class="qq-card">
+            <div class="qq-card-header">Calibration risk</div>
+            <div class="qq-card-body" style="color:#dc2626">${esc(q.calibration_risk)}</div>
+          </div>
+        </div>`;
+      }
+    } catch {
+      qqOutputEl.innerHTML = '<span class="commentary-error">Could not reach the service.</span>';
+    }
+    qqBtn.disabled = false;
+  });
+
+  // ── Qualify & Quantify — project context panel ──────────────────────────────
+
+  document.getElementById('ctx-qq-btn').addEventListener('click', async () => {
+    if (!currentReport) return;
+    const ctxQqOutputEl = document.getElementById('ctx-qq-output');
+    const ctxQqBtn = document.getElementById('ctx-qq-btn');
+    ctxQqBtn.disabled = true;
+    ctxQqOutputEl.innerHTML = '<span class="loading">Qualifying and quantifying\u2026</span>';
+
+    const userMsg = `RAID type: risk
+Item description: ${currentReport.recommendation}
+
+Project context: ${currentReport.projectName} | ${currentReport.archetypeLabel ?? ''} | Severity band: ${currentReport.band ?? ''} | Delivery approach: ${currentReport.tradAgileLabel ?? ''}`;
+
+    try {
+      const res  = await fetch(WORKER_URL, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ systemPrompt: QUALIFY_QUANTIFY_SYS, userMessage: userMsg })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        ctxQqOutputEl.innerHTML = `<span class="commentary-error">${data.error ?? `Error ${res.status}.`}</span>`;
+      } else {
+        const raw = (data.commentary ?? '').trim()
+          .replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '');
+        let q = null;
+        try { q = JSON.parse(raw); } catch { /* fall through */ }
+
+        if (!q) {
+          ctxQqOutputEl.innerHTML = `<div class="raid-panel-card" style="padding:1rem;font-size:0.85rem">${esc(raw)}</div>`;
+          ctxQqBtn.disabled = false;
+          return;
+        }
+
+        const prob = q.probability ?? {};
+        const imp  = q.impact ?? {};
+        const emv  = q.emv ?? {};
+        const probPct = v => `${Math.round((+v || 0) * 100)}%`;
+
+        ctxQqOutputEl.innerHTML = `<div class="qq-section">
+          <div class="qq-card">
+            <div class="qq-card-header">Qualified statement</div>
+            <div class="qq-card-body">${esc(q.qualified_statement)}</div>
+          </div>
+          <div class="qq-card">
+            <div class="qq-card-header">Planguage — Scale / Meter / Must / Plan</div>
+            <div class="qq-planguage-grid">
+              <div class="qq-planguage-key">Scale</div><div>${esc(q.scale)}</div>
+              <div class="qq-planguage-key">Meter</div><div>${esc(q.meter)}</div>
+              <div class="qq-planguage-key">Must</div><div>${esc(q.must)}</div>
+              <div class="qq-planguage-key">Plan</div><div>${esc(q.plan)}</div>
+            </div>
+          </div>
+          <div class="qq-card">
+            <div class="qq-card-header">Probability (90% CI)</div>
+            <div class="qq-emv-grid">
+              <div><div class="qq-emv-val" style="color:var(--teal)">${esc(probPct(prob.low))}</div><div class="qq-emv-lbl">Low</div></div>
+              <div><div class="qq-emv-val">${esc(probPct(prob.point))}</div><div class="qq-emv-lbl">Point</div></div>
+              <div><div class="qq-emv-val" style="color:#dc2626">${esc(probPct(prob.high))}</div><div class="qq-emv-lbl">High</div></div>
+            </div>
+            <div class="qq-card-body" style="padding-top:0;font-size:0.75rem;color:var(--muted)">${esc(prob.basis)}</div>
+          </div>
+          <div class="qq-card">
+            <div class="qq-card-header">Impact (90% CI) — ${esc(imp.unit ?? '')}</div>
+            <div class="qq-emv-grid">
+              <div><div class="qq-emv-val" style="color:var(--teal)">${esc(imp.low)}</div><div class="qq-emv-lbl">Low</div></div>
+              <div><div class="qq-emv-val">${esc(imp.point)}</div><div class="qq-emv-lbl">Point</div></div>
+              <div><div class="qq-emv-val" style="color:#dc2626">${esc(imp.high)}</div><div class="qq-emv-lbl">High</div></div>
+            </div>
+            <div class="qq-card-body" style="padding-top:0;font-size:0.75rem;color:var(--muted)">${esc(imp.basis)}</div>
+          </div>
+          <div class="qq-card">
+            <div class="qq-card-header">Expected Monetary Value (P &times; I)</div>
+            <div class="qq-emv-grid">
+              <div><div class="qq-emv-val" style="color:var(--teal)">${esc(emv.low)}</div><div class="qq-emv-lbl">EMV Low</div></div>
+              <div><div class="qq-emv-val">${esc(emv.point)}</div><div class="qq-emv-lbl">EMV Point</div></div>
+              <div><div class="qq-emv-val" style="color:#dc2626">${esc(emv.high)}</div><div class="qq-emv-lbl">EMV High</div></div>
+            </div>
+          </div>
+          <div class="qq-card">
+            <div class="qq-card-header">Questions to answer</div>
+            <div class="qq-q-row">${(q.questions ?? []).map((qn, i) =>
+              `<div class="qq-q-item"><strong>${i + 1}. ${esc(qn.question)}</strong><em>${esc(qn.why_it_matters)}</em></div>`
+            ).join('')}</div>
+          </div>
+          <div class="qq-card">
+            <div class="qq-card-header">Assumptions baked in</div>
+            <div class="qq-pill-row">${(q.assumptions ?? []).map(a =>
+              `<span class="qq-pill">${esc(a)}</span>`
+            ).join('')}</div>
+          </div>
+          <div class="qq-card">
+            <div class="qq-card-header">Response threshold</div>
+            <div class="qq-card-body">${esc(q.response_threshold)}</div>
+          </div>
+          <div class="qq-card">
+            <div class="qq-card-header">Calibration risk</div>
+            <div class="qq-card-body" style="color:#dc2626">${esc(q.calibration_risk)}</div>
+          </div>
+        </div>`;
+      }
+    } catch {
+      ctxQqOutputEl.innerHTML = '<span class="commentary-error">Could not reach the service.</span>';
+    }
+    ctxQqBtn.disabled = false;
+  });
 
   // ---------------------------------------------------------------------------
   // Reset
@@ -2804,6 +3082,8 @@
     contextSummaryEl.hidden = true;
     contextFormEl.hidden    = false;
     step1NumberEl.classList.remove('complete');
+    document.getElementById('ctx-qq-block').hidden = true;
+    document.getElementById('ctx-qq-output').innerHTML = '';
 
     // Reset step 2
     step2LockedEl.hidden = false;
