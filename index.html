@@ -616,6 +616,7 @@
       <div class="tools-nav-btns">
         <button class="tool-nav-btn" data-tool="fivewhys"><span class="tool-nav-btn-label">5 Whys</span><span class="tool-nav-btn-desc">Ask why until the real cause surfaces — stops fixes treating symptoms</span></button>
         <button class="tool-nav-btn" data-tool="ishikawa"><span class="tool-nav-btn-label">Ishikawa</span><span class="tool-nav-btn-desc">Fishbone diagram — map all contributing causes across six categories</span></button>
+        <button class="tool-nav-btn" data-tool="kt"><span class="tool-nav-btn-label">Kepner-Tregoe</span><span class="tool-nav-btn-desc">Is / Is Not analysis — bound a problem precisely to find its cause</span></button>
       </div>
     </div>
     <div>
@@ -896,6 +897,46 @@
         <div id="fivewhys-corrective"></div>
         <div class="tool-section-lbl">Preventive Action</div>
         <div id="fivewhys-preventive"></div>
+      </div>
+    </div>
+
+    <!-- Kepner-Tregoe -->
+    <div class="tool-panel" id="tp-kt">
+      <div class="tool-panel-title">Kepner-Tregoe — Is / Is Not</div>
+      <div class="tool-panel-desc">Bounds a problem by systematically defining what it IS and what it IS NOT across four dimensions. The boundary between the two sides is where the cause lives.</div>
+      <details class="tool-guidance">
+        <summary></summary>
+        <div class="tool-guidance-body">
+          <ol class="tool-guidance-steps">
+            <li>Write a precise problem statement — observable, factual, not an opinion</li>
+            <li>For each dimension (What, Where, When, Extent): state what IS true and what you might expect but IS NOT true</li>
+            <li>Ask: what is distinctive about the IS compared to the IS NOT? The distinction is the cause</li>
+            <li>State the most likely cause — it must explain both what IS happening and why the IS NOT is unaffected</li>
+            <li>Test the cause: if it were true, would it fully explain the IS/IS NOT pattern?</li>
+          </ol>
+          <div class="tool-guidance-source"><strong>Source:</strong> Charles Kepner &amp; Benjamin Tregoe, <em>The Rational Manager</em> (1965). Widely used in manufacturing, IT incident management, and aerospace.</div>
+        </div>
+      </details>
+      <div class="tool-field">
+        <label for="kt-problem">Problem statement</label>
+        <textarea id="kt-problem" placeholder="e.g. The nightly batch job fails with a timeout error, but only on the production server, and only since last Tuesday."></textarea>
+      </div>
+      <div class="tool-actions">
+        <button class="tool-btn-run" id="kt-run">Analyse</button>
+        <button class="tool-btn-clear" id="kt-clear">Clear</button>
+      </div>
+      <div class="tool-msg tool-warning" id="kt-warning" hidden>Enter a problem statement first.</div>
+      <div class="tool-msg tool-loading" id="kt-loading" hidden>Bounding the problem&#x2026;</div>
+      <div class="tool-msg tool-error" id="kt-error" hidden></div>
+      <div class="tool-output" id="kt-output">
+        <div class="tool-section-lbl">Problem statement</div>
+        <div id="kt-statement"></div>
+        <div class="tool-section-lbl">Is / Is Not dimensions</div>
+        <div id="kt-dimensions"></div>
+        <div class="tool-section-lbl">Most likely cause</div>
+        <div id="kt-cause"></div>
+        <div class="tool-section-lbl">Next steps</div>
+        <div id="kt-nextsteps"></div>
       </div>
     </div>
 
@@ -2087,7 +2128,7 @@
 
   const TOOL_LABELS = {
     socratic: 'Socratic Questioning', premortem: 'Pre-mortem', bowtie: 'Bow-Tie Analysis',
-    acc: 'ACC Matrix', fmea: 'FMEA', fivewhys: '5 Whys', ishikawa: 'Ishikawa',
+    acc: 'ACC Matrix', fmea: 'FMEA', fivewhys: '5 Whys', ishikawa: 'Ishikawa', kt: 'Kepner-Tregoe',
     pdca: 'PDCA', vsm: 'Value Stream Map', dora: 'DORA Metrics',
   };
 
@@ -2440,6 +2481,69 @@ commentary: max 1 sentence each. Be concise.`;
   document.getElementById('dora-clear').addEventListener('click', () =>
     clearTool({ output:'dora-output', warning:'dora-warning', error:'dora-error', loading:'dora-loading' },
               ['dora-df','dora-lt','dora-cfr','dora-ttr']));
+
+  // ── Kepner-Tregoe ───────────────────────────────────────────────────────────
+
+  const KT_SYS = `You are applying Kepner-Tregoe Is/Is Not analysis to a problem statement.
+
+Return ONLY valid JSON (no markdown, no code fences):
+{
+  "problem_statement": "The problem restated precisely — observable and factual",
+  "dimensions": [
+    {
+      "dimension": "What",
+      "is": "What specifically is affected",
+      "is_not": "What you might expect to be affected but is not",
+      "distinction": "What is distinctive about the IS compared to the IS NOT — this points to the cause"
+    },
+    {
+      "dimension": "Where",
+      "is": "Where does the problem occur",
+      "is_not": "Where does it not occur (but you might expect it to)",
+      "distinction": "The locational distinction"
+    },
+    {
+      "dimension": "When",
+      "is": "When does it occur (time, sequence, phase)",
+      "is_not": "When does it not occur",
+      "distinction": "The temporal or sequential distinction"
+    },
+    {
+      "dimension": "Extent",
+      "is": "How many, how often, how severe",
+      "is_not": "What would you expect but is not seen",
+      "distinction": "The magnitude distinction"
+    }
+  ],
+  "most_likely_cause": "State the most probable cause — it must explain both what IS happening and why the IS NOT is unaffected.",
+  "next_steps": ["Verification step 1", "Verification step 2", "Verification step 3"]
+}`;
+
+  document.getElementById('kt-run').addEventListener('click', () => {
+    const problem = document.getElementById('kt-problem').value.trim();
+    if (!problem) { document.getElementById('kt-warning').hidden = false; return; }
+    document.getElementById('kt-warning').hidden = true;
+    runToolCall(KT_SYS, `Problem: ${problem}`,
+      { output:'kt-output', loading:'kt-loading', error:'kt-error', warning:'kt-warning' },
+      (d) => {
+        document.getElementById('kt-statement').innerHTML =
+          `<div class="tool-card"><div class="tool-card-note">${esc(d.problem_statement)}</div></div>`;
+        renderList('kt-dimensions', d.dimensions ?? [], dim =>
+          `<div class="tool-card">
+            <div class="tool-card-head">${esc(dim.dimension)}</div>
+            <div style="font-size:0.78rem;margin-bottom:0.15rem"><strong>Is:</strong> ${esc(dim.is)}</div>
+            <div style="font-size:0.78rem;margin-bottom:0.15rem"><strong>Is Not:</strong> ${esc(dim.is_not)}</div>
+            <div class="tool-card-note"><strong>Distinction:</strong> ${esc(dim.distinction)}</div>
+          </div>`);
+        document.getElementById('kt-cause').innerHTML =
+          `<div class="tool-card"><div class="tool-card-note">${esc(d.most_likely_cause)}</div></div>`;
+        renderList('kt-nextsteps', d.next_steps ?? [], s =>
+          `<div class="tool-card"><div class="tool-card-note">${esc(s)}</div></div>`);
+      });
+  });
+  document.getElementById('kt-clear').addEventListener('click', () =>
+    clearTool({ output:'kt-output', warning:'kt-warning', error:'kt-error', loading:'kt-loading' },
+              ['kt-problem']));
 
   // ── Bow-Tie ─────────────────────────────────────────────────────────────────
 

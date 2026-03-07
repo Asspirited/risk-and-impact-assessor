@@ -11,7 +11,7 @@
  *    suggestions are grounded in what the analysis actually found.
  */
 
-export const VALID_TOOLS = new Set(['acc', 'fmea', 'fivewhys', 'ishikawa', 'pdca', 'vsm', 'dora', 'socratic', 'premortem', 'bowtie']);
+export const VALID_TOOLS = new Set(['acc', 'fmea', 'fivewhys', 'ishikawa', 'pdca', 'vsm', 'dora', 'socratic', 'premortem', 'bowtie', 'kt']);
 
 // ── Static suggestions by RAID type ─────────────────────────────────────────
 
@@ -106,6 +106,14 @@ export const TOOL_SIGNALS = {
       'barrier', 'control', 'threat', 'hazard', 'consequence', 'preventive',
       'cause and consequence', 'escalation', 'mitigation', 'safeguard', 'bow-tie',
       'recovery control', 'barrier gap', 'critical event', 'unwanted event',
+    ],
+  },
+  kt: {
+    label: 'Bound the problem with Is / Is Not',
+    keywords: [
+      'is not', 'only on', 'only when', 'not on', 'not when', 'boundary',
+      'specific to', 'limited to', 'inconsistent', 'intermittent', 'sometimes',
+      'distinction', 'why here not there', 'why now not before', 'bounded',
     ],
   },
 };
