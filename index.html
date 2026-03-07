@@ -631,6 +631,7 @@
       <div class="tools-nav-group-label">Delivery</div>
       <div class="tools-nav-btns">
         <button class="tool-nav-btn" data-tool="vsm"><span class="tool-nav-btn-label">VSM</span><span class="tool-nav-btn-desc">Value Stream Mapping — find waste and friction slowing your flow</span></button>
+        <button class="tool-nav-btn" data-tool="flowmetrics"><span class="tool-nav-btn-label">Flow Metrics</span><span class="tool-nav-btn-desc">Cycle time, throughput, WIP — predict delivery without estimates using Little's Law</span></button>
       </div>
     </div>
     <div>
@@ -1095,6 +1096,44 @@
         <div id="vsm-stats-block"></div>
         <div class="tool-section-lbl">Steps</div><div id="vsm-steps"></div>
         <div class="tool-section-lbl">Improvement Opportunities</div><div id="vsm-improvements"></div>
+      </div>
+    </div>
+
+    <!-- Flow Metrics -->
+    <div class="tool-panel" id="tp-flowmetrics">
+      <div class="tool-panel-title">Flow Metrics</div>
+      <div class="tool-panel-desc">Cycle Time, Throughput, WIP, and Flow Efficiency — four measurements that let you predict delivery without story points or estimates. Based on Little's Law: WIP = Throughput × Cycle Time.</div>
+      <details class="tool-guidance">
+        <summary></summary>
+        <div class="tool-guidance-body">
+          <ol class="tool-guidance-steps">
+            <li>Describe your current flow situation — how long items typically take, how many are in flight, how many you complete per week</li>
+            <li>Cycle Time is elapsed time from start to done for a single item — measure at the 50th and 85th percentile, not the average</li>
+            <li>Throughput is items completed per time period — count items, not points or hours</li>
+            <li>WIP is everything started but not done — high WIP inflates cycle time (Little's Law: CT = WIP ÷ Throughput)</li>
+            <li>Flow Efficiency = active work time ÷ total elapsed time. Most teams run at 15–20% — the rest is waiting</li>
+          </ol>
+          <div class="tool-guidance-source"><strong>Source:</strong> J.D.C. Little, "A Proof for the Queuing Formula" (1961); Dan Vacanti, <em>Actionable Agile Metrics for Predictability</em> (2015); David Anderson, <em>Kanban</em> (2010).</div>
+        </div>
+      </details>
+      <div class="tool-field">
+        <label for="flowmetrics-situation">Describe your flow situation</label>
+        <textarea id="flowmetrics-situation" placeholder="e.g. We have ~25 items in progress at any time. Stories typically take 3–6 weeks from start to done. We complete about 4 items per week. A lot of time seems to be spent waiting for review or sign-off."></textarea>
+      </div>
+      <div class="tool-actions">
+        <button class="tool-btn-run" id="flowmetrics-run">Diagnose Flow</button>
+        <button class="tool-btn-clear" id="flowmetrics-clear">Clear</button>
+      </div>
+      <div class="tool-msg tool-warning" id="flowmetrics-warning" hidden>Describe your flow situation first.</div>
+      <div class="tool-msg tool-loading" id="flowmetrics-loading" hidden>Analysing flow&#x2026;</div>
+      <div class="tool-msg tool-error" id="flowmetrics-error" hidden></div>
+      <div class="tool-output" id="flowmetrics-output">
+        <div class="tool-section-lbl">Flow diagnosis</div>
+        <div id="flowmetrics-diagnosis"></div>
+        <div class="tool-section-lbl">Metric analysis</div>
+        <div id="flowmetrics-metrics"></div>
+        <div class="tool-section-lbl">Forecast guidance</div>
+        <div id="flowmetrics-forecast"></div>
       </div>
     </div>
 
@@ -2168,7 +2207,7 @@
   const TOOL_LABELS = {
     socratic: 'Socratic Questioning', premortem: 'Pre-mortem', bowtie: 'Bow-Tie Analysis',
     acc: 'ACC Matrix', fmea: 'FMEA', fivewhys: '5 Whys', ishikawa: 'Ishikawa', kt: 'Kepner-Tregoe',
-    gqm: 'GQM', pdca: 'PDCA', vsm: 'Value Stream Map', dora: 'DORA Metrics',
+    gqm: 'GQM', pdca: 'PDCA', vsm: 'Value Stream Map', flowmetrics: 'Flow Metrics', dora: 'DORA Metrics',
   };
 
   function switchTool(name) {
@@ -2520,6 +2559,70 @@ commentary: max 1 sentence each. Be concise.`;
   document.getElementById('dora-clear').addEventListener('click', () =>
     clearTool({ output:'dora-output', warning:'dora-warning', error:'dora-error', loading:'dora-loading' },
               ['dora-df','dora-lt','dora-cfr','dora-ttr']));
+
+  // ── Flow Metrics ────────────────────────────────────────────────────────────
+
+  const FLOWMETRICS_SYS = `You are diagnosing a team's delivery flow using Kanban flow metrics: Cycle Time, Throughput, WIP, and Flow Efficiency. Apply Little's Law: WIP = Throughput × Cycle Time.
+
+Return ONLY valid JSON (no markdown, no code fences):
+{
+  "diagnosis": "2–3 sentences summarising the key flow problem revealed by the numbers. Be direct — if WIP is too high, say so. Cite Little's Law where relevant.",
+  "metrics": [
+    {
+      "name": "Cycle Time",
+      "definition": "Elapsed time from work starting to work done for a single item",
+      "how_to_measure": "Track start date and done date for each item. Use 85th percentile, not mean.",
+      "current_signal": "What the described situation implies about this metric — good, concerning, or critical",
+      "action": "The single most impactful change to improve this metric"
+    },
+    {
+      "name": "Throughput",
+      "definition": "Items completed per time period (count items, not story points)",
+      "how_to_measure": "Count items moved to Done per week over the last 8–12 weeks",
+      "current_signal": "What the described situation implies",
+      "action": "The single most impactful change"
+    },
+    {
+      "name": "WIP",
+      "definition": "Everything started but not yet done — the biggest lever on cycle time",
+      "how_to_measure": "Count items in any non-Done, non-Todo column at a point in time",
+      "current_signal": "What the described situation implies",
+      "action": "The single most impactful change"
+    },
+    {
+      "name": "Flow Efficiency",
+      "definition": "Active work time ÷ total elapsed time. Most teams: 15–20%.",
+      "how_to_measure": "Time-stamp state transitions. Active = In Progress. Waiting = everything else.",
+      "current_signal": "What the described situation implies",
+      "action": "The single most impactful change"
+    }
+  ],
+  "forecast_guidance": "How to use these metrics to make a probabilistic delivery forecast — specifically, how to use historical throughput and WIP to answer 'when will this be done?'"
+}`;
+
+  document.getElementById('flowmetrics-run').addEventListener('click', () => {
+    const situation = document.getElementById('flowmetrics-situation').value.trim();
+    if (!situation) { document.getElementById('flowmetrics-warning').hidden = false; return; }
+    document.getElementById('flowmetrics-warning').hidden = true;
+    runToolCall(FLOWMETRICS_SYS, `Flow situation: ${situation}`,
+      { output:'flowmetrics-output', loading:'flowmetrics-loading', error:'flowmetrics-error', warning:'flowmetrics-warning' },
+      (d) => {
+        document.getElementById('flowmetrics-diagnosis').innerHTML =
+          `<div class="tool-card"><div class="tool-card-note">${esc(d.diagnosis)}</div></div>`;
+        renderList('flowmetrics-metrics', d.metrics ?? [], m =>
+          `<div class="tool-card">
+            <div class="tool-card-head">${esc(m.name)}</div>
+            <div style="font-size:0.75rem;color:var(--muted);margin-bottom:0.2rem">${esc(m.definition)}</div>
+            <div style="font-size:0.78rem;margin-bottom:0.1rem"><strong>Signal:</strong> ${esc(m.current_signal)}</div>
+            <div class="tool-card-note"><strong>Action:</strong> ${esc(m.action)}</div>
+          </div>`);
+        document.getElementById('flowmetrics-forecast').innerHTML =
+          `<div class="tool-card"><div class="tool-card-note">${esc(d.forecast_guidance)}</div></div>`;
+      });
+  });
+  document.getElementById('flowmetrics-clear').addEventListener('click', () =>
+    clearTool({ output:'flowmetrics-output', warning:'flowmetrics-warning', error:'flowmetrics-error', loading:'flowmetrics-loading' },
+              ['flowmetrics-situation']));
 
   // ── GQM ─────────────────────────────────────────────────────────────────────
 

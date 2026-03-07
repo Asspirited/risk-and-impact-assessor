@@ -11,7 +11,7 @@
  *    suggestions are grounded in what the analysis actually found.
  */
 
-export const VALID_TOOLS = new Set(['acc', 'fmea', 'fivewhys', 'ishikawa', 'pdca', 'vsm', 'dora', 'socratic', 'premortem', 'bowtie', 'kt', 'gqm']);
+export const VALID_TOOLS = new Set(['acc', 'fmea', 'fivewhys', 'ishikawa', 'pdca', 'vsm', 'dora', 'socratic', 'premortem', 'bowtie', 'kt', 'gqm', 'flowmetrics']);
 
 // ── Static suggestions by RAID type ─────────────────────────────────────────
 
@@ -106,6 +106,14 @@ export const TOOL_SIGNALS = {
       'barrier', 'control', 'threat', 'hazard', 'consequence', 'preventive',
       'cause and consequence', 'escalation', 'mitigation', 'safeguard', 'bow-tie',
       'recovery control', 'barrier gap', 'critical event', 'unwanted event',
+    ],
+  },
+  flowmetrics: {
+    label: 'Diagnose flow with Cycle Time, Throughput, WIP',
+    keywords: [
+      'cycle time', 'throughput', 'wip', 'work in progress', 'flow efficiency',
+      'little\'s law', 'kanban', 'lead time', 'waiting', 'queue', 'in flight',
+      'predictability', 'forecast', 'delivery rate', 'items per week',
     ],
   },
   gqm: {
