@@ -509,15 +509,27 @@
       background: var(--brand-light); border-radius: var(--radius);
       font-size: 0.8rem;
     }
-    .tool-recommend-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.3rem; }
-    .tool-recommend-btns { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.3rem; }
-    .tool-recommend-btn {
-      padding: 0.28rem 0.65rem; border-radius: 3px;
-      border: 1px solid var(--teal); background: transparent;
-      color: var(--teal); font-size: 0.75rem; font-family: inherit;
-      cursor: pointer; font-weight: 600;
+    .tool-recommend-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem; }
+    .tool-recommend-cards { display: flex; flex-direction: column; gap: 0.45rem; }
+    .tool-recommend-card {
+      display: flex; align-items: flex-start; gap: 0.6rem;
+      background: #fff; border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 0.5rem 0.65rem;
     }
-    .tool-recommend-btn:hover { background: var(--teal); color: #fff; }
+    .tool-recommend-rank {
+      flex-shrink: 0; width: 1.4rem; height: 1.4rem; border-radius: 50%;
+      background: var(--teal); color: #fff;
+      font-size: 0.7rem; font-weight: 700; display: flex; align-items: center; justify-content: center;
+      margin-top: 0.05rem;
+    }
+    .tool-recommend-body { flex: 1; min-width: 0; }
+    .tool-recommend-btn {
+      background: transparent; border: none; padding: 0; margin: 0;
+      font-family: inherit; cursor: pointer; text-align: left;
+      font-size: 0.8rem; font-weight: 700; color: var(--teal); line-height: 1.2;
+    }
+    .tool-recommend-btn:hover { text-decoration: underline; }
+    .tool-recommend-rationale { font-size: 0.72rem; color: var(--muted); margin-top: 0.15rem; line-height: 1.4; }
 
     /* ── Tool main view ───────────────────────────────────────────────────── */
     #tool-main-view { padding: 0 0 5rem; }
@@ -3680,18 +3692,23 @@
     const existing = document.getElementById('tool-recommend-block');
     if (existing) existing.remove();
     const isTextBased = !!suggestions;
+    const ORDINALS = ['1st', '2nd', '3rd', '4th', '5th'];
     const block = document.createElement('div');
     block.id = 'tool-recommend-block';
     block.className = 'tool-recommend';
-    block.innerHTML = `<div class="tool-recommend-label">${isTextBased ? 'Based on this analysis, these tools could help' : 'Quality tools that could help'}</div>
-      <div class="tool-recommend-btns">${resolved.map(s =>
-        `<button class="tool-recommend-btn" data-suggest-tool="${esc(s.tool)}">${esc(s.label)}</button>`
+    block.innerHTML = `<div class="tool-recommend-label">${isTextBased ? 'Suggested tools — ranked by relevance to this analysis' : 'Tools that could help with this'}</div>
+      <div class="tool-recommend-cards">${resolved.map((s, i) =>
+        `<div class="tool-recommend-card">
+          <div class="tool-recommend-rank" title="${esc(ORDINALS[i] ?? (i+1)+'th')} suggestion">${i + 1}</div>
+          <div class="tool-recommend-body">
+            <button class="tool-recommend-btn" data-suggest-tool="${esc(s.tool)}">${esc(s.label)} &rarr;</button>
+            ${s.rationale ? `<div class="tool-recommend-rationale">${esc(s.rationale)}</div>` : ''}
+          </div>
+        </div>`
       ).join('')}</div>`;
     raidItemOutputEl.appendChild(block);
     block.querySelectorAll('.tool-recommend-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        switchTool(btn.dataset.suggestTool);
-      });
+      btn.addEventListener('click', () => switchTool(btn.dataset.suggestTool));
     });
   }
 

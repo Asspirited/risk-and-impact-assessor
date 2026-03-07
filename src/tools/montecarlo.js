@@ -56,6 +56,7 @@ driver: true for the top 1-2 variables by variance_pct. p50/p80/p90_note: 1-sent
 
 export const signals = {
   label: 'Simulate schedule/cost uncertainty',
+  rationale: 'Schedule or cost uncertainty needs quantifying — Monte Carlo uses 3-point estimates to produce P50, P80, and P90 confidence bands and surfaces the variables driving the most variance.',
   keywords: [
     'uncertainty', 'estimate', 'three-point', '3-point', 'optimistic', 'pessimistic',
     'most likely', 'confidence', 'probability', 'schedule risk', 'cost risk',

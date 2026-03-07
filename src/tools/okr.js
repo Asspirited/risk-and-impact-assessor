@@ -42,6 +42,7 @@ objective: 1 sentence, no numbers. objective_rationale: 1-2 sentences on why thi
 
 export const signals = {
   label: 'Set objectives with measurable key results',
+  rationale: 'Goals or success criteria need structure — OKR translates an ambitious direction into measurable Key Results with baselines, targets, and confidence levels so progress is unambiguous.',
   keywords: [
     'objective', 'key result', 'okr', 'goal', 'target', 'measure what matters',
     'doerr', 'grove', 'stretch goal', 'ambitious', 'outcome', 'success criteria',

@@ -45,6 +45,7 @@ event: short label for the primary event. event_description: 1-2 sentences resta
 
 export const signals = {
   label: 'Map all causal paths with evidence',
+  rationale: 'A causal analysis needs multiple paths and evidence — Apollo RCA maps actions and conditions across all plausible causal chains, not just the most obvious one, and flags what remains unverified.',
   keywords: [
     'apollo', 'causal chain', 'cause and effect', 'action', 'condition',
     'evidence', 'verified', 'verification', 'incident', 'primary event',
