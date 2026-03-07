@@ -614,6 +614,7 @@
         <button class="tool-nav-btn" data-tool="bowtie"><span class="tool-nav-btn-label">Bow-Tie</span><span class="tool-nav-btn-desc">Map threats → controls → hazard → controls → consequences — see where your barriers are thin</span></button>
         <button class="tool-nav-btn" data-tool="fmea"><span class="tool-nav-btn-label">FMEA</span><span class="tool-nav-btn-desc">Failure Mode &amp; Effects Analysis — score and prioritise what could go wrong</span></button>
         <button class="tool-nav-btn" data-tool="swot"><span class="tool-nav-btn-label">SWOT</span><span class="tool-nav-btn-desc">Strengths, Weaknesses, Opportunities, Threats — strategic risk surface for any project or decision</span></button>
+        <button class="tool-nav-btn" data-tool="montecarlo"><span class="tool-nav-btn-label">Monte Carlo</span><span class="tool-nav-btn-desc">Simulate schedule or cost uncertainty — enter 3-point estimates, get P50/P80/P90 confidence bands</span></button>
       </div>
     </div>
     <div>
@@ -1614,6 +1615,54 @@
       </div>
     </div>
 
+    <!-- Monte Carlo -->
+    <div class="tool-panel" id="tp-montecarlo">
+      <div class="tool-panel-title">Monte Carlo Simulation</div>
+      <div class="tool-panel-desc">Model schedule or cost uncertainty using 3-point estimates. Based on PERT (Program Evaluation and Review Technique) — each variable gets an optimistic, most-likely, and pessimistic estimate. The simulation aggregates them into P50, P80, and P90 confidence levels and surfaces the variables driving the most risk.</div>
+      <details class="tool-guidance">
+        <summary></summary>
+        <div class="tool-guidance-body">
+          <ol class="tool-guidance-steps">
+            <li>List the major work items or cost components you want to model — anything with real uncertainty</li>
+            <li>For each, provide three estimates in your chosen unit (days, weeks, £k, story points): <strong>Optimistic</strong> (best case, rare but possible), <strong>Most likely</strong> (your honest best guess), <strong>Pessimistic</strong> (bad-but-plausible, not catastrophic)</li>
+            <li>The tool calculates a PERT-weighted mean for each variable: <code>(O + 4M + P) / 6</code> — the most-likely case counts four times as heavily as the extremes</li>
+            <li><strong>P50</strong> = most likely total outcome. <strong>P80</strong> = outcome you'll beat 80% of the time. <strong>P90</strong> = 90% confidence. The gap between P50 and P90 is your risk exposure</li>
+            <li>Variables with the widest spread (high pessimistic vs optimistic ratio) are the key risk drivers — focus your mitigation there first</li>
+          </ol>
+          <div class="tool-guidance-source"><strong>Source:</strong> PERT: US Navy / Booz Allen Hamilton (1957). Monte Carlo application to project management: Project Management Institute, <em>PMBOK Guide</em>; Douglas Hubbard, <em>How to Measure Anything</em> (2007); Mike Cohn, <em>Agile Estimating and Planning</em> (2005).</div>
+        </div>
+      </details>
+      <div class="tool-field">
+        <label for="mc-project">What are you estimating?</label>
+        <input type="text" id="mc-project" placeholder="e.g. Mobile app relaunch, Q3 data migration">
+      </div>
+      <div class="tool-field">
+        <label for="mc-unit">Unit of measure</label>
+        <input type="text" id="mc-unit" placeholder="e.g. days, weeks, £k, story points">
+      </div>
+      <div class="tool-field">
+        <label for="mc-variables">Variables — one per line: Name: O / ML / P</label>
+        <textarea id="mc-variables" placeholder="e.g.&#10;Design: 2 / 4 / 8&#10;Backend build: 5 / 8 / 16&#10;QA and testing: 2 / 3 / 7&#10;Integration: 1 / 2 / 6"></textarea>
+      </div>
+      <div class="tool-actions">
+        <button class="tool-btn-run" id="mc-run">Run Simulation</button>
+        <button class="tool-btn-clear" id="mc-clear">Clear</button>
+      </div>
+      <div class="tool-msg tool-warning" id="mc-warning" hidden>Enter a project name and at least one variable first.</div>
+      <div class="tool-msg tool-loading" id="mc-loading" hidden>Simulating&#x2026;</div>
+      <div class="tool-msg tool-error" id="mc-error" hidden></div>
+      <div class="tool-output" id="mc-output">
+        <div class="tool-section-lbl">Confidence bands</div>
+        <div id="mc-bands"></div>
+        <div class="tool-section-lbl">Variable breakdown</div>
+        <div id="mc-variables-out"></div>
+        <div class="tool-section-lbl">Key risk drivers</div>
+        <div id="mc-drivers"></div>
+        <div class="tool-section-lbl">Recommendation</div>
+        <div id="mc-recommendation"></div>
+      </div>
+    </div>
+
   </div><!-- .tools-content -->
 </aside>
 
@@ -1816,7 +1865,8 @@
   import { ACC_SYS, FMEA_SYS, FIVEWHYS_SYS, ISHIKAWA_SYS, PDCA_SYS, VSM_SYS,
            DORA_SYS, SEVENWASTES_SYS, TOC_SYS, CYNEFIN_SYS, DMAIC_SYS, SWOT_SYS,
            SPACE_SYS, FTA_SYS, SPC_SYS, TESTQUADRANTS_SYS, WSJF_SYS, FLOWMETRICS_SYS,
-           GQM_SYS, KT_SYS, BOWTIE_SYS, PREMORTEM_SYS, SOCRATIC_SYS } from './src/tool-prompts.js';
+           GQM_SYS, KT_SYS, BOWTIE_SYS, PREMORTEM_SYS, SOCRATIC_SYS,
+           MONTECARLO_SYS } from './src/tool-prompts.js';
   import {
     saveProject, listProjects, loadProject, deleteProject, clearAllProjects,
     saveProjectState, loadProjectState, clearProjectState
@@ -3233,6 +3283,50 @@
   document.getElementById('wsjf-clear').addEventListener('click', () =>
     clearTool({ output:'wsjf-output', warning:'wsjf-warning', error:'wsjf-error', loading:'wsjf-loading' },
               ['wsjf-items']));
+
+  // ── Monte Carlo ─────────────────────────────────────────────────────────────
+
+  document.getElementById('mc-run').addEventListener('click', () => {
+    const project  = document.getElementById('mc-project').value.trim();
+    const variables = document.getElementById('mc-variables').value.trim();
+    if (!project || !variables) { document.getElementById('mc-warning').hidden = false; return; }
+    document.getElementById('mc-warning').hidden = true;
+    const unit = document.getElementById('mc-unit').value.trim() || 'units';
+    runToolCall(MONTECARLO_SYS,
+      `Project: ${project}\nUnit: ${unit}\nVariables (Name: O / ML / P):\n${variables}`,
+      { output:'mc-output', loading:'mc-loading', error:'mc-error', warning:'mc-warning' },
+      (d) => {
+        const t = d.total ?? {};
+        document.getElementById('mc-bands').innerHTML = `
+          <div class="tool-card">
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.6rem;text-align:center">
+              <div><div style="font-size:1.4rem;font-weight:700;color:var(--teal)">${esc(t.p50)}</div><div style="font-size:0.7rem;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:var(--muted)">P50</div><div style="font-size:0.72rem;color:var(--muted);margin-top:0.2rem">${esc(t.p50_note)}</div></div>
+              <div><div style="font-size:1.4rem;font-weight:700;color:var(--brand)">${esc(t.p80)}</div><div style="font-size:0.7rem;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:var(--muted)">P80</div><div style="font-size:0.72rem;color:var(--muted);margin-top:0.2rem">${esc(t.p80_note)}</div></div>
+              <div><div style="font-size:1.4rem;font-weight:700;color:#dc2626">${esc(t.p90)}</div><div style="font-size:0.7rem;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:var(--muted)">P90</div><div style="font-size:0.72rem;color:var(--muted);margin-top:0.2rem">${esc(t.p90_note)}</div></div>
+            </div>
+            <div style="font-size:0.72rem;color:var(--muted);text-align:center;margin-top:0.5rem">Unit: ${esc(unit)}</div>
+          </div>`;
+        renderList('mc-variables-out', d.variables ?? [], v => {
+          const driverBadge = v.driver ? tcTag('critical','DRIVER') : '';
+          return `<div class="tool-card">
+            <div class="tool-card-head">${esc(v.name)}${driverBadge}</div>
+            <div style="font-size:0.75rem;display:grid;grid-template-columns:repeat(3,1fr);gap:0.3rem;margin:0.3rem 0">
+              <div style="text-align:center"><div style="color:var(--teal);font-weight:700">${esc(v.optimistic)}</div><div style="font-size:0.65rem;color:var(--muted)">Optimistic</div></div>
+              <div style="text-align:center"><div style="font-weight:700">${esc(v.most_likely)}</div><div style="font-size:0.65rem;color:var(--muted)">Most likely</div></div>
+              <div style="text-align:center"><div style="color:#dc2626;font-weight:700">${esc(v.pessimistic)}</div><div style="font-size:0.65rem;color:var(--muted)">Pessimistic</div></div>
+            </div>
+            <div style="font-size:0.75rem">PERT mean: <strong>${esc(v.pert_mean)}</strong> &nbsp;&bull;&nbsp; Std dev: ${esc(v.std_dev)} &nbsp;&bull;&nbsp; Variance: ${esc(v.variance_pct)}%</div>
+          </div>`;
+        });
+        document.getElementById('mc-drivers').innerHTML =
+          `<div class="tool-card"><div class="tool-card-note">${esc(d.key_drivers)}</div></div>`;
+        document.getElementById('mc-recommendation').innerHTML =
+          `<div class="tool-card"><div class="tool-card-note">${esc(d.recommendation)}</div></div>`;
+      });
+  });
+  document.getElementById('mc-clear').addEventListener('click', () =>
+    clearTool({ output:'mc-output', warning:'mc-warning', error:'mc-error', loading:'mc-loading' },
+              ['mc-project','mc-unit','mc-variables']));
 
   // ── Flow Metrics ────────────────────────────────────────────────────────────
 

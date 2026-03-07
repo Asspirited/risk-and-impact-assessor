@@ -11,7 +11,7 @@
  *    suggestions are grounded in what the analysis actually found.
  */
 
-export const VALID_TOOLS = new Set(['acc', 'fmea', 'fivewhys', 'ishikawa', 'pdca', 'vsm', 'dora', 'socratic', 'premortem', 'bowtie', 'kt', 'gqm', 'flowmetrics', 'wsjf', 'spc', 'testquadrants', 'fta', 'space', 'swot', 'dmaic', 'cynefin', 'toc', 'sevenwastes']);
+export const VALID_TOOLS = new Set(['acc', 'fmea', 'fivewhys', 'ishikawa', 'pdca', 'vsm', 'dora', 'socratic', 'premortem', 'bowtie', 'kt', 'gqm', 'flowmetrics', 'wsjf', 'spc', 'testquadrants', 'fta', 'space', 'swot', 'dmaic', 'cynefin', 'toc', 'sevenwastes', 'montecarlo']);
 
 // ── Static suggestions by RAID type ─────────────────────────────────────────
 
@@ -202,6 +202,15 @@ export const TOOL_SIGNALS = {
       'goal', 'measure', 'metric', 'measurement', 'what to measure', 'how to measure',
       'quality attribute', 'observable', 'baseline', 'threshold', 'traceability',
       'measurement plan', 'quality goal', 'success criteria', 'kpi',
+    ],
+  },
+  montecarlo: {
+    label: 'Simulate schedule/cost uncertainty',
+    keywords: [
+      'uncertainty', 'estimate', 'three-point', '3-point', 'optimistic', 'pessimistic',
+      'most likely', 'confidence', 'probability', 'schedule risk', 'cost risk',
+      'p80', 'p90', 'contingency', 'range', 'distribution', 'pert', 'simulation',
+      'how long', 'how much', 'variance', 'spread',
     ],
   },
   kt: {
