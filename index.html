@@ -452,13 +452,20 @@
     .tool-recommend-btn:hover { background: var(--teal); color: #fff; }
 
     /* ── Tool main view ───────────────────────────────────────────────────── */
-    #tool-main-view { padding: 1.5rem 1rem 5rem; }
-    .tool-view-back {
-      display: inline-flex; align-items: center; gap: 0.3rem;
-      background: none; border: none; padding: 0; margin-bottom: 1.5rem;
-      font-size: 0.82rem; font-family: inherit; color: var(--muted); cursor: pointer;
+    #tool-main-view { padding: 0 0 5rem; }
+    .tool-view-back-bar {
+      position: sticky; top: 0; z-index: 10;
+      background: var(--surface); border-bottom: 2px solid var(--brand);
+      padding: 0.65rem 1rem;
     }
-    .tool-view-back:hover { color: var(--text); }
+    .tool-view-back {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      background: var(--brand-light); border: 1.5px solid var(--brand); border-radius: var(--radius);
+      padding: 0.45rem 0.9rem;
+      font-size: 0.83rem; font-weight: 600; font-family: inherit; color: var(--brand); cursor: pointer;
+    }
+    .tool-view-back:hover { background: var(--brand); color: #fff; }
+    #tool-main-panel { padding: 1.25rem 1rem; }
     #tool-main-panel .tool-panel { display: block; }
 
     /* ── Responsive layout — desktop sidebar ──────────────────────────────── */
@@ -788,7 +795,9 @@
 
   <!-- Tool main view — shown when a quality tool is active -->
   <div id="tool-main-view" hidden>
-    <button class="tool-view-back" id="tool-view-back">&#8592; Back to assessment</button>
+    <div class="tool-view-back-bar">
+      <button class="tool-view-back" id="tool-view-back">&#8592; Back to assessment</button>
+    </div>
     <div id="tool-main-panel"></div>
   </div>
 
