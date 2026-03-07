@@ -46,11 +46,11 @@
       padding: 0.9rem 1.5rem;
     }
     .top-banner-inner {
-      max-width: 700px; margin: 0 auto;
       font-family: 'Playfair Display', Georgia, serif;
       font-size: 1.6rem; font-weight: 600; font-style: italic;
       color: #fff; letter-spacing: 0.01em;
       display: flex; align-items: center; justify-content: space-between;
+      padding: 0;
     }
 
     /* ---- Step chrome ---- */
@@ -445,6 +445,48 @@
       cursor: pointer; font-weight: 600;
     }
     .tool-recommend-btn:hover { background: var(--teal); color: #fff; }
+
+    /* ── Responsive layout — desktop sidebar ──────────────────────────────── */
+    .app-layout {
+      display: block;
+    }
+
+    @media (min-width: 900px) {
+      .app-layout {
+        display: flex;
+        align-items: flex-start;
+        min-height: calc(100vh - 57px);
+      }
+
+      /* Permanent sidebar — hide toggle button and overlay */
+      .tools-toggle-btn { display: none; }
+      .tools-overlay    { display: none !important; }
+
+      .tools-drawer {
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        width: 280px;
+        flex-shrink: 0;
+        transform: none !important;
+        transition: none;
+        z-index: 1;
+        background: var(--brand-light);
+        border-right: 2px solid var(--border);
+        box-shadow: 2px 0 8px rgba(28,32,65,0.07);
+      }
+
+      .tools-drawer-header {
+        background: var(--brand);
+      }
+
+      .tools-close-btn { display: none; }
+
+      main {
+        flex: 1;
+        min-width: 0;
+      }
+    }
   </style>
 </head>
 <body>
@@ -455,6 +497,8 @@
   <button class="tools-toggle-btn" id="tools-toggle-btn">Quality Tools</button>
 </div>
 </div>
+
+<div class="app-layout">
 
 <div class="tools-overlay" id="tools-overlay"></div>
 <aside class="tools-drawer" id="tools-drawer">
@@ -883,6 +927,8 @@
   </div>
 
 </main>
+
+</div><!-- .app-layout -->
 
 <script type="module">
   import { assess }               from './src/assess.js';
