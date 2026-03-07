@@ -152,6 +152,10 @@
     .btn-primary:not(:disabled):hover { opacity: 0.88; }
     .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); font-size: 0.875rem; font-weight: 400; }
     .btn-ghost:hover { background: var(--brand-light); }
+    .btn-update-ctx { background: transparent; color: var(--teal); border: 2px solid var(--teal); font-size: 0.875rem; font-weight: 600; border-radius: var(--radius); padding: 0.35rem 0.75rem; cursor: pointer; white-space: nowrap; }
+    .btn-update-ctx:hover { background: rgba(0,168,150,0.08); }
+    .btn-new-project { background: transparent; color: var(--brand); border: 2px solid var(--brand); font-size: 0.875rem; font-weight: 600; border-radius: var(--radius); padding: 0.35rem 0.75rem; cursor: pointer; white-space: nowrap; }
+    .btn-new-project:hover { background: var(--brand-light); }
     .btn-sm { padding: 0.4rem 0.9rem; font-size: 0.82rem; }
 
     /* ---- Badges ---- */
@@ -632,6 +636,7 @@
       <div class="tools-nav-btns">
         <button class="tool-nav-btn" data-tool="vsm"><span class="tool-nav-btn-label">VSM</span><span class="tool-nav-btn-desc">Value Stream Mapping — find waste and friction slowing your flow</span></button>
         <button class="tool-nav-btn" data-tool="flowmetrics"><span class="tool-nav-btn-label">Flow Metrics</span><span class="tool-nav-btn-desc">Cycle time, throughput, WIP — predict delivery without estimates using Little's Law</span></button>
+        <button class="tool-nav-btn" data-tool="wsjf"><span class="tool-nav-btn-label">WSJF / CD3</span><span class="tool-nav-btn-desc">Cost of Delay ÷ Duration — rank work by what you lose from delaying it</span></button>
       </div>
     </div>
     <div>
@@ -647,7 +652,6 @@
         <button class="tool-nav-btn" data-tool="toc" disabled><span class="tool-nav-btn-label">Theory of Constraints</span><span class="tool-nav-btn-desc">Identify and exploit the single bottleneck limiting system throughput</span></button>
         <button class="tool-nav-btn" data-tool="sevenwastes" disabled><span class="tool-nav-btn-label">7 Wastes</span><span class="tool-nav-btn-desc">Lean waste identification — transport, inventory, motion, waiting, overproduction, over-processing, defects</span></button>
         <button class="tool-nav-btn" data-tool="dmaic" disabled><span class="tool-nav-btn-label">DMAIC</span><span class="tool-nav-btn-desc">Define–Measure–Analyse–Improve–Control — Six Sigma problem solving</span></button>
-        <button class="tool-nav-btn" data-tool="wsjf" disabled><span class="tool-nav-btn-label">WSJF</span><span class="tool-nav-btn-desc">Weighted Shortest Job First — rank work by Cost of Delay ÷ Duration</span></button>
       </div>
     </div>
   </div>
@@ -1227,7 +1231,38 @@
       <div class="tool-backlog"><div class="tool-backlog-badge">On the backlog</div><strong>DMAIC (Lean Six Sigma)</strong>Define, Measure, Analyse, Improve and Control — structured improvement with statistical rigour.</div>
     </div>
     <div class="tool-panel" id="tp-wsjf">
-      <div class="tool-backlog"><div class="tool-backlog-badge">On the backlog</div><strong>WSJF — Cost of Delay</strong>Weighted Shortest Job First: rank work by Cost of Delay ÷ Duration. Surfaces what you lose by waiting, not just what things are worth. Developed by Don Reinertsen; refined by Black Swan Farming.</div>
+      <div class="tool-panel-title">WSJF — Cost of Delay</div>
+      <div class="tool-panel-desc">Ranks work by what you lose from delaying it, not just what it's worth. CD3 (Cost of Delay ÷ Duration) tells you which item costs the most per unit of time it sits waiting — that one goes first.</div>
+      <details class="tool-guidance">
+        <summary></summary>
+        <div class="tool-guidance-body">
+          <ol class="tool-guidance-steps">
+            <li>For each piece of work, estimate its Cost of Delay: what value (in £/week, or a proxy score) is lost for every week it isn't done?</li>
+            <li>Cost of Delay has three components: User/Business Value (what it's worth), Time Criticality (does the value decay or a deadline loom?), Risk Reduction or Opportunity Enabling (does it unblock something else?)</li>
+            <li>Estimate Duration: how long will it take to deliver once started? Use relative sizes (1, 2, 3, 5, 8) if you can't give actual weeks</li>
+            <li>CD3 = Cost of Delay ÷ Duration. Rank your items by CD3 score — highest CD3 goes first</li>
+            <li>Black Swan Farming's insight: short items with high delay costs are almost always higher priority than long, valuable items — because the short item frees up the queue faster</li>
+          </ol>
+          <div class="tool-guidance-source"><strong>Source:</strong> Don Reinertsen, <em>The Principles of Product Development Flow</em> (2009); Black Swan Farming, CD3 framework (Josh Arnold); SAFe WSJF model (Scaled Agile Framework).</div>
+        </div>
+      </details>
+      <div class="tool-field">
+        <label for="wsjf-items">Describe the items to prioritise</label>
+        <textarea id="wsjf-items" placeholder="List 3–6 items. For each, describe: what it does, any deadline or urgency, whether it unblocks other work, and rough size. e.g. &#10;1. Payment gateway integration — needed for go-live, blocks everything, large&#10;2. Login page redesign — nice to have, no deadline, small&#10;3. Reporting dashboard — customer contract, medium"></textarea>
+      </div>
+      <div class="tool-actions">
+        <button class="tool-btn-run" id="wsjf-run">Rank by CD3</button>
+        <button class="tool-btn-clear" id="wsjf-clear">Clear</button>
+      </div>
+      <div class="tool-msg tool-warning" id="wsjf-warning" hidden>Describe the items to prioritise first.</div>
+      <div class="tool-msg tool-loading" id="wsjf-loading" hidden>Calculating Cost of Delay&#x2026;</div>
+      <div class="tool-msg tool-error" id="wsjf-error" hidden></div>
+      <div class="tool-output" id="wsjf-output">
+        <div class="tool-section-lbl">Ranked items (highest CD3 first)</div>
+        <div id="wsjf-ranked"></div>
+        <div class="tool-section-lbl">Prioritisation rationale</div>
+        <div id="wsjf-rationale"></div>
+      </div>
     </div>
 
   </div><!-- .tools-content -->
@@ -1304,8 +1339,8 @@
         <div id="context-recommendation"></div>
       </div>
       <div style="display:flex;flex-direction:column;gap:0.4rem;flex-shrink:0">
-        <button class="btn btn-ghost btn-sm" id="update-context-btn">Update context</button>
-        <button class="btn btn-ghost btn-sm" id="new-project-btn">New project</button>
+        <button class="btn btn-update-ctx btn-sm" id="update-context-btn">Update this project&#x2019;s context</button>
+        <button class="btn btn-new-project btn-sm" id="new-project-btn">New project</button>
       </div>
     </div>
 
@@ -2207,7 +2242,8 @@
   const TOOL_LABELS = {
     socratic: 'Socratic Questioning', premortem: 'Pre-mortem', bowtie: 'Bow-Tie Analysis',
     acc: 'ACC Matrix', fmea: 'FMEA', fivewhys: '5 Whys', ishikawa: 'Ishikawa', kt: 'Kepner-Tregoe',
-    gqm: 'GQM', pdca: 'PDCA', vsm: 'Value Stream Map', flowmetrics: 'Flow Metrics', dora: 'DORA Metrics',
+    gqm: 'GQM', pdca: 'PDCA', vsm: 'Value Stream Map', wsjf: 'WSJF / CD3',
+    flowmetrics: 'Flow Metrics', dora: 'DORA Metrics',
   };
 
   function switchTool(name) {
@@ -2559,6 +2595,59 @@ commentary: max 1 sentence each. Be concise.`;
   document.getElementById('dora-clear').addEventListener('click', () =>
     clearTool({ output:'dora-output', warning:'dora-warning', error:'dora-error', loading:'dora-loading' },
               ['dora-df','dora-lt','dora-cfr','dora-ttr']));
+
+  // ── WSJF / CD3 ──────────────────────────────────────────────────────────────
+
+  const WSJF_SYS = `You are applying CD3 (Cost of Delay Divided by Duration) to prioritise a set of work items. CD3 is the Black Swan Farming / Reinertsen approach: rank by what you lose per unit of time, not by value alone.
+
+Return ONLY valid JSON (no markdown, no code fences):
+{
+  "items": [
+    {
+      "rank": 1,
+      "name": "Item name",
+      "user_business_value": 1,
+      "time_criticality": 1,
+      "risk_reduction": 1,
+      "cost_of_delay": 3,
+      "duration": 1,
+      "cd3": 3.0,
+      "rationale": "Why this item ranks here — cite the specific CoD drivers and duration trade-off"
+    }
+  ],
+  "key_insight": "The most important prioritisation insight from this analysis — specifically where CD3 changes the order you might have assumed from value alone."
+}
+
+Scores: user_business_value, time_criticality, risk_reduction: integers 1–10. cost_of_delay = sum of three. duration: integer 1–10 (relative size). cd3 = cost_of_delay / duration (one decimal place). Items sorted by cd3 descending (rank 1 = highest). If an item has low value but very short duration, it may rank higher than expected — make this visible in the rationale.`;
+
+  document.getElementById('wsjf-run').addEventListener('click', () => {
+    const items = document.getElementById('wsjf-items').value.trim();
+    if (!items) { document.getElementById('wsjf-warning').hidden = false; return; }
+    document.getElementById('wsjf-warning').hidden = true;
+    runToolCall(WSJF_SYS, `Items to prioritise:\n${items}`,
+      { output:'wsjf-output', loading:'wsjf-loading', error:'wsjf-error', warning:'wsjf-warning' },
+      (d) => {
+        renderList('wsjf-ranked', d.items ?? [], item => {
+          const cd3 = typeof item.cd3 === 'number' ? item.cd3.toFixed(1) : item.cd3;
+          return `<div class="tool-card">
+            <div class="tool-card-head">#${esc(item.rank)} ${esc(item.name)}${tcTag('band', `CD3: ${cd3}`)}</div>
+            <div style="font-size:0.75rem;color:var(--muted);margin-bottom:0.2rem">
+              Value: ${esc(item.user_business_value)} &bull;
+              Urgency: ${esc(item.time_criticality)} &bull;
+              Risk/Opp: ${esc(item.risk_reduction)} &bull;
+              CoD: ${esc(item.cost_of_delay)} &bull;
+              Size: ${esc(item.duration)}
+            </div>
+            <div class="tool-card-note">${esc(item.rationale)}</div>
+          </div>`;
+        });
+        document.getElementById('wsjf-rationale').innerHTML =
+          `<div class="tool-card"><div class="tool-card-note">${esc(d.key_insight)}</div></div>`;
+      });
+  });
+  document.getElementById('wsjf-clear').addEventListener('click', () =>
+    clearTool({ output:'wsjf-output', warning:'wsjf-warning', error:'wsjf-error', loading:'wsjf-loading' },
+              ['wsjf-items']));
 
   // ── Flow Metrics ────────────────────────────────────────────────────────────
 
