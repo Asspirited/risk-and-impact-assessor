@@ -343,13 +343,13 @@
 
     /* ── Quality Tools Drawer ──────────────────────────────────────────────── */
     .tools-toggle-btn {
-      background: transparent; border: 1px solid rgba(255,255,255,0.45);
-      color: #fff; border-radius: 4px; padding: 0.28rem 0.7rem;
-      font-size: 0.72rem; font-family: inherit; font-weight: 700;
-      letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer;
+      background: rgba(255,255,255,0.12); border: 2px solid rgba(255,255,255,0.75);
+      color: #fff; border-radius: 4px; padding: 0.32rem 0.9rem;
+      font-size: 0.78rem; font-family: inherit; font-weight: 800;
+      letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer;
       white-space: nowrap; flex-shrink: 0;
     }
-    .tools-toggle-btn:hover { background: rgba(255,255,255,0.15); }
+    .tools-toggle-btn:hover { background: rgba(255,255,255,0.25); border-color: #fff; }
 
     .tools-overlay {
       position: fixed; inset: 0; background: rgba(0,0,0,0.32); z-index: 90;
@@ -593,7 +593,7 @@
 <div class="top-banner">
   <div class="top-banner-inner">
   <span>Risk and Impact Assessor</span>
-  <button class="tools-toggle-btn" id="tools-toggle-btn">Quality Tools</button>
+  <button class="tools-toggle-btn" id="tools-toggle-btn">RIA Toolkit</button>
 </div>
 </div>
 
@@ -654,8 +654,8 @@
       <div class="tools-nav-group-label">On the backlog</div>
       <div class="tools-nav-btns">
         <button class="tool-nav-btn" data-tool="cynefin"><span class="tool-nav-btn-label">Cynefin</span><span class="tool-nav-btn-desc">Complexity framework — understand which type of problem you have before choosing your approach</span></button>
-        <button class="tool-nav-btn" data-tool="toc" disabled><span class="tool-nav-btn-label">Theory of Constraints</span><span class="tool-nav-btn-desc">Identify and exploit the single bottleneck limiting system throughput</span></button>
-        <button class="tool-nav-btn" data-tool="sevenwastes" disabled><span class="tool-nav-btn-label">7 Wastes</span><span class="tool-nav-btn-desc">Lean waste identification — transport, inventory, motion, waiting, overproduction, over-processing, defects</span></button>
+        <button class="tool-nav-btn" data-tool="toc"><span class="tool-nav-btn-label">Theory of Constraints</span><span class="tool-nav-btn-desc">Find and exploit the single constraint limiting throughput — improving anything else is waste</span></button>
+        <button class="tool-nav-btn" data-tool="sevenwastes"><span class="tool-nav-btn-label">7 Wastes</span><span class="tool-nav-btn-desc">Lean waste identification — find and eliminate the seven categories of waste in your delivery process</span></button>
         <button class="tool-nav-btn" data-tool="dmaic"><span class="tool-nav-btn-label">DMAIC</span><span class="tool-nav-btn-desc">Define–Measure–Analyse–Improve–Control — Six Sigma structured problem solving with statistical rigour</span></button>
       </div>
     </div>
@@ -1461,10 +1461,78 @@
       </div>
     </div>
     <div class="tool-panel" id="tp-toc">
-      <div class="tool-backlog"><div class="tool-backlog-badge">On the backlog</div><strong>Theory of Constraints</strong>Identify and exploit the single biggest constraint limiting throughput in your system.</div>
+      <div class="tool-panel-title">Theory of Constraints</div>
+      <div class="tool-panel-desc">Every system has exactly one constraint that limits its throughput. Improving anything that isn't the constraint doesn't improve the system — it only creates local optimisation and more inventory. Find the constraint, exploit it, subordinate everything else to it.</div>
+      <details class="tool-guidance">
+        <summary></summary>
+        <div class="tool-guidance-body">
+          <ol class="tool-guidance-steps">
+            <li><strong>Identify:</strong> what is the single step or resource limiting your throughput? Look for the longest queue, the most rework, the step everything waits behind</li>
+            <li><strong>Exploit:</strong> get maximum output from the constraint without spending money — remove waste from it, stop feeding it work it can't process, protect it with a buffer</li>
+            <li><strong>Subordinate:</strong> adjust everything else to support the constraint — stop optimising non-constraints; their idle time is fine if it keeps the constraint busy</li>
+            <li><strong>Elevate:</strong> if the constraint is still limiting after exploitation, invest to increase its capacity — hire, automate, redesign the step</li>
+            <li><strong>Repeat:</strong> once the constraint is broken, find the new one. The constraint moves — don't let inertia become the next constraint</li>
+          </ol>
+          <div class="tool-guidance-source"><strong>Source:</strong> Eliyahu Goldratt, <em>The Goal</em> (1984); <em>Critical Chain</em> (1997). Applied to software by Clarke Ching, Gene Kim, and the DevOps movement.</div>
+        </div>
+      </details>
+      <div class="tool-field">
+        <label for="toc-system">Describe your system and flow</label>
+        <textarea id="toc-system" placeholder="e.g. Our software delivery pipeline: Dev → Code Review → QA → Staging → Deploy. Code review is taking 3–5 days per PR. We have 40 PRs open. QA and staging are often idle waiting for reviewed code."></textarea>
+      </div>
+      <div class="tool-actions">
+        <button class="tool-btn-run" id="toc-run">Find the Constraint</button>
+        <button class="tool-btn-clear" id="toc-clear">Clear</button>
+      </div>
+      <div class="tool-msg tool-warning" id="toc-warning" hidden>Describe your system first.</div>
+      <div class="tool-msg tool-loading" id="toc-loading" hidden>Locating the constraint&#x2026;</div>
+      <div class="tool-msg tool-error" id="toc-error" hidden></div>
+      <div class="tool-output" id="toc-output">
+        <div class="tool-section-lbl">The constraint</div>
+        <div id="toc-constraint"></div>
+        <div class="tool-section-lbl">Exploit — get more from it without spending</div>
+        <div id="toc-exploit"></div>
+        <div class="tool-section-lbl">Subordinate — adjust everything else</div>
+        <div id="toc-subordinate"></div>
+        <div class="tool-section-lbl">Elevate — invest if still limiting</div>
+        <div id="toc-elevate"></div>
+      </div>
     </div>
     <div class="tool-panel" id="tp-sevenwastes">
-      <div class="tool-backlog"><div class="tool-backlog-badge">On the backlog</div><strong>7 Wastes (Lean)</strong>Identify and eliminate the seven categories of waste: transport, inventory, motion, waiting, overproduction, overprocessing, defects.</div>
+      <div class="tool-panel-title">7 Wastes (Lean)</div>
+      <div class="tool-panel-desc">Lean's seven categories of waste — originally from manufacturing, directly applicable to software delivery. Most teams are running at 15–20% value-adding activity. The other 80%+ is waste of one of these seven types.</div>
+      <details class="tool-guidance">
+        <summary></summary>
+        <div class="tool-guidance-body">
+          <ol class="tool-guidance-steps">
+            <li><strong>Transport:</strong> unnecessary handoffs, moving work between people or systems</li>
+            <li><strong>Inventory:</strong> unfinished work, backlogs, half-done features sitting in queues</li>
+            <li><strong>Motion:</strong> unnecessary tool switching, meeting interruptions, context switching</li>
+            <li><strong>Waiting:</strong> waiting for approval, review, environments, decisions, information</li>
+            <li><strong>Overproduction:</strong> building features no one uses, gold-plating, speculative work</li>
+            <li><strong>Over-processing:</strong> unnecessary steps, approvals, documentation, process overhead</li>
+            <li><strong>Defects:</strong> bugs, rework, fixing things that were done wrong — including in requirements</li>
+          </ol>
+          <div class="tool-guidance-source"><strong>Source:</strong> Taiichi Ohno, Toyota Production System (1978); applied to software by Mary &amp; Tom Poppendieck, <em>Lean Software Development</em> (2003).</div>
+        </div>
+      </details>
+      <div class="tool-field">
+        <label for="sevenwastes-process">Describe your delivery process</label>
+        <textarea id="sevenwastes-process" placeholder="e.g. A feature typically goes: product idea → backlog grooming → sprint planning → development → code review → QA testing → staging → sign-off → production. Code review often takes 3+ days. QA finds bugs that were in requirements. We have 60+ items in the backlog nobody looks at."></textarea>
+      </div>
+      <div class="tool-actions">
+        <button class="tool-btn-run" id="sevenwastes-run">Find the Waste</button>
+        <button class="tool-btn-clear" id="sevenwastes-clear">Clear</button>
+      </div>
+      <div class="tool-msg tool-warning" id="sevenwastes-warning" hidden>Describe your delivery process first.</div>
+      <div class="tool-msg tool-loading" id="sevenwastes-loading" hidden>Scanning for waste&#x2026;</div>
+      <div class="tool-msg tool-error" id="sevenwastes-error" hidden></div>
+      <div class="tool-output" id="sevenwastes-output">
+        <div class="tool-section-lbl">Waste found</div>
+        <div id="sevenwastes-found"></div>
+        <div class="tool-section-lbl">Highest-impact elimination</div>
+        <div id="sevenwastes-priority"></div>
+      </div>
     </div>
     <div class="tool-panel" id="tp-dmaic">
       <div class="tool-panel-title">DMAIC</div>
@@ -2523,8 +2591,9 @@
     socratic: 'Socratic Questioning', premortem: 'Pre-mortem', bowtie: 'Bow-Tie Analysis',
     swot: 'SWOT', fta: 'Fault Tree Analysis', acc: 'ACC Matrix', fmea: 'FMEA',
     fivewhys: '5 Whys', ishikawa: 'Ishikawa', kt: 'Kepner-Tregoe', cynefin: 'Cynefin',
-    gqm: 'GQM', spc: 'SPC', testquadrants: 'Test Quadrants', dmaic: 'DMAIC', pdca: 'PDCA',
-    vsm: 'Value Stream Map', wsjf: 'WSJF / CD3', flowmetrics: 'Flow Metrics',
+    gqm: 'GQM', spc: 'SPC', testquadrants: 'Test Quadrants', dmaic: 'DMAIC',
+    pdca: 'PDCA', vsm: 'Value Stream Map', toc: 'Theory of Constraints',
+    sevenwastes: '7 Wastes', wsjf: 'WSJF / CD3', flowmetrics: 'Flow Metrics',
     dora: 'DORA Metrics', space: 'SPACE',
   };
 
@@ -2877,6 +2946,98 @@ commentary: max 1 sentence each. Be concise.`;
   document.getElementById('dora-clear').addEventListener('click', () =>
     clearTool({ output:'dora-output', warning:'dora-warning', error:'dora-error', loading:'dora-loading' },
               ['dora-df','dora-lt','dora-cfr','dora-ttr']));
+
+  // ── 7 Wastes ─────────────────────────────────────────────────────────────────
+
+  const SEVENWASTES_SYS = `You are identifying Lean waste (the 7 Wastes / Muda) in a described delivery process. The seven types are: Transport (handoffs), Inventory (WIP/backlogs), Motion (context switching/tool overhead), Waiting, Overproduction (building what's not needed), Over-processing (unnecessary steps), Defects (rework/bugs).
+
+Return ONLY valid JSON (no markdown, no code fences):
+{
+  "wastes": [
+    {
+      "type": "Transport | Inventory | Motion | Waiting | Overproduction | Over-processing | Defects",
+      "severity": "high | medium | low",
+      "observation": "Specific evidence of this waste in the described process",
+      "elimination": "Concrete action to reduce or eliminate this waste"
+    }
+  ],
+  "priority": "The single highest-impact waste to tackle first and why — cite the throughput effect of eliminating it.",
+  "flow_efficiency_estimate": "Rough estimate of current flow efficiency (active work ÷ total elapsed time) based on the described situation. Most teams: 15–20%."
+}
+
+List all waste types present — skip only those clearly absent. Severity must reflect throughput impact, not just visibility.`;
+
+  document.getElementById('sevenwastes-run').addEventListener('click', () => {
+    const process = document.getElementById('sevenwastes-process').value.trim();
+    if (!process) { document.getElementById('sevenwastes-warning').hidden = false; return; }
+    document.getElementById('sevenwastes-warning').hidden = true;
+    runToolCall(SEVENWASTES_SYS, `Process: ${process}`,
+      { output:'sevenwastes-output', loading:'sevenwastes-loading', error:'sevenwastes-error', warning:'sevenwastes-warning' },
+      (d) => {
+        renderList('sevenwastes-found', d.wastes ?? [], w => {
+          const sev = w.severity === 'high' ? tcTag('critical','HIGH') :
+                      w.severity === 'medium' ? tcTag('band','MEDIUM') : tcTag('low','LOW');
+          return `<div class="tool-card">
+            <div class="tool-card-head">${esc(w.type)}${sev}</div>
+            <div class="tool-card-note">${esc(w.observation)}</div>
+            <div style="margin-top:0.4rem;font-size:0.78rem"><strong>Eliminate:</strong> ${esc(w.elimination)}</div>
+          </div>`;
+        });
+        document.getElementById('sevenwastes-priority').innerHTML =
+          `<div class="tool-card">
+            <div class="tool-card-note">${esc(d.priority)}</div>
+            ${d.flow_efficiency_estimate ? `<div style="margin-top:0.4rem;font-size:0.78rem;color:var(--muted)"><strong>Estimated flow efficiency:</strong> ${esc(d.flow_efficiency_estimate)}</div>` : ''}
+          </div>`;
+      });
+  });
+  document.getElementById('sevenwastes-clear').addEventListener('click', () =>
+    clearTool({ output:'sevenwastes-output', warning:'sevenwastes-warning', error:'sevenwastes-error', loading:'sevenwastes-loading' },
+              ['sevenwastes-process']));
+
+  // ── Theory of Constraints ────────────────────────────────────────────────────
+
+  const TOC_SYS = `You are applying Theory of Constraints (Goldratt) to identify and address the single constraint limiting system throughput.
+
+Return ONLY valid JSON (no markdown, no code fences):
+{
+  "constraint": {
+    "name": "The single step, resource, or policy that is the constraint",
+    "evidence": "What in the described situation identifies this as the constraint — queue depth, wait time, rework, idle downstream steps",
+    "type": "physical | policy | market | paradigm"
+  },
+  "exploit": ["Action to get more from the constraint without spending — remove waste at the constraint, protect it, stop starving it"],
+  "subordinate": ["How to adjust non-constraint steps to support the constraint — where idle time is acceptable, what to stop optimising"],
+  "elevate": ["Investment actions if exploitation is insufficient — capacity increase, automation, redesign"],
+  "warning": "The risk of improving a non-constraint instead — what local optimisation trap is most tempting here?"
+}
+
+exploit: 2–3 actions. subordinate: 2–3 adjustments. elevate: 1–2 options. Be specific to the described system.`;
+
+  document.getElementById('toc-run').addEventListener('click', () => {
+    const system = document.getElementById('toc-system').value.trim();
+    if (!system) { document.getElementById('toc-warning').hidden = false; return; }
+    document.getElementById('toc-warning').hidden = true;
+    runToolCall(TOC_SYS, `System: ${system}`,
+      { output:'toc-output', loading:'toc-loading', error:'toc-error', warning:'toc-warning' },
+      (d) => {
+        const c = d.constraint ?? {};
+        document.getElementById('toc-constraint').innerHTML =
+          `<div class="tool-card">
+            <div class="tool-card-head">${esc(c.name)}${tcTag('critical', (c.type ?? '').toUpperCase())}</div>
+            <div class="tool-card-note">${esc(c.evidence)}</div>
+            ${d.warning ? `<div style="margin-top:0.4rem;font-size:0.78rem;color:var(--muted)"><strong>Trap to avoid:</strong> ${esc(d.warning)}</div>` : ''}
+          </div>`;
+        renderList('toc-exploit', d.exploit ?? [], a =>
+          `<div class="tool-card"><div class="tool-card-note">${esc(a)}</div></div>`);
+        renderList('toc-subordinate', d.subordinate ?? [], a =>
+          `<div class="tool-card"><div class="tool-card-note">${esc(a)}</div></div>`);
+        renderList('toc-elevate', d.elevate ?? [], a =>
+          `<div class="tool-card"><div class="tool-card-note">${esc(a)}</div></div>`);
+      });
+  });
+  document.getElementById('toc-clear').addEventListener('click', () =>
+    clearTool({ output:'toc-output', warning:'toc-warning', error:'toc-error', loading:'toc-loading' },
+              ['toc-system']));
 
   // ── Cynefin ─────────────────────────────────────────────────────────────────
 

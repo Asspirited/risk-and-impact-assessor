@@ -11,7 +11,7 @@
  *    suggestions are grounded in what the analysis actually found.
  */
 
-export const VALID_TOOLS = new Set(['acc', 'fmea', 'fivewhys', 'ishikawa', 'pdca', 'vsm', 'dora', 'socratic', 'premortem', 'bowtie', 'kt', 'gqm', 'flowmetrics', 'wsjf', 'spc', 'testquadrants', 'fta', 'space', 'swot', 'dmaic', 'cynefin']);
+export const VALID_TOOLS = new Set(['acc', 'fmea', 'fivewhys', 'ishikawa', 'pdca', 'vsm', 'dora', 'socratic', 'premortem', 'bowtie', 'kt', 'gqm', 'flowmetrics', 'wsjf', 'spc', 'testquadrants', 'fta', 'space', 'swot', 'dmaic', 'cynefin', 'toc', 'sevenwastes']);
 
 // ── Static suggestions by RAID type ─────────────────────────────────────────
 
@@ -106,6 +106,22 @@ export const TOOL_SIGNALS = {
       'barrier', 'control', 'threat', 'hazard', 'consequence', 'preventive',
       'cause and consequence', 'escalation', 'mitigation', 'safeguard', 'bow-tie',
       'recovery control', 'barrier gap', 'critical event', 'unwanted event',
+    ],
+  },
+  toc: {
+    label: 'Find and exploit the single system constraint',
+    keywords: [
+      'constraint', 'bottleneck', 'throughput', 'exploit', 'subordinate', 'elevate',
+      'goldratt', 'theory of constraints', 'limiting factor', 'system limit',
+      'local optimisation', 'buffer', 'idle capacity', 'drum buffer rope',
+    ],
+  },
+  sevenwastes: {
+    label: 'Identify the seven categories of lean waste',
+    keywords: [
+      'waste', 'muda', 'lean', 'waiting', 'rework', 'handoff', 'inventory',
+      'overproduction', 'context switching', 'over-processing', 'transport',
+      'defect', 'flow efficiency', 'non-value', 'elimination',
     ],
   },
   cynefin: {
