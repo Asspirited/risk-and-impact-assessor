@@ -11,16 +11,16 @@
  *    suggestions are grounded in what the analysis actually found.
  */
 
-export const VALID_TOOLS = new Set(['acc', 'fmea', 'fivewhys', 'ishikawa', 'pdca', 'vsm', 'dora', 'socratic']);
+export const VALID_TOOLS = new Set(['acc', 'fmea', 'fivewhys', 'ishikawa', 'pdca', 'vsm', 'dora', 'socratic', 'premortem']);
 
 // ── Static suggestions by RAID type ─────────────────────────────────────────
 
 export const TOOL_SUGGESTIONS = {
-  risk:       [{ tool: 'socratic',  label: 'Socratic' },        { tool: 'fmea',      label: 'FMEA' }],
+  risk:       [{ tool: 'socratic',  label: 'Socratic' },        { tool: 'premortem', label: 'Pre-mortem' }],
   assumption: [{ tool: 'socratic',  label: 'Socratic' },        { tool: 'acc',       label: 'ACC Analysis' }],
   issue:      [{ tool: 'fivewhys',  label: '5 Whys' },          { tool: 'ishikawa',  label: 'Ishikawa' }, { tool: 'pdca', label: 'PDCA' }],
   dependency: [{ tool: 'vsm',       label: 'Value Stream Map' }, { tool: 'socratic',  label: 'Socratic' }],
-  change:     [{ tool: 'pdca',      label: 'PDCA' },            { tool: 'fmea',      label: 'FMEA' }],
+  change:     [{ tool: 'premortem', label: 'Pre-mortem' },      { tool: 'pdca',      label: 'PDCA' }],
 };
 
 export const RAID_TYPES = Object.keys(TOOL_SUGGESTIONS);
@@ -90,6 +90,14 @@ export const TOOL_SIGNALS = {
       'vague', 'unclear', 'assumption', 'assumed', 'not defined', 'not specified', 'ambiguous',
       'what do we mean', 'not measurable', 'hard to measure', 'uncertain', 'unknown',
       'ill-defined', 'needs clarification', 'not confirmed', 'unverified',
+    ],
+  },
+  premortem: {
+    label: 'Imagine the failure — work backwards',
+    keywords: [
+      'failure', 'fail', 'what could go wrong', 'worst case', 'catastrophic', 'project fails',
+      'if this goes wrong', 'preventable', 'foresee', 'anticipate', 'planning risk',
+      'before it happens', 'failure scenario', 'risk scenario', 'what if',
     ],
   },
 };

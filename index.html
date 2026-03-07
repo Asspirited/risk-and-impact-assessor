@@ -606,6 +606,7 @@
       <div class="tools-nav-group-label">Risk</div>
       <div class="tools-nav-btns">
         <button class="tool-nav-btn" data-tool="socratic"><span class="tool-nav-btn-label">Socratic</span><span class="tool-nav-btn-desc">Qualify &amp; sharpen any risk — probing questions to expose vagueness and push toward measurability</span></button>
+        <button class="tool-nav-btn" data-tool="premortem"><span class="tool-nav-btn-label">Pre-mortem</span><span class="tool-nav-btn-desc">Imagine the project has failed — work backwards to find what caused it before it happens</span></button>
         <button class="tool-nav-btn" data-tool="fmea"><span class="tool-nav-btn-label">FMEA</span><span class="tool-nav-btn-desc">Failure Mode &amp; Effects Analysis — score and prioritise what could go wrong</span></button>
       </div>
     </div>
@@ -732,6 +733,46 @@
         <div id="socratic-questions"></div>
         <div class="tool-section-lbl">Making it measurable</div>
         <div id="socratic-measurable"></div>
+      </div>
+    </div>
+
+    <!-- Pre-mortem -->
+    <div class="tool-panel" id="tp-premortem">
+      <div class="tool-panel-title">Pre-mortem</div>
+      <div class="tool-panel-desc">Assume the project has already failed. Working backwards from that imagined failure forces people to voice concerns they'd normally suppress — and surfaces risks before they become real.</div>
+      <details class="tool-guidance">
+        <summary></summary>
+        <div class="tool-guidance-body">
+          <ol class="tool-guidance-steps">
+            <li>Brief the team: "It is one year from now. The project has failed badly. We need to understand how."</li>
+            <li>Everyone writes down the most plausible causes — independently, before discussing (silences groupthink)</li>
+            <li>Collect the scenarios and look for patterns — causes that multiple people named independently are the highest-signal risks</li>
+            <li>For each scenario, identify the earliest detectable warning sign — what would you see first?</li>
+            <li>Turn the top scenarios into concrete preventive actions and add them to your risk register</li>
+          </ol>
+          <div class="tool-guidance-source"><strong>Source:</strong> Gary Klein, <em>Seeing What Others Don't</em> (2013); Daniel Kahneman, <em>Thinking, Fast and Slow</em> (2011), Ch. 24. Widely used in product development, military planning, and medicine.</div>
+        </div>
+      </details>
+      <div class="tool-field">
+        <label for="premortem-project">Project description</label>
+        <textarea id="premortem-project" placeholder="e.g. Migrating legacy billing system to a new cloud platform, go-live in Q3, team of 8, external vendor dependency for the payment gateway."></textarea>
+      </div>
+      <div class="tool-field">
+        <label for="premortem-focus">Focus area (optional)</label>
+        <input type="text" id="premortem-focus" placeholder="e.g. vendor delivery, team capacity, technical debt">
+      </div>
+      <div class="tool-actions">
+        <button class="tool-btn-run" id="premortem-run">Run Pre-mortem</button>
+        <button class="tool-btn-clear" id="premortem-clear">Clear</button>
+      </div>
+      <div class="tool-msg tool-warning" id="premortem-warning" hidden>Enter a project description first.</div>
+      <div class="tool-msg tool-loading" id="premortem-loading" hidden>Looking back from failure&#x2026;</div>
+      <div class="tool-msg tool-error" id="premortem-error" hidden></div>
+      <div class="tool-output" id="premortem-output">
+        <div class="tool-section-lbl">Failure scenarios</div>
+        <div id="premortem-scenarios"></div>
+        <div class="tool-section-lbl">Top preventive actions</div>
+        <div id="premortem-actions"></div>
       </div>
     </div>
 
@@ -2000,8 +2041,8 @@
   let activeToolName = null;
 
   const TOOL_LABELS = {
-    socratic: 'Socratic Questioning', acc: 'ACC Matrix', fmea: 'FMEA', fivewhys: '5 Whys',
-    ishikawa: 'Ishikawa', pdca: 'PDCA', vsm: 'Value Stream Map', dora: 'DORA Metrics',
+    socratic: 'Socratic Questioning', premortem: 'Pre-mortem', acc: 'ACC Matrix', fmea: 'FMEA',
+    fivewhys: '5 Whys', ishikawa: 'Ishikawa', pdca: 'PDCA', vsm: 'Value Stream Map', dora: 'DORA Metrics',
   };
 
   function switchTool(name) {
@@ -2353,6 +2394,51 @@ commentary: max 1 sentence each. Be concise.`;
   document.getElementById('dora-clear').addEventListener('click', () =>
     clearTool({ output:'dora-output', warning:'dora-warning', error:'dora-error', loading:'dora-loading' },
               ['dora-df','dora-lt','dora-cfr','dora-ttr']));
+
+  // ── Pre-mortem ──────────────────────────────────────────────────────────────
+
+  const PREMORTEM_SYS = `You are facilitating a pre-mortem exercise. The project described has already failed — badly. Your job is to surface the most plausible failure scenarios and the earliest detectable warning signs for each.
+
+Return ONLY valid JSON (no markdown, no code fences):
+{
+  "scenarios": [
+    {
+      "title": "Short failure scenario name",
+      "how_it_unfolds": "2–3 sentences describing how this failure actually happened — specific, plausible, not generic.",
+      "early_warning": "The first observable sign that this scenario was beginning to unfold — concrete and detectable."
+    }
+  ],
+  "top_actions": [
+    "Specific preventive action 1",
+    "Specific preventive action 2",
+    "Specific preventive action 3"
+  ]
+}
+
+4–6 scenarios. Scenarios must be distinct — not variations of the same theme. No management-speak. No generic 'communication issues'. Be specific to the project described.`;
+
+  document.getElementById('premortem-run').addEventListener('click', () => {
+    const project = document.getElementById('premortem-project').value.trim();
+    if (!project) { document.getElementById('premortem-warning').hidden = false; return; }
+    document.getElementById('premortem-warning').hidden = true;
+    const focus = document.getElementById('premortem-focus').value.trim();
+    const msg = focus ? `Project: ${project}. Focus especially on: ${focus}.` : `Project: ${project}`;
+    runToolCall(PREMORTEM_SYS, msg,
+      { output:'premortem-output', loading:'premortem-loading', error:'premortem-error', warning:'premortem-warning' },
+      (d) => {
+        renderList('premortem-scenarios', d.scenarios ?? [], s =>
+          `<div class="tool-card">
+            <div class="tool-card-head">${esc(s.title)}</div>
+            <div class="tool-card-note">${esc(s.how_it_unfolds)}</div>
+            <div style="margin-top:0.4rem;font-size:0.78rem"><strong>Early warning:</strong> ${esc(s.early_warning)}</div>
+          </div>`);
+        renderList('premortem-actions', d.top_actions ?? [], a =>
+          `<div class="tool-card"><div class="tool-card-note">${esc(a)}</div></div>`);
+      });
+  });
+  document.getElementById('premortem-clear').addEventListener('click', () =>
+    clearTool({ output:'premortem-output', warning:'premortem-warning', error:'premortem-error', loading:'premortem-loading' },
+              ['premortem-project','premortem-focus']));
 
   // ── Socratic ────────────────────────────────────────────────────────────────
 
