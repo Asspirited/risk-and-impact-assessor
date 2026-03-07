@@ -3183,10 +3183,15 @@ Project context: ${currentReport.projectName} | ${currentReport.archetypeLabel ?
     b.addEventListener('click', () => switchTool(b.dataset.tool));
   });
 
-  // ── Collapsible nav categories ───────────────────────────────────────────────
+  // ── Collapsible nav categories (accordion — one open at a time) ──────────────
   document.querySelectorAll('.tools-nav-group-label').forEach(label => {
     label.addEventListener('click', () => {
-      label.closest('.tools-nav-group').classList.toggle('collapsed');
+      const group = label.closest('.tools-nav-group');
+      const isCollapsed = group.classList.contains('collapsed');
+      // Collapse all groups first
+      document.querySelectorAll('.tools-nav-group').forEach(g => g.classList.add('collapsed'));
+      // If this one was open, leave it collapsed; otherwise open it
+      if (isCollapsed) group.classList.remove('collapsed');
     });
   });
 
