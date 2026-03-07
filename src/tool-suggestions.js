@@ -11,15 +11,15 @@
  *    suggestions are grounded in what the analysis actually found.
  */
 
-export const VALID_TOOLS = new Set(['acc', 'fmea', 'fivewhys', 'ishikawa', 'pdca', 'vsm', 'dora']);
+export const VALID_TOOLS = new Set(['acc', 'fmea', 'fivewhys', 'ishikawa', 'pdca', 'vsm', 'dora', 'socratic']);
 
 // ── Static suggestions by RAID type ─────────────────────────────────────────
 
 export const TOOL_SUGGESTIONS = {
-  risk:       [{ tool: 'fmea',      label: 'FMEA' },            { tool: 'fivewhys',  label: '5 Whys' }],
-  assumption: [{ tool: 'acc',       label: 'ACC Analysis' },    { tool: 'pdca',      label: 'PDCA' }],
+  risk:       [{ tool: 'socratic',  label: 'Socratic' },        { tool: 'fmea',      label: 'FMEA' }],
+  assumption: [{ tool: 'socratic',  label: 'Socratic' },        { tool: 'acc',       label: 'ACC Analysis' }],
   issue:      [{ tool: 'fivewhys',  label: '5 Whys' },          { tool: 'ishikawa',  label: 'Ishikawa' }, { tool: 'pdca', label: 'PDCA' }],
-  dependency: [{ tool: 'vsm',       label: 'Value Stream Map' }, { tool: 'acc',       label: 'ACC Analysis' }],
+  dependency: [{ tool: 'vsm',       label: 'Value Stream Map' }, { tool: 'socratic',  label: 'Socratic' }],
   change:     [{ tool: 'pdca',      label: 'PDCA' },            { tool: 'fmea',      label: 'FMEA' }],
 };
 
@@ -82,6 +82,14 @@ export const TOOL_SIGNALS = {
       'deployment', 'release frequency', 'lead time', 'change failure', 'recovery time',
       'devops', 'ci/cd', 'delivery performance', 'restore service', 'mean time to recover',
       'deploy', 'pipeline', 'release cadence', 'time to deploy', 'incident recovery',
+    ],
+  },
+  socratic: {
+    label: 'Qualify and sharpen the statement',
+    keywords: [
+      'vague', 'unclear', 'assumption', 'assumed', 'not defined', 'not specified', 'ambiguous',
+      'what do we mean', 'not measurable', 'hard to measure', 'uncertain', 'unknown',
+      'ill-defined', 'needs clarification', 'not confirmed', 'unverified',
     ],
   },
 };

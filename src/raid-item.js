@@ -79,7 +79,7 @@ export function buildRaidItemPrompt(type, description, report) {
     ? report.contradictions.map(c => c.dimension).join(', ')
     : 'none';
 
-  return `You are a project risk analyst reviewing a specific ${itemType.label.toLowerCase()} raised on an active project.
+  return `You are facilitating a panel review of a specific ${itemType.label.toLowerCase()} raised on an active project.
 
 Project: ${report.projectName}
 Risk archetype: ${report.archetypeLabel ?? 'unknown'} — ${report.archetypeDescription ?? ''}
@@ -92,11 +92,12 @@ Dimensions where the panel disagrees: ${contradictions}
 The ${itemType.label.toLowerCase()} under review:
 ${description.trim()}
 
-Analyse this ${itemType.label.toLowerCase()} in the context of this project's current risk profile. Structure your response as follows:
-1. What this implies — given the project's archetype and severity, what does this ${itemType.label.toLowerCase()} signal?
-2. Three questions to ask — to fully understand the ${itemType.label.toLowerCase()} and its impact
-3. Recommended immediate action — one concrete next step
-4. Panel perspective — which of the three panel roles (Business Stakeholder, Project Manager, Development Team) is most exposed, and why
+Produce a JSON object with exactly these four keys. No markdown. No code fences. Raw JSON only.
 
-Plain prose. No jargon. 150–250 words.`;
+{
+  "stakeholder": "Suni's read — business stakeholder view. What does this mean for cost, time, and business outcomes? 2–3 sentences. Plain prose, no bullet points.",
+  "pm": "Peter's read — project manager view. What does this mean for schedule, governance, and RAID management? 2–3 sentences. Plain prose, no bullet points.",
+  "dev": "Davos's read — development team view. What does this mean for technical quality, complexity, and uncertainty? 2–3 sentences. Plain prose, no bullet points.",
+  "weller": "Paul Weller's synthesis. He speaks plainly, directly, no management language. Working-class authority. Cuts through the noise to say what the panel is really telling you and what needs to happen. 3–4 sentences."
+}`;
 }

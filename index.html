@@ -187,10 +187,48 @@
     .raid-action-row { display: flex; align-items: center; gap: 1rem; margin-top: 0.75rem; }
     #raid-char-count { font-size: 0.75rem; color: var(--muted); }
 
-    #raid-item-output { margin-top: 1.25rem; }
-    .raid-result {
-      background: var(--bg); border-radius: var(--radius); padding: 1rem 1.25rem;
-      font-size: 0.92rem; line-height: 1.75; white-space: pre-wrap;
+    #raid-item-output { margin-top: 1.25rem; display: flex; flex-direction: column; gap: 0.75rem; }
+
+    .raid-panel-card {
+      background: var(--bg); border-radius: var(--radius);
+      border: 1px solid var(--border); overflow: hidden;
+    }
+    .raid-panel-header {
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.45rem 0.85rem;
+      background: var(--surface); border-bottom: 1px solid var(--border);
+    }
+    .raid-panel-role {
+      font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.07em; color: var(--brand);
+    }
+    .raid-panel-name {
+      font-size: 0.7rem; color: var(--muted);
+    }
+    .raid-panel-body {
+      padding: 0.75rem 1rem;
+      font-size: 0.9rem; line-height: 1.7;
+    }
+
+    .raid-weller-card {
+      background: var(--surface); border-radius: var(--radius);
+      border: 2px solid var(--brand); overflow: hidden;
+    }
+    .raid-weller-header {
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.45rem 0.85rem;
+      background: var(--brand);
+    }
+    .raid-weller-label {
+      font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.07em; color: #fff;
+    }
+    .raid-weller-sub {
+      font-size: 0.7rem; color: rgba(255,255,255,0.7);
+    }
+    .raid-weller-body {
+      padding: 0.85rem 1rem;
+      font-size: 0.95rem; line-height: 1.75; font-style: italic;
     }
 
     /* ---- Full assessment (collapsible) ---- */
@@ -565,15 +603,36 @@
   </div>
   <div class="tools-nav">
     <div>
-      <div class="tools-nav-group-label">Live tools</div>
+      <div class="tools-nav-group-label">Risk</div>
       <div class="tools-nav-btns">
-        <button class="tool-nav-btn" data-tool="acc"><span class="tool-nav-btn-label">ACC</span><span class="tool-nav-btn-desc">Attributes, Components, Capabilities — coverage heuristic</span></button>
-        <button class="tool-nav-btn" data-tool="fmea"><span class="tool-nav-btn-label">FMEA</span><span class="tool-nav-btn-desc">Failure Mode &amp; Effects Analysis — risk prioritisation</span></button>
-        <button class="tool-nav-btn" data-tool="fivewhys"><span class="tool-nav-btn-label">5 Whys</span><span class="tool-nav-btn-desc">Root cause drilling — ask why until the real problem surfaces</span></button>
-        <button class="tool-nav-btn" data-tool="ishikawa"><span class="tool-nav-btn-label">Ishikawa</span><span class="tool-nav-btn-desc">Fishbone diagram — map causes across six categories to an effect</span></button>
-        <button class="tool-nav-btn" data-tool="pdca"><span class="tool-nav-btn-label">PDCA</span><span class="tool-nav-btn-desc">Plan–Do–Check–Act — hypothesis-driven improvement cycle</span></button>
-        <button class="tool-nav-btn" data-tool="vsm"><span class="tool-nav-btn-label">VSM</span><span class="tool-nav-btn-desc">Value Stream Mapping — find waste and friction in your flow</span></button>
-        <button class="tool-nav-btn" data-tool="dora"><span class="tool-nav-btn-label">DORA</span><span class="tool-nav-btn-desc">DevOps performance metrics — deployment frequency, lead time, change fail rate, recovery time</span></button>
+        <button class="tool-nav-btn" data-tool="socratic"><span class="tool-nav-btn-label">Socratic</span><span class="tool-nav-btn-desc">Qualify &amp; sharpen any risk — probing questions to expose vagueness and push toward measurability</span></button>
+        <button class="tool-nav-btn" data-tool="fmea"><span class="tool-nav-btn-label">FMEA</span><span class="tool-nav-btn-desc">Failure Mode &amp; Effects Analysis — score and prioritise what could go wrong</span></button>
+      </div>
+    </div>
+    <div>
+      <div class="tools-nav-group-label">Root Cause</div>
+      <div class="tools-nav-btns">
+        <button class="tool-nav-btn" data-tool="fivewhys"><span class="tool-nav-btn-label">5 Whys</span><span class="tool-nav-btn-desc">Ask why until the real cause surfaces — stops fixes treating symptoms</span></button>
+        <button class="tool-nav-btn" data-tool="ishikawa"><span class="tool-nav-btn-label">Ishikawa</span><span class="tool-nav-btn-desc">Fishbone diagram — map all contributing causes across six categories</span></button>
+      </div>
+    </div>
+    <div>
+      <div class="tools-nav-group-label">Quality</div>
+      <div class="tools-nav-btns">
+        <button class="tool-nav-btn" data-tool="acc"><span class="tool-nav-btn-label">ACC</span><span class="tool-nav-btn-desc">Attributes, Components, Capabilities — expose coverage gaps before they become risks</span></button>
+        <button class="tool-nav-btn" data-tool="pdca"><span class="tool-nav-btn-label">PDCA</span><span class="tool-nav-btn-desc">Plan–Do–Check–Act — structured improvement cycle with measurable hypotheses</span></button>
+      </div>
+    </div>
+    <div>
+      <div class="tools-nav-group-label">Delivery</div>
+      <div class="tools-nav-btns">
+        <button class="tool-nav-btn" data-tool="vsm"><span class="tool-nav-btn-label">VSM</span><span class="tool-nav-btn-desc">Value Stream Mapping — find waste and friction slowing your flow</span></button>
+      </div>
+    </div>
+    <div>
+      <div class="tools-nav-group-label">Metrics</div>
+      <div class="tools-nav-btns">
+        <button class="tool-nav-btn" data-tool="dora"><span class="tool-nav-btn-label">DORA</span><span class="tool-nav-btn-desc">DevOps Research — four key delivery performance metrics</span></button>
       </div>
     </div>
     <div>
@@ -583,6 +642,7 @@
         <button class="tool-nav-btn" data-tool="toc" disabled><span class="tool-nav-btn-label">Theory of Constraints</span><span class="tool-nav-btn-desc">Identify and exploit the single bottleneck limiting system throughput</span></button>
         <button class="tool-nav-btn" data-tool="sevenwastes" disabled><span class="tool-nav-btn-label">7 Wastes</span><span class="tool-nav-btn-desc">Lean waste identification — transport, inventory, motion, waiting, overproduction, over-processing, defects</span></button>
         <button class="tool-nav-btn" data-tool="dmaic" disabled><span class="tool-nav-btn-label">DMAIC</span><span class="tool-nav-btn-desc">Define–Measure–Analyse–Improve–Control — Six Sigma problem solving</span></button>
+        <button class="tool-nav-btn" data-tool="wsjf" disabled><span class="tool-nav-btn-label">WSJF</span><span class="tool-nav-btn-desc">Weighted Shortest Job First — rank work by Cost of Delay ÷ Duration</span></button>
       </div>
     </div>
   </div>
@@ -624,6 +684,54 @@
         <div class="tool-section-lbl">Attributes — quality goals (scored 1–5)</div><div id="acc-attributes"></div>
         <div class="tool-section-lbl">Components — parts of the system</div><div id="acc-components"></div>
         <div class="tool-section-lbl">Capabilities — what it does, mapped to components &amp; attributes</div><div id="acc-capabilities"></div>
+      </div>
+    </div>
+
+    <!-- Socratic -->
+    <div class="tool-panel" id="tp-socratic">
+      <div class="tool-panel-title">Socratic Questioning</div>
+      <div class="tool-panel-desc">Turn a vague risk or assumption into a precise, measurable statement. Enter what you think the risk is — the tool challenges it with probing questions, refines the statement, and tells you what it would take to measure it.</div>
+      <details class="tool-guidance">
+        <summary></summary>
+        <div class="tool-guidance-body">
+          <ol class="tool-guidance-steps">
+            <li>Write your risk, assumption, or issue in plain language — don't worry about precision yet</li>
+            <li>Read the refined statement — does it capture what you actually meant? If not, revise and re-run</li>
+            <li>Work through the Socratic questions — each one exposes something you haven't pinned down</li>
+            <li>Use the measurability guidance to define a scale, threshold, and metric (Gilb's Planguage: Scale, Meter, Must, Plan, Past)</li>
+            <li>Take the refined, measurable statement into FMEA or the RAID analysis for quantified prioritisation</li>
+          </ol>
+          <div class="tool-guidance-source"><strong>Sources:</strong> Socratic method (Plato, 5th century BC); Tom Gilb, <em>Competitive Engineering</em> (2005) — Planguage measurable requirements; Douglas Hubbard, <em>How to Measure Anything</em> (2014) — calibrated estimation; GQM: Basili &amp; Weiss, NASA/SEL (1984).</div>
+        </div>
+      </details>
+      <div class="tool-field">
+        <label for="socratic-statement">Your risk, assumption, or issue</label>
+        <textarea id="socratic-statement" placeholder="e.g. The vendor might not deliver on time and that could be a problem for the release."></textarea>
+      </div>
+      <div class="tool-field">
+        <label for="socratic-type">Type</label>
+        <select id="socratic-type">
+          <option value="risk">Risk</option>
+          <option value="assumption">Assumption</option>
+          <option value="issue">Issue</option>
+          <option value="dependency">Dependency</option>
+          <option value="change">Change</option>
+        </select>
+      </div>
+      <div class="tool-actions">
+        <button class="tool-btn-run" id="socratic-run">Qualify</button>
+        <button class="tool-btn-clear" id="socratic-clear">Clear</button>
+      </div>
+      <div class="tool-msg tool-warning" id="socratic-warning" hidden>Enter a statement first.</div>
+      <div class="tool-msg tool-loading" id="socratic-loading" hidden>Questioning&#x2026;</div>
+      <div class="tool-msg tool-error" id="socratic-error" hidden></div>
+      <div class="tool-output" id="socratic-output">
+        <div class="tool-section-lbl">Refined statement</div>
+        <div id="socratic-refined"></div>
+        <div class="tool-section-lbl">Socratic questions</div>
+        <div id="socratic-questions"></div>
+        <div class="tool-section-lbl">Making it measurable</div>
+        <div id="socratic-measurable"></div>
       </div>
     </div>
 
@@ -912,6 +1020,9 @@
     </div>
     <div class="tool-panel" id="tp-dmaic">
       <div class="tool-backlog"><div class="tool-backlog-badge">On the backlog</div><strong>DMAIC (Lean Six Sigma)</strong>Define, Measure, Analyse, Improve and Control — structured improvement with statistical rigour.</div>
+    </div>
+    <div class="tool-panel" id="tp-wsjf">
+      <div class="tool-backlog"><div class="tool-backlog-badge">On the backlog</div><strong>WSJF — Cost of Delay</strong>Weighted Shortest Job First: rank work by Cost of Delay ÷ Duration. Surfaces what you lose by waiting, not just what things are worth. Developed by Don Reinertsen; refined by Black Swan Farming.</div>
     </div>
 
   </div><!-- .tools-content -->
@@ -1767,15 +1878,53 @@
       if (!res.ok) {
         raidItemOutputEl.innerHTML = `<span class="commentary-error">${data.error ?? `Error ${res.status}.`}</span>`;
       } else {
-        const commentary = data.commentary ?? '';
-        const out = document.createElement('div');
-        out.className = 'raid-result';
-        out.textContent = commentary;
+        const raw = (data.commentary ?? '').trim()
+          .replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '');
+        let parsed = null;
+        try { parsed = JSON.parse(raw); } catch { /* fall through */ }
+
         raidItemOutputEl.innerHTML = '';
-        raidItemOutputEl.appendChild(out);
-        // Text-based suggestions — grounded in what the analysis found
-        const textMatches = suggestToolsFromText(commentary);
-        showToolSuggestion(textMatches.length ? textMatches : null, selectedRaidType);
+
+        if (parsed && parsed.stakeholder && parsed.pm && parsed.dev && parsed.weller) {
+          const roles = [
+            { role: 'Business Stakeholder', name: 'Suni', key: 'stakeholder' },
+            { role: 'Project Manager',       name: 'Peter', key: 'pm' },
+            { role: 'Development Team',      name: 'Davos', key: 'dev' },
+          ];
+          for (const { role, name, key } of roles) {
+            const card = document.createElement('div');
+            card.className = 'raid-panel-card';
+            card.innerHTML = `<div class="raid-panel-header">
+              <span class="raid-panel-role">${esc(role)}</span>
+              <span class="raid-panel-name">— ${esc(name)}</span>
+            </div>
+            <div class="raid-panel-body">${esc(parsed[key])}</div>`;
+            raidItemOutputEl.appendChild(card);
+          }
+          const weller = document.createElement('div');
+          weller.className = 'raid-weller-card';
+          weller.innerHTML = `<div class="raid-weller-header">
+            <span class="raid-weller-label">Paul Weller</span>
+            <span class="raid-weller-sub">— synthesis</span>
+          </div>
+          <div class="raid-weller-body">${esc(parsed.weller)}</div>`;
+          raidItemOutputEl.appendChild(weller);
+          // Text-based suggestions — grounded in what the analysis found
+          const allText = [parsed.stakeholder, parsed.pm, parsed.dev, parsed.weller].join(' ');
+          const textMatches = suggestToolsFromText(allText);
+          showToolSuggestion(textMatches.length ? textMatches : null, selectedRaidType);
+        } else {
+          // Fallback: plain text render if JSON parse failed
+          const out = document.createElement('div');
+          out.className = 'raid-panel-card';
+          out.style.padding = '1rem';
+          out.style.fontSize = '0.9rem';
+          out.style.lineHeight = '1.7';
+          out.textContent = raw;
+          raidItemOutputEl.appendChild(out);
+          const textMatches = suggestToolsFromText(raw);
+          showToolSuggestion(textMatches.length ? textMatches : null, selectedRaidType);
+        }
       }
     } catch {
       raidItemOutputEl.innerHTML = '<span class="commentary-error">Could not reach the commentary service.</span>';
@@ -1851,7 +2000,7 @@
   let activeToolName = null;
 
   const TOOL_LABELS = {
-    acc: 'ACC Matrix', fmea: 'FMEA', fivewhys: '5 Whys',
+    socratic: 'Socratic Questioning', acc: 'ACC Matrix', fmea: 'FMEA', fivewhys: '5 Whys',
     ishikawa: 'Ishikawa', pdca: 'PDCA', vsm: 'Value Stream Map', dora: 'DORA Metrics',
   };
 
@@ -2204,6 +2353,45 @@ commentary: max 1 sentence each. Be concise.`;
   document.getElementById('dora-clear').addEventListener('click', () =>
     clearTool({ output:'dora-output', warning:'dora-warning', error:'dora-error', loading:'dora-loading' },
               ['dora-df','dora-lt','dora-cfr','dora-ttr']));
+
+  // ── Socratic ────────────────────────────────────────────────────────────────
+
+  const SOCRATIC_SYS = `You are applying Socratic questioning and Gilb's Planguage discipline to sharpen a vague risk, assumption, issue, dependency, or change statement.
+
+Return ONLY valid JSON (no markdown, no code fences):
+{
+  "refined": "A precise, unambiguous restatement of what the user described — names the affected system/component, the trigger condition, and the consequence. No hedging.",
+  "questions": [
+    "Probing question 1",
+    "Probing question 2",
+    "Probing question 3",
+    "Probing question 4",
+    "Probing question 5"
+  ],
+  "measurable": "How to make this measurable — propose a Scale (the unit), a Meter (how you'd observe it), a Must (failure threshold) and a Plan (target). Cite Gilb or Hubbard where relevant. 2–3 sentences."
+}
+
+Questions must challenge the precision of the statement: expose what is assumed vs known, what 'on time' or 'too slow' or 'might fail' actually means, who is affected, and under what conditions the risk materialises. No vague questions.`;
+
+  document.getElementById('socratic-run').addEventListener('click', () => {
+    const statement = document.getElementById('socratic-statement').value.trim();
+    if (!statement) { document.getElementById('socratic-warning').hidden = false; return; }
+    document.getElementById('socratic-warning').hidden = true;
+    const type = document.getElementById('socratic-type').value;
+    runToolCall(SOCRATIC_SYS, `${type.toUpperCase()}: ${statement}`,
+      { output:'socratic-output', loading:'socratic-loading', error:'socratic-error', warning:'socratic-warning' },
+      (d) => {
+        document.getElementById('socratic-refined').innerHTML =
+          `<div class="tool-card"><div class="tool-card-note">${esc(d.refined)}</div></div>`;
+        renderList('socratic-questions', d.questions ?? [], q =>
+          `<div class="tool-card"><div class="tool-card-note">${esc(q)}</div></div>`);
+        document.getElementById('socratic-measurable').innerHTML =
+          `<div class="tool-card"><div class="tool-card-note">${esc(d.measurable)}</div></div>`;
+      });
+  });
+  document.getElementById('socratic-clear').addEventListener('click', () =>
+    clearTool({ output:'socratic-output', warning:'socratic-warning', error:'socratic-error', loading:'socratic-loading' },
+              ['socratic-statement']));
 
   // ── Tool recommender ────────────────────────────────────────────────────────
 
