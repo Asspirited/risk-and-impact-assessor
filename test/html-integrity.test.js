@@ -148,7 +148,88 @@ describe('meta worker-url', () => {
 });
 
 // ============================================================================
-// 6. showToolSuggestion DOM wiring
+// 6. Mobile nav scrollability
+//    Regression: .tools-nav had flex-shrink: 0 with no overflow-y — long tool
+//    lists clipped on small screens and the page behind scrolled instead.
+// ============================================================================
+
+describe('mobile sidebar scroll', () => {
+  test('.tools-nav has overflow-y: auto (scrollable on mobile)', () => {
+    expect(html).toMatch(/\.tools-nav\s*\{[^}]*overflow-y:\s*auto/);
+  });
+
+  test('.tools-nav has overscroll-behavior: contain (no scroll bleed)', () => {
+    expect(html).toMatch(/\.tools-nav\s*\{[^}]*overscroll-behavior:\s*contain/);
+  });
+
+  test('.tools-drawer has overscroll-behavior: contain', () => {
+    expect(html).toMatch(/\.tools-drawer\s*\{[^}]*overscroll-behavior:\s*contain/);
+  });
+
+  test('.tools-nav does not have flex-shrink: 0 (must be able to shrink)', () => {
+    // flex-shrink: 0 prevented the nav from fitting within the drawer height
+    const navRule = html.match(/\.tools-nav\s*\{([^}]+)\}/);
+    expect(navRule).not.toBeNull();
+    expect(navRule[1]).not.toMatch(/flex-shrink:\s*0/);
+  });
+});
+
+// ============================================================================
+// 7. Tool nav category placement
+//    Regression guard: pre-mortem and KT are in the backlog section, not live.
+// ============================================================================
+
+describe('tool nav category placement', () => {
+  // Parse the nav HTML to get the category each tool belongs to
+  function getToolCategory(toolId) {
+    // Find the section containing data-tool="<id>" and return its label
+    const re = /class="tools-nav-group-label">([^<]+)<[\s\S]*?data-tool="([^"]+)"/g;
+    let m;
+    let currentLabel = null;
+    const labelRe = /class="tools-nav-group-label">([^<]+)</g;
+    const toolRe = /data-tool="([^"]+)"/g;
+    // Walk through nav HTML sequentially
+    const navMatch = html.match(/<div class="tools-nav">([\s\S]*?)<\/div>\s*<div class="tools-content">/);
+    if (!navMatch) return null;
+    const navHtml = navMatch[1];
+    // Split by group labels to find which group each tool is in
+    const groups = navHtml.split(/class="tools-nav-group-label">/);
+    for (const group of groups.slice(1)) {
+      const labelEnd = group.indexOf('<');
+      const label = group.slice(0, labelEnd).trim();
+      const toolMatches = [...group.matchAll(/data-tool="([^"]+)"/g)];
+      if (toolMatches.some(([, id]) => id === toolId)) return label;
+    }
+    return null;
+  }
+
+  test('pre-mortem is in the backlog section', () => {
+    expect(getToolCategory('premortem')).toBe('On the backlog');
+  });
+
+  test('kepner-tregoe is in the backlog section', () => {
+    expect(getToolCategory('kt')).toBe('On the backlog');
+  });
+
+  test('socratic is in the Risk section', () => {
+    expect(getToolCategory('socratic')).toBe('Risk');
+  });
+
+  test('fivewhys is in the Root Cause section', () => {
+    expect(getToolCategory('fivewhys')).toBe('Root Cause');
+  });
+
+  test('pdca is in the Delivery section', () => {
+    expect(getToolCategory('pdca')).toBe('Delivery');
+  });
+
+  test('flowmetrics is in the Metrics section', () => {
+    expect(getToolCategory('flowmetrics')).toBe('Metrics');
+  });
+});
+
+// ============================================================================
+// 8. showToolSuggestion DOM wiring
 // ============================================================================
 
 describe('showToolSuggestion structural integrity', () => {

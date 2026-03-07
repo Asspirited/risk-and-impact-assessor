@@ -365,6 +365,7 @@
       z-index: 100; transform: translateX(-100%);
       transition: transform 0.2s ease;
       overflow: hidden;
+      overscroll-behavior: contain;
     }
     .tools-drawer.open { transform: translateX(0); }
 
@@ -377,7 +378,7 @@
     .tools-close-btn { background: transparent; border: none; color: rgba(255,255,255,0.7); font-size: 1.3rem; cursor: pointer; line-height: 1; padding: 0 0.2rem; }
     .tools-close-btn:hover { color: #fff; }
 
-    .tools-nav { padding: 0.7rem 0.8rem 0.5rem; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 0.55rem; flex-shrink: 0; }
+    .tools-nav { padding: 0.7rem 0.8rem 0.5rem; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 0.55rem; overflow-y: auto; flex: 0 1 auto; min-height: 0; overscroll-behavior: contain; }
     .tools-nav-group-label { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.2rem; }
     .tools-nav-btns { display: flex; flex-direction: column; gap: 0.25rem; }
     .tool-nav-btn {
@@ -602,7 +603,7 @@
 <div class="tools-overlay" id="tools-overlay"></div>
 <aside class="tools-drawer" id="tools-drawer">
   <div class="tools-drawer-header">
-    <span class="tools-drawer-title">Quality Tools</span>
+    <span class="tools-drawer-title">RIA Toolkit</span>
     <button class="tools-close-btn" id="tools-close-btn" aria-label="Close">&#x2715;</button>
   </div>
   <div class="tools-nav">
@@ -610,7 +611,6 @@
       <div class="tools-nav-group-label">Risk</div>
       <div class="tools-nav-btns">
         <button class="tool-nav-btn" data-tool="socratic"><span class="tool-nav-btn-label">Socratic</span><span class="tool-nav-btn-desc">Qualify &amp; sharpen any risk — probing questions to expose vagueness and push toward measurability</span></button>
-        <button class="tool-nav-btn" data-tool="premortem"><span class="tool-nav-btn-label">Pre-mortem</span><span class="tool-nav-btn-desc">Imagine the project has failed — work backwards to find what caused it before it happens</span></button>
         <button class="tool-nav-btn" data-tool="bowtie"><span class="tool-nav-btn-label">Bow-Tie</span><span class="tool-nav-btn-desc">Map threats → controls → hazard → controls → consequences — see where your barriers are thin</span></button>
         <button class="tool-nav-btn" data-tool="fmea"><span class="tool-nav-btn-label">FMEA</span><span class="tool-nav-btn-desc">Failure Mode &amp; Effects Analysis — score and prioritise what could go wrong</span></button>
         <button class="tool-nav-btn" data-tool="swot"><span class="tool-nav-btn-label">SWOT</span><span class="tool-nav-btn-desc">Strengths, Weaknesses, Opportunities, Threats — strategic risk surface for any project or decision</span></button>
@@ -621,7 +621,6 @@
       <div class="tools-nav-btns">
         <button class="tool-nav-btn" data-tool="fivewhys"><span class="tool-nav-btn-label">5 Whys</span><span class="tool-nav-btn-desc">Ask why until the real cause surfaces — stops fixes treating symptoms</span></button>
         <button class="tool-nav-btn" data-tool="ishikawa"><span class="tool-nav-btn-label">Ishikawa</span><span class="tool-nav-btn-desc">Fishbone diagram — map all contributing causes across six categories</span></button>
-        <button class="tool-nav-btn" data-tool="kt"><span class="tool-nav-btn-label">Kepner-Tregoe</span><span class="tool-nav-btn-desc">Is / Is Not analysis — bound a problem precisely to find its cause</span></button>
         <button class="tool-nav-btn" data-tool="fta"><span class="tool-nav-btn-label">Fault Tree Analysis</span><span class="tool-nav-btn-desc">Top-down deductive — map all paths from root causes to the undesired event</span></button>
       </div>
     </div>
@@ -653,6 +652,8 @@
     <div>
       <div class="tools-nav-group-label">On the backlog</div>
       <div class="tools-nav-btns">
+        <button class="tool-nav-btn" data-tool="premortem"><span class="tool-nav-btn-label">Pre-mortem</span><span class="tool-nav-btn-desc">Imagine the project has failed — work backwards to find what caused it before it happens</span></button>
+        <button class="tool-nav-btn" data-tool="kt"><span class="tool-nav-btn-label">Kepner-Tregoe</span><span class="tool-nav-btn-desc">Is / Is Not analysis — bound a problem precisely to find its cause</span></button>
         <button class="tool-nav-btn" data-tool="cynefin"><span class="tool-nav-btn-label">Cynefin</span><span class="tool-nav-btn-desc">Complexity framework — understand which type of problem you have before choosing your approach</span></button>
         <button class="tool-nav-btn" data-tool="toc"><span class="tool-nav-btn-label">Theory of Constraints</span><span class="tool-nav-btn-desc">Find and exploit the single constraint limiting throughput — improving anything else is waste</span></button>
         <button class="tool-nav-btn" data-tool="sevenwastes"><span class="tool-nav-btn-label">7 Wastes</span><span class="tool-nav-btn-desc">Lean waste identification — find and eliminate the seven categories of waste in your delivery process</span></button>
