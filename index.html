@@ -1668,8 +1668,10 @@
         el.textContent = data.error ?? `Error ${res.status}.`; el.hidden = false; return;
       }
       let parsed;
-      try { parsed = JSON.parse(data.commentary); }
-      catch {
+      try {
+        const raw = data.commentary.trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '');
+        parsed = JSON.parse(raw);
+      } catch {
         const el = document.getElementById(error);
         el.textContent = 'Could not parse the response — try again.'; el.hidden = false; return;
       }
