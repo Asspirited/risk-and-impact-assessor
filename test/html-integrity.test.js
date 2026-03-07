@@ -111,10 +111,20 @@ describe('named imports exist as exports in their source modules', () => {
   for (const { specifier, names } of imports) {
     const absPath = resolve(ROOT, specifier.replace(/^\.\//, ''));
     const src = readFileSync(absPath, 'utf8');
-    const exportRe = /export\s+(?:(?:async\s+)?function|const|let|class)\s+(\w+)/g;
     const exported = new Set();
+    // Inline declarations: export const/function/let/class NAME
+    const declRe = /export\s+(?:(?:async\s+)?function|const|let|class)\s+(\w+)/g;
     let em;
-    while ((em = exportRe.exec(src)) !== null) exported.add(em[1]);
+    while ((em = declRe.exec(src)) !== null) exported.add(em[1]);
+    // Re-export aliases: export { localName as ExportedName } from '...'
+    const reExportRe = /export\s*\{([^}]+)\}/g;
+    while ((em = reExportRe.exec(src)) !== null) {
+      for (const spec of em[1].split(',')) {
+        const asMatch = spec.trim().match(/\w+\s+as\s+(\w+)/);
+        if (asMatch) exported.add(asMatch[1]);
+        else exported.add(spec.trim().split(/\s+/)[0]);
+      }
+    }
 
     test.each(names)(`${specifier} exports '%s'`, name => {
       expect(exported.has(name)).toBe(true);

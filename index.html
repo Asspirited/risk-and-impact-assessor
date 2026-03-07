@@ -623,6 +623,7 @@
         <button class="tool-nav-btn" data-tool="fivewhys"><span class="tool-nav-btn-label">5 Whys</span><span class="tool-nav-btn-desc">Ask why until the real cause surfaces — stops fixes treating symptoms</span></button>
         <button class="tool-nav-btn" data-tool="ishikawa"><span class="tool-nav-btn-label">Ishikawa</span><span class="tool-nav-btn-desc">Fishbone diagram — map all contributing causes across six categories</span></button>
         <button class="tool-nav-btn" data-tool="fta"><span class="tool-nav-btn-label">Fault Tree Analysis</span><span class="tool-nav-btn-desc">Top-down deductive — map all paths from root causes to the undesired event</span></button>
+        <button class="tool-nav-btn" data-tool="apollorca"><span class="tool-nav-btn-label">Apollo RCA</span><span class="tool-nav-btn-desc">Cause-and-effect map with actions, conditions, and evidence — finds multiple causal paths, not just one chain</span></button>
       </div>
     </div>
     <div>
@@ -1616,6 +1617,48 @@
       </div>
     </div>
 
+    <!-- Apollo RCA -->
+    <div class="tool-panel" id="tp-apollorca">
+      <div class="tool-panel-title">Apollo RCA</div>
+      <div class="tool-panel-desc">Maps every causal path from a primary event back through its actions and conditions — not a single chain but a lateral web of causes. Each cause is verified or flagged as requiring evidence. Solutions are targeted at specific causes in the map, not the top-level symptom.</div>
+      <details class="tool-guidance">
+        <summary></summary>
+        <div class="tool-guidance-body">
+          <ol class="tool-guidance-steps">
+            <li>State the <strong>primary event</strong> — the harm or problem you want to understand. Be precise: not "things went wrong" but "database went read-only at 14:07 UTC during peak load"</li>
+            <li>Apollo distinguishes two types of cause: <strong>Actions</strong> (something someone or something did) and <strong>Conditions</strong> (a state that existed and enabled the action to cause harm)</li>
+            <li>Problems have <strong>multiple causal paths</strong>, not one. Apollo maps branches — what else could have caused this or made it worse?</li>
+            <li>For each cause, ask: <em>what evidence do we have that this is true?</em> If you can't verify it, it's a hypothesis — mark it as unverified and treat it as a gap to investigate</li>
+            <li>Solutions that address causes deeper in the chain are more durable than those that address the event directly (which is treating the symptom)</li>
+          </ol>
+          <div class="tool-guidance-source"><strong>Source:</strong> Dean Gano, <em>Apollo Root Cause Analysis: A New Way of Thinking</em> (4th ed., 2011). Widely used in healthcare (RCA²), aviation, nuclear, and industrial safety. Adopted by the Joint Commission (JCAHO) for sentinel event analysis.</div>
+        </div>
+      </details>
+      <div class="tool-field">
+        <label for="apollorca-event">Primary event</label>
+        <input type="text" id="apollorca-event" placeholder="e.g. Production database went read-only during peak hours">
+      </div>
+      <div class="tool-field">
+        <label for="apollorca-context">Context and known facts</label>
+        <textarea id="apollorca-context" placeholder="What do you already know? Timeline, environment, recent changes, who was involved, any hypotheses. e.g. Postgres on AWS RDS, read replica promotion failed, preceded by a schema migration at 13:45 UTC."></textarea>
+      </div>
+      <div class="tool-actions">
+        <button class="tool-btn-run" id="apollorca-run">Analyse</button>
+        <button class="tool-btn-clear" id="apollorca-clear">Clear</button>
+      </div>
+      <div class="tool-msg tool-warning" id="apollorca-warning" hidden>Enter the primary event first.</div>
+      <div class="tool-msg tool-loading" id="apollorca-loading" hidden>Mapping causal paths&#x2026;</div>
+      <div class="tool-msg tool-error" id="apollorca-error" hidden></div>
+      <div class="tool-output" id="apollorca-output">
+        <div class="tool-section-lbl">Causal paths</div>
+        <div id="apollorca-chains"></div>
+        <div class="tool-section-lbl">Highest-leverage solutions</div>
+        <div id="apollorca-primary"></div>
+        <div class="tool-section-lbl">Verification gaps</div>
+        <div id="apollorca-gaps"></div>
+      </div>
+    </div>
+
     <!-- OKR -->
     <div class="tool-panel" id="tp-okr">
       <div class="tool-panel-title">OKR — Objectives &amp; Key Results</div>
@@ -1909,7 +1952,7 @@
            DORA_SYS, SEVENWASTES_SYS, TOC_SYS, CYNEFIN_SYS, DMAIC_SYS, SWOT_SYS,
            SPACE_SYS, FTA_SYS, SPC_SYS, TESTQUADRANTS_SYS, WSJF_SYS, FLOWMETRICS_SYS,
            GQM_SYS, KT_SYS, BOWTIE_SYS, PREMORTEM_SYS, SOCRATIC_SYS,
-           MONTECARLO_SYS, OKR_SYS } from './src/tool-prompts.js';
+           MONTECARLO_SYS, OKR_SYS, APOLLO_RCA_SYS } from './src/tool-prompts.js';
   import {
     saveProject, listProjects, loadProject, deleteProject, clearAllProjects,
     saveProjectState, loadProjectState, clearProjectState
@@ -3326,6 +3369,45 @@
   document.getElementById('wsjf-clear').addEventListener('click', () =>
     clearTool({ output:'wsjf-output', warning:'wsjf-warning', error:'wsjf-error', loading:'wsjf-loading' },
               ['wsjf-items']));
+
+  // ── Apollo RCA ──────────────────────────────────────────────────────────────
+
+  document.getElementById('apollorca-run').addEventListener('click', () => {
+    const event = document.getElementById('apollorca-event').value.trim();
+    if (!event) { document.getElementById('apollorca-warning').hidden = false; return; }
+    document.getElementById('apollorca-warning').hidden = true;
+    const ctx = document.getElementById('apollorca-context').value.trim();
+    runToolCall(APOLLO_RCA_SYS, `Primary event: ${event}${ctx ? `\nContext: ${ctx}` : ''}`,
+      { output:'apollorca-output', loading:'apollorca-loading', error:'apollorca-error', warning:'apollorca-warning' },
+      (d) => {
+        const TYPE_COLOUR = { action: 'var(--brand)', condition: 'var(--teal)' };
+        let chainsHtml = '';
+        for (const chain of d.causal_chains ?? []) {
+          chainsHtml += `<div class="tool-card"><div class="tool-card-head">${esc(chain.path)}</div>`;
+          for (const c of chain.causes ?? []) {
+            const col = TYPE_COLOUR[c.type] ?? 'var(--muted)';
+            const unverified = !c.verified ? tcTag('warn', 'UNVERIFIED') : '';
+            chainsHtml += `<div style="border-left:3px solid ${col};padding:0.3rem 0.5rem;margin:0.3rem 0;font-size:0.78rem">
+              <div><strong>${esc(c.cause)}</strong>${unverified} <span style="font-size:0.68rem;color:${col};text-transform:uppercase;font-weight:700">${esc(c.type)}</span></div>
+              <div style="color:var(--muted);margin-top:0.15rem">Evidence: ${esc(c.evidence)}</div>
+            </div>`;
+          }
+          if (chain.solutions?.length) {
+            chainsHtml += `<div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;color:var(--muted);margin-top:0.4rem">Solutions for this path</div>`;
+            chainsHtml += chain.solutions.map(s => `<div style="font-size:0.78rem;padding:0.2rem 0">&#8594; ${esc(s)}</div>`).join('');
+          }
+          chainsHtml += `</div>`;
+        }
+        document.getElementById('apollorca-chains').innerHTML = chainsHtml;
+        renderList('apollorca-primary', d.primary_solutions ?? [], s =>
+          `<div class="tool-card"><div class="tool-card-note">${esc(s)}</div></div>`);
+        renderList('apollorca-gaps', d.verification_gaps ?? [], g =>
+          `<div class="tool-card"><div class="tool-card-note">${esc(g)}</div></div>`);
+      });
+  });
+  document.getElementById('apollorca-clear').addEventListener('click', () =>
+    clearTool({ output:'apollorca-output', warning:'apollorca-warning', error:'apollorca-error', loading:'apollorca-loading' },
+              ['apollorca-event','apollorca-context']));
 
   // ── OKR ─────────────────────────────────────────────────────────────────────
 

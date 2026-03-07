@@ -9,9 +9,16 @@
  * 2. TOOL_SIGNALS + suggestToolsFromText() — keyword-based matching against
  *    the actual analysis output text. Returns the highest-scoring tools so
  *    suggestions are grounded in what the analysis actually found.
+ *
+ * New tools: define signals in src/tools/<name>.js and import below.
  */
 
-export const VALID_TOOLS = new Set(['acc', 'fmea', 'fivewhys', 'ishikawa', 'pdca', 'vsm', 'dora', 'socratic', 'premortem', 'bowtie', 'kt', 'gqm', 'flowmetrics', 'wsjf', 'spc', 'testquadrants', 'fta', 'space', 'swot', 'dmaic', 'cynefin', 'toc', 'sevenwastes', 'montecarlo', 'okr']);
+// ── Per-tool signal imports (new pattern) ─────────────────────────────────────
+import { signals as _montecarloSignals } from './tools/montecarlo.js';
+import { signals as _okrSignals }        from './tools/okr.js';
+import { signals as _apollorcaSignals }  from './tools/apollo-rca.js';
+
+export const VALID_TOOLS = new Set(['acc', 'fmea', 'fivewhys', 'ishikawa', 'pdca', 'vsm', 'dora', 'socratic', 'premortem', 'bowtie', 'kt', 'gqm', 'flowmetrics', 'wsjf', 'spc', 'testquadrants', 'fta', 'space', 'swot', 'dmaic', 'cynefin', 'toc', 'sevenwastes', 'montecarlo', 'okr', 'apollorca']);
 
 // ── Static suggestions by RAID type ─────────────────────────────────────────
 
@@ -204,24 +211,9 @@ export const TOOL_SIGNALS = {
       'measurement plan', 'quality goal', 'success criteria', 'kpi',
     ],
   },
-  okr: {
-    label: 'Set objectives with measurable key results',
-    keywords: [
-      'objective', 'key result', 'okr', 'goal', 'target', 'measure what matters',
-      'doerr', 'grove', 'stretch goal', 'ambitious', 'outcome', 'success criteria',
-      'quarterly', 'alignment', 'north star', 'mission', 'strategic goal',
-      'what does good look like', 'how will we know', 'measurable outcome',
-    ],
-  },
-  montecarlo: {
-    label: 'Simulate schedule/cost uncertainty',
-    keywords: [
-      'uncertainty', 'estimate', 'three-point', '3-point', 'optimistic', 'pessimistic',
-      'most likely', 'confidence', 'probability', 'schedule risk', 'cost risk',
-      'p80', 'p90', 'contingency', 'range', 'distribution', 'pert', 'simulation',
-      'how long', 'how much', 'variance', 'spread',
-    ],
-  },
+  apollorca:   _apollorcaSignals,
+  okr:         _okrSignals,
+  montecarlo:  _montecarloSignals,
   kt: {
     label: 'Bound the problem with Is / Is Not',
     keywords: [
