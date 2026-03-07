@@ -328,15 +328,20 @@
 
     .tools-nav { padding: 0.7rem 0.8rem 0.5rem; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 0.55rem; flex-shrink: 0; }
     .tools-nav-group-label { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.2rem; }
-    .tools-nav-btns { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+    .tools-nav-btns { display: flex; flex-direction: column; gap: 0.25rem; }
     .tool-nav-btn {
-      padding: 0.28rem 0.65rem; border-radius: 3px;
+      padding: 0.42rem 0.7rem; border-radius: 3px;
       border: 1px solid var(--border); background: transparent;
-      font-size: 0.75rem; font-family: inherit; cursor: pointer; color: var(--text);
+      font-family: inherit; cursor: pointer; color: var(--text);
+      text-align: left; width: 100%; display: flex; flex-direction: column; gap: 0.1rem;
     }
+    .tool-nav-btn-label { font-size: 0.78rem; font-weight: 700; line-height: 1.2; }
+    .tool-nav-btn-desc { font-size: 0.68rem; color: var(--muted); line-height: 1.3; font-weight: 400; }
     .tool-nav-btn:hover:not(:disabled) { background: var(--brand-light); }
     .tool-nav-btn.active { background: var(--teal); color: #fff; border-color: var(--teal); }
-    .tool-nav-btn:disabled { opacity: 0.38; cursor: default; font-style: italic; }
+    .tool-nav-btn.active .tool-nav-btn-desc { color: rgba(255,255,255,0.75); }
+    .tool-nav-btn:disabled { opacity: 0.38; cursor: default; }
+    .tool-nav-btn:disabled .tool-nav-btn-label { font-style: italic; }
 
     .tools-content { flex: 1; overflow-y: auto; padding: 1rem 1rem 2.5rem; }
 
@@ -520,29 +525,29 @@
     <div>
       <div class="tools-nav-group-label">Live tools</div>
       <div class="tools-nav-btns">
-        <button class="tool-nav-btn active" data-tool="acc">ACC</button>
-        <button class="tool-nav-btn" data-tool="fmea">FMEA</button>
-        <button class="tool-nav-btn" data-tool="fivewhys">5 Whys</button>
-        <button class="tool-nav-btn" data-tool="ishikawa">Ishikawa</button>
-        <button class="tool-nav-btn" data-tool="pdca">PDCA</button>
-        <button class="tool-nav-btn" data-tool="vsm">VSM</button>
-        <button class="tool-nav-btn" data-tool="dora">DORA</button>
+        <button class="tool-nav-btn" data-tool="acc"><span class="tool-nav-btn-label">ACC</span><span class="tool-nav-btn-desc">Attributes, Components, Capabilities — coverage heuristic</span></button>
+        <button class="tool-nav-btn" data-tool="fmea"><span class="tool-nav-btn-label">FMEA</span><span class="tool-nav-btn-desc">Failure Mode &amp; Effects Analysis — risk prioritisation</span></button>
+        <button class="tool-nav-btn" data-tool="fivewhys"><span class="tool-nav-btn-label">5 Whys</span><span class="tool-nav-btn-desc">Root cause drilling — ask why until the real problem surfaces</span></button>
+        <button class="tool-nav-btn" data-tool="ishikawa"><span class="tool-nav-btn-label">Ishikawa</span><span class="tool-nav-btn-desc">Fishbone diagram — map causes across six categories to an effect</span></button>
+        <button class="tool-nav-btn" data-tool="pdca"><span class="tool-nav-btn-label">PDCA</span><span class="tool-nav-btn-desc">Plan–Do–Check–Act — hypothesis-driven improvement cycle</span></button>
+        <button class="tool-nav-btn" data-tool="vsm"><span class="tool-nav-btn-label">VSM</span><span class="tool-nav-btn-desc">Value Stream Mapping — find waste and friction in your flow</span></button>
+        <button class="tool-nav-btn" data-tool="dora"><span class="tool-nav-btn-label">DORA</span><span class="tool-nav-btn-desc">DevOps performance metrics — deployment frequency, lead time, change fail rate, recovery time</span></button>
       </div>
     </div>
     <div>
       <div class="tools-nav-group-label">On the backlog</div>
       <div class="tools-nav-btns">
-        <button class="tool-nav-btn" data-tool="cynefin" disabled>Cynefin</button>
-        <button class="tool-nav-btn" data-tool="toc" disabled>Theory of Constraints</button>
-        <button class="tool-nav-btn" data-tool="sevenwastes" disabled>7 Wastes</button>
-        <button class="tool-nav-btn" data-tool="dmaic" disabled>DMAIC</button>
+        <button class="tool-nav-btn" data-tool="cynefin" disabled><span class="tool-nav-btn-label">Cynefin</span><span class="tool-nav-btn-desc">Complexity framework — navigate simple, complicated, complex, chaotic domains</span></button>
+        <button class="tool-nav-btn" data-tool="toc" disabled><span class="tool-nav-btn-label">Theory of Constraints</span><span class="tool-nav-btn-desc">Identify and exploit the single bottleneck limiting system throughput</span></button>
+        <button class="tool-nav-btn" data-tool="sevenwastes" disabled><span class="tool-nav-btn-label">7 Wastes</span><span class="tool-nav-btn-desc">Lean waste identification — transport, inventory, motion, waiting, overproduction, over-processing, defects</span></button>
+        <button class="tool-nav-btn" data-tool="dmaic" disabled><span class="tool-nav-btn-label">DMAIC</span><span class="tool-nav-btn-desc">Define–Measure–Analyse–Improve–Control — Six Sigma problem solving</span></button>
       </div>
     </div>
   </div>
   <div class="tools-content">
 
     <!-- ACC -->
-    <div class="tool-panel active" id="tp-acc">
+    <div class="tool-panel" id="tp-acc">
       <div class="tool-panel-title">ACC Matrix</div>
       <div class="tool-panel-desc">Attributes, Components, Capabilities — a coverage heuristic from James Whittaker (Google) and <em>50 Quick Ideas to Improve Your Tests</em> (Adzic &amp; Evans). Map what your system does (Capabilities) through how it&rsquo;s built (Components) against quality goals (Attributes).</div>
       <div class="tool-field">
