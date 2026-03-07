@@ -629,6 +629,8 @@
         <button class="tool-nav-btn" data-tool="acc"><span class="tool-nav-btn-label">ACC</span><span class="tool-nav-btn-desc">Attributes, Components, Capabilities — expose coverage gaps before they become risks</span></button>
         <button class="tool-nav-btn" data-tool="pdca"><span class="tool-nav-btn-label">PDCA</span><span class="tool-nav-btn-desc">Plan–Do–Check–Act — structured improvement cycle with measurable hypotheses</span></button>
         <button class="tool-nav-btn" data-tool="gqm"><span class="tool-nav-btn-label">GQM</span><span class="tool-nav-btn-desc">Goal–Question–Metric — every measurement traces back to something you actually care about</span></button>
+        <button class="tool-nav-btn" data-tool="spc"><span class="tool-nav-btn-label">SPC</span><span class="tool-nav-btn-desc">Statistical Process Control — tell the difference between noise and a real signal before you act</span></button>
+        <button class="tool-nav-btn" data-tool="testquadrants"><span class="tool-nav-btn-label">Test Quadrants</span><span class="tool-nav-btn-desc">Map your testing by purpose — find the quadrant you're neglecting</span></button>
       </div>
     </div>
     <div>
@@ -1020,6 +1022,81 @@
         <div id="gqm-questions"></div>
         <div class="tool-section-lbl">Metrics</div>
         <div id="gqm-metrics"></div>
+      </div>
+    </div>
+
+    <!-- SPC -->
+    <div class="tool-panel" id="tp-spc">
+      <div class="tool-panel-title">SPC — Statistical Process Control</div>
+      <div class="tool-panel-desc">Distinguishes natural process variation (common cause — ignore it) from signals that something has genuinely changed (special cause — investigate it). Reacting to noise makes things worse. SPC tells you which is which.</div>
+      <details class="tool-guidance">
+        <summary></summary>
+        <div class="tool-guidance-body">
+          <ol class="tool-guidance-steps">
+            <li>Collect a series of measurements over time — defect counts, cycle times, error rates, test failure rates. At least 20–25 data points to establish stable limits</li>
+            <li>Calculate the mean and control limits (typically ±3σ). Points outside the limits, or non-random patterns within them (runs of 8, trends), are special cause signals</li>
+            <li>Special cause: stop and investigate — something has changed. Common cause: the process is stable — improve the process itself, not the individual point</li>
+            <li>Describe your data series and what you're seeing — the tool will identify signal vs noise and advise whether to investigate or improve the system</li>
+          </ol>
+          <div class="tool-guidance-source"><strong>Source:</strong> Walter Shewhart, <em>Economic Control of Quality of Manufactured Product</em> (1931); W. Edwards Deming, <em>Out of the Crisis</em> (1982). Applied to software by Donald Wheeler, <em>Understanding Variation</em> (1993).</div>
+        </div>
+      </details>
+      <div class="tool-field">
+        <label for="spc-data">Describe your data series and what you're observing</label>
+        <textarea id="spc-data" placeholder="e.g. Weekly defect counts over the last 12 weeks: 4, 3, 5, 4, 6, 3, 4, 12, 11, 13, 10, 14. The last four weeks look much higher — is this a real change or just variation?"></textarea>
+      </div>
+      <div class="tool-actions">
+        <button class="tool-btn-run" id="spc-run">Analyse</button>
+        <button class="tool-btn-clear" id="spc-clear">Clear</button>
+      </div>
+      <div class="tool-msg tool-warning" id="spc-warning" hidden>Describe your data series first.</div>
+      <div class="tool-msg tool-loading" id="spc-loading" hidden>Analysing variation&#x2026;</div>
+      <div class="tool-msg tool-error" id="spc-error" hidden></div>
+      <div class="tool-output" id="spc-output">
+        <div class="tool-section-lbl">Signal or noise?</div>
+        <div id="spc-verdict"></div>
+        <div class="tool-section-lbl">Control chart interpretation</div>
+        <div id="spc-interpretation"></div>
+        <div class="tool-section-lbl">Recommended action</div>
+        <div id="spc-action"></div>
+      </div>
+    </div>
+
+    <!-- Test Quadrants -->
+    <div class="tool-panel" id="tp-testquadrants">
+      <div class="tool-panel-title">Test Quadrants</div>
+      <div class="tool-panel-desc">Maps testing across two axes: business-facing vs technology-facing, and supporting the team vs critiquing the product. Reveals which quadrant is being neglected — the one you're missing is usually the source of your quality problems.</div>
+      <details class="tool-guidance">
+        <summary></summary>
+        <div class="tool-guidance-body">
+          <ol class="tool-guidance-steps">
+            <li>Q1 (Tech-facing, support team): unit tests, component tests — automated, fast, developer-owned</li>
+            <li>Q2 (Business-facing, support team): functional tests, story tests, examples — collaborative, specification by example</li>
+            <li>Q3 (Business-facing, critique product): exploratory testing, usability testing, user acceptance — human judgement, not scripted</li>
+            <li>Q4 (Tech-facing, critique product): performance, security, reliability — tools-assisted, specialist knowledge</li>
+            <li>Describe your current testing approach — the tool identifies which quadrants are weak and what that means for your quality risks</li>
+          </ol>
+          <div class="tool-guidance-source"><strong>Source:</strong> Brian Marick (2003, agile testing matrix blog); Lisa Crispin &amp; Janet Gregory, <em>Agile Testing</em> (2009). Q4 additions by Gojko Adzic.</div>
+        </div>
+      </details>
+      <div class="tool-field">
+        <label for="testquadrants-approach">Describe your current testing approach</label>
+        <textarea id="testquadrants-approach" placeholder="e.g. We have good unit test coverage (~80%), some integration tests, but no performance testing and very little exploratory testing. UAT is done by a single tester at the end of each sprint."></textarea>
+      </div>
+      <div class="tool-actions">
+        <button class="tool-btn-run" id="testquadrants-run">Analyse</button>
+        <button class="tool-btn-clear" id="testquadrants-clear">Clear</button>
+      </div>
+      <div class="tool-msg tool-warning" id="testquadrants-warning" hidden>Describe your testing approach first.</div>
+      <div class="tool-msg tool-loading" id="testquadrants-loading" hidden>Mapping your quadrants&#x2026;</div>
+      <div class="tool-msg tool-error" id="testquadrants-error" hidden></div>
+      <div class="tool-output" id="testquadrants-output">
+        <div class="tool-section-lbl">Quadrant coverage</div>
+        <div id="testquadrants-coverage"></div>
+        <div class="tool-section-lbl">Gaps and risks</div>
+        <div id="testquadrants-gaps"></div>
+        <div class="tool-section-lbl">Priority action</div>
+        <div id="testquadrants-action"></div>
       </div>
     </div>
 
@@ -2242,8 +2319,8 @@
   const TOOL_LABELS = {
     socratic: 'Socratic Questioning', premortem: 'Pre-mortem', bowtie: 'Bow-Tie Analysis',
     acc: 'ACC Matrix', fmea: 'FMEA', fivewhys: '5 Whys', ishikawa: 'Ishikawa', kt: 'Kepner-Tregoe',
-    gqm: 'GQM', pdca: 'PDCA', vsm: 'Value Stream Map', wsjf: 'WSJF / CD3',
-    flowmetrics: 'Flow Metrics', dora: 'DORA Metrics',
+    gqm: 'GQM', spc: 'SPC', testquadrants: 'Test Quadrants', pdca: 'PDCA',
+    vsm: 'Value Stream Map', wsjf: 'WSJF / CD3', flowmetrics: 'Flow Metrics', dora: 'DORA Metrics',
   };
 
   function switchTool(name) {
@@ -2595,6 +2672,88 @@ commentary: max 1 sentence each. Be concise.`;
   document.getElementById('dora-clear').addEventListener('click', () =>
     clearTool({ output:'dora-output', warning:'dora-warning', error:'dora-error', loading:'dora-loading' },
               ['dora-df','dora-lt','dora-cfr','dora-ttr']));
+
+  // ── SPC ─────────────────────────────────────────────────────────────────────
+
+  const SPC_SYS = `You are applying Statistical Process Control (SPC) principles to help interpret a data series. Your job is to distinguish common-cause variation (noise — the process is stable) from special-cause variation (signal — something has changed).
+
+Return ONLY valid JSON (no markdown, no code fences):
+{
+  "verdict": "SIGNAL or NOISE — one word, then one sentence explanation",
+  "interpretation": "Explain what the data pattern suggests using SPC concepts: control limits, runs, trends, points beyond 3σ. Be specific to the numbers provided.",
+  "action": "If SIGNAL: what to investigate and how. If NOISE: what systemic improvement to make to the process itself (not to individual data points). 2–3 sentences."
+}
+
+Key rules: Never recommend investigating a data point that falls within common-cause variation. If the question is whether a recent uptick is real — use the stated pattern to reason about whether it exceeds expected variation. Cite Shewhart or Deming principles where relevant.`;
+
+  document.getElementById('spc-run').addEventListener('click', () => {
+    const data = document.getElementById('spc-data').value.trim();
+    if (!data) { document.getElementById('spc-warning').hidden = false; return; }
+    document.getElementById('spc-warning').hidden = true;
+    runToolCall(SPC_SYS, `Data: ${data}`,
+      { output:'spc-output', loading:'spc-loading', error:'spc-error', warning:'spc-warning' },
+      (d) => {
+        const isSignal = (d.verdict ?? '').toUpperCase().startsWith('SIGNAL');
+        document.getElementById('spc-verdict').innerHTML =
+          `<div class="tool-card"><div class="tool-card-head">${esc(d.verdict)}${isSignal ? tcTag('critical','INVESTIGATE') : tcTag('low','STABLE')}</div></div>`;
+        document.getElementById('spc-interpretation').innerHTML =
+          `<div class="tool-card"><div class="tool-card-note">${esc(d.interpretation)}</div></div>`;
+        document.getElementById('spc-action').innerHTML =
+          `<div class="tool-card"><div class="tool-card-note">${esc(d.action)}</div></div>`;
+      });
+  });
+  document.getElementById('spc-clear').addEventListener('click', () =>
+    clearTool({ output:'spc-output', warning:'spc-warning', error:'spc-error', loading:'spc-loading' },
+              ['spc-data']));
+
+  // ── Test Quadrants ───────────────────────────────────────────────────────────
+
+  const TESTQUADRANTS_SYS = `You are analysing a team's testing approach using the Agile Testing Quadrants (Marick / Crispin & Gregory).
+
+The four quadrants:
+Q1 — Technology-facing, supports the team: unit tests, component tests (automated)
+Q2 — Business-facing, supports the team: functional tests, story tests, examples, specification by example (often automated)
+Q3 — Business-facing, critiques the product: exploratory testing, usability, UAT (human judgement)
+Q4 — Technology-facing, critiques the product: performance, security, reliability (tools-assisted, specialist)
+
+Return ONLY valid JSON (no markdown, no code fences):
+{
+  "coverage": [
+    { "quadrant": "Q1 — Unit / Component", "status": "strong | partial | absent", "observation": "What the described approach suggests about this quadrant" },
+    { "quadrant": "Q2 — Functional / Examples", "status": "strong | partial | absent", "observation": "..." },
+    { "quadrant": "Q3 — Exploratory / UAT", "status": "strong | partial | absent", "observation": "..." },
+    { "quadrant": "Q4 — Performance / Security", "status": "strong | partial | absent", "observation": "..." }
+  ],
+  "gaps": "The most significant gap and what quality risk it creates. Be specific.",
+  "priority_action": "The single highest-value testing activity to add or strengthen. Why this one first."
+}`;
+
+  document.getElementById('testquadrants-run').addEventListener('click', () => {
+    const approach = document.getElementById('testquadrants-approach').value.trim();
+    if (!approach) { document.getElementById('testquadrants-warning').hidden = false; return; }
+    document.getElementById('testquadrants-warning').hidden = true;
+    runToolCall(TESTQUADRANTS_SYS, `Testing approach: ${approach}`,
+      { output:'testquadrants-output', loading:'testquadrants-loading', error:'testquadrants-error', warning:'testquadrants-warning' },
+      (d) => {
+        const statusTag = s => {
+          if (s === 'absent')  return tcTag('critical', 'ABSENT');
+          if (s === 'partial') return tcTag('band', 'PARTIAL');
+          return tcTag('low', 'STRONG');
+        };
+        renderList('testquadrants-coverage', d.coverage ?? [], q =>
+          `<div class="tool-card">
+            <div class="tool-card-head">${esc(q.quadrant)}${statusTag(q.status)}</div>
+            <div class="tool-card-note">${esc(q.observation)}</div>
+          </div>`);
+        document.getElementById('testquadrants-gaps').innerHTML =
+          `<div class="tool-card"><div class="tool-card-note">${esc(d.gaps)}</div></div>`;
+        document.getElementById('testquadrants-action').innerHTML =
+          `<div class="tool-card"><div class="tool-card-note">${esc(d.priority_action)}</div></div>`;
+      });
+  });
+  document.getElementById('testquadrants-clear').addEventListener('click', () =>
+    clearTool({ output:'testquadrants-output', warning:'testquadrants-warning', error:'testquadrants-error', loading:'testquadrants-loading' },
+              ['testquadrants-approach']));
 
   // ── WSJF / CD3 ──────────────────────────────────────────────────────────────
 

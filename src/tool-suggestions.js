@@ -11,7 +11,7 @@
  *    suggestions are grounded in what the analysis actually found.
  */
 
-export const VALID_TOOLS = new Set(['acc', 'fmea', 'fivewhys', 'ishikawa', 'pdca', 'vsm', 'dora', 'socratic', 'premortem', 'bowtie', 'kt', 'gqm', 'flowmetrics', 'wsjf']);
+export const VALID_TOOLS = new Set(['acc', 'fmea', 'fivewhys', 'ishikawa', 'pdca', 'vsm', 'dora', 'socratic', 'premortem', 'bowtie', 'kt', 'gqm', 'flowmetrics', 'wsjf', 'spc', 'testquadrants']);
 
 // ── Static suggestions by RAID type ─────────────────────────────────────────
 
@@ -106,6 +106,22 @@ export const TOOL_SIGNALS = {
       'barrier', 'control', 'threat', 'hazard', 'consequence', 'preventive',
       'cause and consequence', 'escalation', 'mitigation', 'safeguard', 'bow-tie',
       'recovery control', 'barrier gap', 'critical event', 'unwanted event',
+    ],
+  },
+  spc: {
+    label: 'Tell signal from noise before you act',
+    keywords: [
+      'control chart', 'variation', 'common cause', 'special cause', 'signal', 'noise',
+      'statistical', 'stable process', 'out of control', 'trending', 'run of eight',
+      'is this real', 'data series', 'uptick', 'shewhart', 'deming',
+    ],
+  },
+  testquadrants: {
+    label: 'Map testing across all four quadrants',
+    keywords: [
+      'unit test', 'exploratory', 'performance test', 'security test', 'uat', 'usability',
+      'test coverage', 'testing strategy', 'functional test', 'regression', 'quadrant',
+      'agile testing', 'specification by example', 'business-facing', 'technology-facing',
     ],
   },
   wsjf: {
