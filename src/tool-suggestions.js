@@ -11,7 +11,7 @@
  *    suggestions are grounded in what the analysis actually found.
  */
 
-export const VALID_TOOLS = new Set(['acc', 'fmea', 'fivewhys', 'ishikawa', 'pdca', 'vsm', 'dora', 'socratic', 'premortem', 'bowtie', 'kt']);
+export const VALID_TOOLS = new Set(['acc', 'fmea', 'fivewhys', 'ishikawa', 'pdca', 'vsm', 'dora', 'socratic', 'premortem', 'bowtie', 'kt', 'gqm']);
 
 // ── Static suggestions by RAID type ─────────────────────────────────────────
 
@@ -106,6 +106,14 @@ export const TOOL_SIGNALS = {
       'barrier', 'control', 'threat', 'hazard', 'consequence', 'preventive',
       'cause and consequence', 'escalation', 'mitigation', 'safeguard', 'bow-tie',
       'recovery control', 'barrier gap', 'critical event', 'unwanted event',
+    ],
+  },
+  gqm: {
+    label: 'Define measurable goals with traceability',
+    keywords: [
+      'goal', 'measure', 'metric', 'measurement', 'what to measure', 'how to measure',
+      'quality attribute', 'observable', 'baseline', 'threshold', 'traceability',
+      'measurement plan', 'quality goal', 'success criteria', 'kpi',
     ],
   },
   kt: {

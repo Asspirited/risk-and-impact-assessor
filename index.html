@@ -624,6 +624,7 @@
       <div class="tools-nav-btns">
         <button class="tool-nav-btn" data-tool="acc"><span class="tool-nav-btn-label">ACC</span><span class="tool-nav-btn-desc">Attributes, Components, Capabilities — expose coverage gaps before they become risks</span></button>
         <button class="tool-nav-btn" data-tool="pdca"><span class="tool-nav-btn-label">PDCA</span><span class="tool-nav-btn-desc">Plan–Do–Check–Act — structured improvement cycle with measurable hypotheses</span></button>
+        <button class="tool-nav-btn" data-tool="gqm"><span class="tool-nav-btn-label">GQM</span><span class="tool-nav-btn-desc">Goal–Question–Metric — every measurement traces back to something you actually care about</span></button>
       </div>
     </div>
     <div>
@@ -976,6 +977,44 @@
         <div id="ishikawa-bones"></div>
         <div class="tool-section-lbl">Top Suspects</div>
         <div id="ishikawa-suspects"></div>
+      </div>
+    </div>
+
+    <!-- GQM -->
+    <div class="tool-panel" id="tp-gqm">
+      <div class="tool-panel-title">GQM — Goal, Question, Metric</div>
+      <div class="tool-panel-desc">Every measurement must serve a goal. GQM starts from what you want to achieve, works out what questions would tell you if you're achieving it, then defines the metrics that answer those questions — so nothing is measured without a reason.</div>
+      <details class="tool-guidance">
+        <summary></summary>
+        <div class="tool-guidance-body">
+          <ol class="tool-guidance-steps">
+            <li>Define the Goal: what object are you studying, with what purpose, focusing on which quality characteristic, from whose viewpoint?</li>
+            <li>Generate Questions: what would you need to know to tell whether the goal is being achieved? Be specific — "Is coverage sufficient?" is not a question, "What percentage of payment paths have no automated test?" is</li>
+            <li>Define Metrics: for each question, what observable data would answer it? Include how you'd collect it and what a baseline or threshold looks like</li>
+            <li>Validate traceability: every metric must link to a question, every question to a goal — delete anything that doesn't trace back</li>
+            <li>Revisit the goal after measurement — measurement changes understanding; goals sometimes need updating</li>
+          </ol>
+          <div class="tool-guidance-source"><strong>Source:</strong> Basili &amp; Weiss, NASA/Software Engineering Laboratory (1984); also Gojko Adzic &amp; David Evans, <em>50 Quick Ideas to Improve Your Tests</em> (2014).</div>
+        </div>
+      </details>
+      <div class="tool-field">
+        <label for="gqm-goal">What do you want to achieve or understand?</label>
+        <textarea id="gqm-goal" placeholder="e.g. We want to improve the reliability of our payment service deployment process from the development team's perspective."></textarea>
+      </div>
+      <div class="tool-actions">
+        <button class="tool-btn-run" id="gqm-run">Build GQM</button>
+        <button class="tool-btn-clear" id="gqm-clear">Clear</button>
+      </div>
+      <div class="tool-msg tool-warning" id="gqm-warning" hidden>Enter a goal first.</div>
+      <div class="tool-msg tool-loading" id="gqm-loading" hidden>Structuring your measurement&#x2026;</div>
+      <div class="tool-msg tool-error" id="gqm-error" hidden></div>
+      <div class="tool-output" id="gqm-output">
+        <div class="tool-section-lbl">Goal</div>
+        <div id="gqm-goal-out"></div>
+        <div class="tool-section-lbl">Questions</div>
+        <div id="gqm-questions"></div>
+        <div class="tool-section-lbl">Metrics</div>
+        <div id="gqm-metrics"></div>
       </div>
     </div>
 
@@ -2129,7 +2168,7 @@
   const TOOL_LABELS = {
     socratic: 'Socratic Questioning', premortem: 'Pre-mortem', bowtie: 'Bow-Tie Analysis',
     acc: 'ACC Matrix', fmea: 'FMEA', fivewhys: '5 Whys', ishikawa: 'Ishikawa', kt: 'Kepner-Tregoe',
-    pdca: 'PDCA', vsm: 'Value Stream Map', dora: 'DORA Metrics',
+    gqm: 'GQM', pdca: 'PDCA', vsm: 'Value Stream Map', dora: 'DORA Metrics',
   };
 
   function switchTool(name) {
@@ -2481,6 +2520,69 @@ commentary: max 1 sentence each. Be concise.`;
   document.getElementById('dora-clear').addEventListener('click', () =>
     clearTool({ output:'dora-output', warning:'dora-warning', error:'dora-error', loading:'dora-loading' },
               ['dora-df','dora-lt','dora-cfr','dora-ttr']));
+
+  // ── GQM ─────────────────────────────────────────────────────────────────────
+
+  const GQM_SYS = `You are building a Goal-Question-Metric (GQM) measurement plan.
+
+Return ONLY valid JSON (no markdown, no code fences):
+{
+  "goal": {
+    "object": "What is being studied or improved",
+    "purpose": "Why — improve, evaluate, monitor, characterise",
+    "quality_focus": "The quality characteristic of interest — reliability, coverage, defect rate, etc.",
+    "viewpoint": "From whose perspective — developer, tester, product manager, customer"
+  },
+  "questions": [
+    {
+      "question": "A specific, answerable question that would tell you whether the goal is being achieved",
+      "rationale": "Why this question matters to the goal"
+    }
+  ],
+  "metrics": [
+    {
+      "question_ref": "The question this metric answers (quote it briefly)",
+      "metric": "Name of the metric",
+      "how_to_measure": "Concrete collection method — tool, query, observation, survey",
+      "baseline": "What a good or bad value looks like, or what threshold triggers action"
+    }
+  ]
+}
+
+3–5 questions. 1–2 metrics per question. Metrics must be specific and collectable, not vague (not 'count bugs' — 'count P1 defects found in production per sprint via JIRA filter X'). Every metric must trace to a question; every question to the goal.`;
+
+  document.getElementById('gqm-run').addEventListener('click', () => {
+    const goal = document.getElementById('gqm-goal').value.trim();
+    if (!goal) { document.getElementById('gqm-warning').hidden = false; return; }
+    document.getElementById('gqm-warning').hidden = true;
+    runToolCall(GQM_SYS, `Goal: ${goal}`,
+      { output:'gqm-output', loading:'gqm-loading', error:'gqm-error', warning:'gqm-warning' },
+      (d) => {
+        const g = d.goal ?? {};
+        document.getElementById('gqm-goal-out').innerHTML =
+          `<div class="tool-card">
+            <div style="font-size:0.78rem;margin-bottom:0.1rem"><strong>Object:</strong> ${esc(g.object)}</div>
+            <div style="font-size:0.78rem;margin-bottom:0.1rem"><strong>Purpose:</strong> ${esc(g.purpose)}</div>
+            <div style="font-size:0.78rem;margin-bottom:0.1rem"><strong>Quality focus:</strong> ${esc(g.quality_focus)}</div>
+            <div style="font-size:0.78rem"><strong>Viewpoint:</strong> ${esc(g.viewpoint)}</div>
+          </div>`;
+        renderList('gqm-questions', d.questions ?? [], q =>
+          `<div class="tool-card">
+            <div class="tool-card-head">${esc(q.question)}</div>
+            <div class="tool-card-note">${esc(q.rationale)}</div>
+          </div>`);
+        renderList('gqm-metrics', d.metrics ?? [], m =>
+          `<div class="tool-card">
+            <div class="tool-card-head">${esc(m.metric)}</div>
+            <div style="font-size:0.72rem;color:var(--muted);margin-bottom:0.2rem">Answers: ${esc(m.question_ref)}</div>
+            <div style="font-size:0.78rem;margin-bottom:0.1rem"><strong>How:</strong> ${esc(m.how_to_measure)}</div>
+            <div class="tool-card-note"><strong>Threshold:</strong> ${esc(m.baseline)}</div>
+          </div>`);
+      });
+  });
+  document.getElementById('gqm-clear').addEventListener('click', () =>
+    clearTool({ output:'gqm-output', warning:'gqm-warning', error:'gqm-error', loading:'gqm-loading' },
+              ['gqm-goal']));
 
   // ── Kepner-Tregoe ───────────────────────────────────────────────────────────
 
