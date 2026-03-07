@@ -11,7 +11,7 @@
  *    suggestions are grounded in what the analysis actually found.
  */
 
-export const VALID_TOOLS = new Set(['acc', 'fmea', 'fivewhys', 'ishikawa', 'pdca', 'vsm', 'dora', 'socratic', 'premortem']);
+export const VALID_TOOLS = new Set(['acc', 'fmea', 'fivewhys', 'ishikawa', 'pdca', 'vsm', 'dora', 'socratic', 'premortem', 'bowtie']);
 
 // ── Static suggestions by RAID type ─────────────────────────────────────────
 
@@ -98,6 +98,14 @@ export const TOOL_SIGNALS = {
       'failure', 'fail', 'what could go wrong', 'worst case', 'catastrophic', 'project fails',
       'if this goes wrong', 'preventable', 'foresee', 'anticipate', 'planning risk',
       'before it happens', 'failure scenario', 'risk scenario', 'what if',
+    ],
+  },
+  bowtie: {
+    label: 'Map threats, controls, and consequences',
+    keywords: [
+      'barrier', 'control', 'threat', 'hazard', 'consequence', 'preventive',
+      'cause and consequence', 'escalation', 'mitigation', 'safeguard', 'bow-tie',
+      'recovery control', 'barrier gap', 'critical event', 'unwanted event',
     ],
   },
 };

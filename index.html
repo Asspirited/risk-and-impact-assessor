@@ -607,6 +607,7 @@
       <div class="tools-nav-btns">
         <button class="tool-nav-btn" data-tool="socratic"><span class="tool-nav-btn-label">Socratic</span><span class="tool-nav-btn-desc">Qualify &amp; sharpen any risk — probing questions to expose vagueness and push toward measurability</span></button>
         <button class="tool-nav-btn" data-tool="premortem"><span class="tool-nav-btn-label">Pre-mortem</span><span class="tool-nav-btn-desc">Imagine the project has failed — work backwards to find what caused it before it happens</span></button>
+        <button class="tool-nav-btn" data-tool="bowtie"><span class="tool-nav-btn-label">Bow-Tie</span><span class="tool-nav-btn-desc">Map threats → controls → hazard → controls → consequences — see where your barriers are thin</span></button>
         <button class="tool-nav-btn" data-tool="fmea"><span class="tool-nav-btn-label">FMEA</span><span class="tool-nav-btn-desc">Failure Mode &amp; Effects Analysis — score and prioritise what could go wrong</span></button>
       </div>
     </div>
@@ -773,6 +774,50 @@
         <div id="premortem-scenarios"></div>
         <div class="tool-section-lbl">Top preventive actions</div>
         <div id="premortem-actions"></div>
+      </div>
+    </div>
+
+    <!-- Bow-Tie -->
+    <div class="tool-panel" id="tp-bowtie">
+      <div class="tool-panel-title">Bow-Tie Analysis</div>
+      <div class="tool-panel-desc">Maps the full risk picture around a single hazard event: threats and their preventive controls on the left, consequences and their recovery controls on the right. Makes gaps in your barrier strategy visible at a glance.</div>
+      <details class="tool-guidance">
+        <summary></summary>
+        <div class="tool-guidance-body">
+          <ol class="tool-guidance-steps">
+            <li>Define the central hazard event — the specific thing that must not happen (not "things go wrong" — "the payment service is unavailable at go-live")</li>
+            <li>Left side: identify all plausible threats (causes that could trigger the hazard) and what currently prevents each one</li>
+            <li>Right side: identify all consequences if the hazard occurs and what controls would limit or recover from each</li>
+            <li>Look for barriers marked as absent or weak — these are your highest-priority risk actions</li>
+            <li>Use alongside FMEA (to score individual failure modes) and Pre-mortem (to stress-test your scenario thinking)</li>
+          </ol>
+          <div class="tool-guidance-source"><strong>Source:</strong> Developed at Shell in the 1970s; formalised in IEC/ISO 31010 Risk Management standard. Widely used in aviation, oil &amp; gas, healthcare, and nuclear industries.</div>
+        </div>
+      </details>
+      <div class="tool-field">
+        <label for="bowtie-hazard">Hazard event</label>
+        <input type="text" id="bowtie-hazard" placeholder="e.g. Payment service unavailable at go-live">
+      </div>
+      <div class="tool-field">
+        <label for="bowtie-context">Context (optional)</label>
+        <textarea id="bowtie-context" placeholder="Known causes, constraints, or consequences you want included"></textarea>
+      </div>
+      <div class="tool-actions">
+        <button class="tool-btn-run" id="bowtie-run">Analyse</button>
+        <button class="tool-btn-clear" id="bowtie-clear">Clear</button>
+      </div>
+      <div class="tool-msg tool-warning" id="bowtie-warning" hidden>Enter a hazard event first.</div>
+      <div class="tool-msg tool-loading" id="bowtie-loading" hidden>Mapping barriers&#x2026;</div>
+      <div class="tool-msg tool-error" id="bowtie-error" hidden></div>
+      <div class="tool-output" id="bowtie-output">
+        <div class="tool-section-lbl">Hazard event</div>
+        <div id="bowtie-hazard-out"></div>
+        <div class="tool-section-lbl">Threats &amp; preventive controls</div>
+        <div id="bowtie-threats"></div>
+        <div class="tool-section-lbl">Consequences &amp; recovery controls</div>
+        <div id="bowtie-consequences"></div>
+        <div class="tool-section-lbl">Barrier gap assessment</div>
+        <div id="bowtie-gaps"></div>
       </div>
     </div>
 
@@ -2041,8 +2086,9 @@
   let activeToolName = null;
 
   const TOOL_LABELS = {
-    socratic: 'Socratic Questioning', premortem: 'Pre-mortem', acc: 'ACC Matrix', fmea: 'FMEA',
-    fivewhys: '5 Whys', ishikawa: 'Ishikawa', pdca: 'PDCA', vsm: 'Value Stream Map', dora: 'DORA Metrics',
+    socratic: 'Socratic Questioning', premortem: 'Pre-mortem', bowtie: 'Bow-Tie Analysis',
+    acc: 'ACC Matrix', fmea: 'FMEA', fivewhys: '5 Whys', ishikawa: 'Ishikawa',
+    pdca: 'PDCA', vsm: 'Value Stream Map', dora: 'DORA Metrics',
   };
 
   function switchTool(name) {
@@ -2394,6 +2440,66 @@ commentary: max 1 sentence each. Be concise.`;
   document.getElementById('dora-clear').addEventListener('click', () =>
     clearTool({ output:'dora-output', warning:'dora-warning', error:'dora-error', loading:'dora-loading' },
               ['dora-df','dora-lt','dora-cfr','dora-ttr']));
+
+  // ── Bow-Tie ─────────────────────────────────────────────────────────────────
+
+  const BOWTIE_SYS = `You are building a Bow-Tie risk analysis for a specified hazard event.
+
+Return ONLY valid JSON (no markdown, no code fences):
+{
+  "hazard": "The hazard event restated precisely and unambiguously",
+  "threats": [
+    {
+      "threat": "A specific cause that could trigger the hazard",
+      "control": "The preventive control currently in place — or 'None identified' if absent",
+      "control_status": "strong | partial | absent"
+    }
+  ],
+  "consequences": [
+    {
+      "consequence": "A specific consequence if the hazard occurs",
+      "control": "The recovery or mitigating control currently in place — or 'None identified' if absent",
+      "control_status": "strong | partial | absent"
+    }
+  ],
+  "barrier_gaps": "2–3 sentences identifying where the barrier strategy is weakest and what should be addressed first."
+}
+
+3–5 threats. 3–5 consequences. Be specific to the hazard described — no generic entries. control_status must be one of: strong, partial, absent.`;
+
+  document.getElementById('bowtie-run').addEventListener('click', () => {
+    const hazard = document.getElementById('bowtie-hazard').value.trim();
+    if (!hazard) { document.getElementById('bowtie-warning').hidden = false; return; }
+    document.getElementById('bowtie-warning').hidden = true;
+    const ctx = document.getElementById('bowtie-context').value.trim();
+    const msg = ctx ? `Hazard: ${hazard}. Context: ${ctx}` : `Hazard: ${hazard}`;
+    runToolCall(BOWTIE_SYS, msg,
+      { output:'bowtie-output', loading:'bowtie-loading', error:'bowtie-error', warning:'bowtie-warning' },
+      (d) => {
+        document.getElementById('bowtie-hazard-out').innerHTML =
+          `<div class="tool-card"><div class="tool-card-note">${esc(d.hazard)}</div></div>`;
+        const statusTag = s => {
+          if (s === 'absent')  return tcTag('critical', 'ABSENT');
+          if (s === 'partial') return tcTag('band', 'PARTIAL');
+          return tcTag('low', 'STRONG');
+        };
+        renderList('bowtie-threats', d.threats ?? [], t =>
+          `<div class="tool-card">
+            <div class="tool-card-head">${esc(t.threat)}${statusTag(t.control_status)}</div>
+            <div class="tool-card-note"><strong>Preventive control:</strong> ${esc(t.control)}</div>
+          </div>`);
+        renderList('bowtie-consequences', d.consequences ?? [], c =>
+          `<div class="tool-card">
+            <div class="tool-card-head">${esc(c.consequence)}${statusTag(c.control_status)}</div>
+            <div class="tool-card-note"><strong>Recovery control:</strong> ${esc(c.control)}</div>
+          </div>`);
+        document.getElementById('bowtie-gaps').innerHTML =
+          `<div class="tool-card"><div class="tool-card-note">${esc(d.barrier_gaps)}</div></div>`;
+      });
+  });
+  document.getElementById('bowtie-clear').addEventListener('click', () =>
+    clearTool({ output:'bowtie-output', warning:'bowtie-warning', error:'bowtie-error', loading:'bowtie-loading' },
+              ['bowtie-hazard','bowtie-context']));
 
   // ── Pre-mortem ──────────────────────────────────────────────────────────────
 
