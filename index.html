@@ -260,6 +260,11 @@
     .reset-row { margin-top: 1.5rem; }
     .divider { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
 
+    /* ---- Page header ---- */
+    .page-header { margin-bottom: 1.5rem; }
+    .page-header-title { font-size: 1.65rem; font-weight: 800; letter-spacing: -0.02em; color: var(--brand); line-height: 1.2; margin-bottom: 0.3rem; }
+    .page-header-subtitle { font-size: 0.95rem; color: var(--muted); line-height: 1.5; }
+
     /* ---- Intro ---- */
     .intro {
       background: var(--surface); border: 1px solid var(--border);
@@ -270,7 +275,10 @@
 
     /* ---- Project list ---- */
     #project-list-section { margin-bottom: 1.75rem; }
-    #project-list-section .section-label { margin-bottom: 0.6rem; }
+    .project-list-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.6rem; flex-wrap: wrap; }
+    .project-list-header .section-label { margin-bottom: 0; flex-shrink: 0; }
+    #project-picker { flex: 1; min-width: 0; padding: 0.3rem 0.5rem; border: 1px solid var(--border); border-radius: var(--radius); font-size: 0.82rem; font-family: inherit; background: var(--surface); color: var(--text); }
+    #project-picker-load { flex-shrink: 0; }
     .project-card {
       display: flex; align-items: center; gap: 0.75rem;
       background: var(--surface); border: 1px solid var(--border);
@@ -924,6 +932,11 @@
   <!-- Assessment view -->
   <div id="assessment-view">
 
+  <div class="page-header">
+    <div class="page-header-title">Risk &amp; Impact Assessor</div>
+    <div class="page-header-subtitle">Score your project&rsquo;s risk profile once. Analyse every Risk, Issue, Assumption, Dependency, and Change &mdash; always in context.</div>
+  </div>
+
   <!-- ================================================================
        Intro
   ================================================================ -->
@@ -947,7 +960,11 @@
        Saved projects
   ================================================================ -->
   <div id="project-list-section" hidden>
-    <div class="section-label">Saved projects</div>
+    <div class="project-list-header">
+      <div class="section-label">Saved projects</div>
+      <select id="project-picker"><option value="">Select a project&#x2026;</option></select>
+      <button class="card-btn card-btn-load" id="project-picker-load">Load</button>
+    </div>
     <div id="project-list"></div>
   </div>
 
@@ -970,7 +987,10 @@
         <div id="context-meta"></div>
         <div id="context-recommendation"></div>
       </div>
-      <button class="btn btn-ghost btn-sm" id="update-context-btn">Update context</button>
+      <div style="display:flex;flex-direction:column;gap:0.4rem;flex-shrink:0">
+        <button class="btn btn-ghost btn-sm" id="update-context-btn">Update context</button>
+        <button class="btn btn-ghost btn-sm" id="new-project-btn">New project</button>
+      </div>
     </div>
 
     <!-- Assessment form (shown when no context, or updating) -->
@@ -1324,6 +1344,9 @@
   const panelCommentaryEl   = document.getElementById('panel-commentary');
   const personaCommentaryEl = document.getElementById('persona-commentary');
   const resetBtn              = document.getElementById('reset-btn');
+  const newProjectBtn         = document.getElementById('new-project-btn');
+  const projectPickerEl       = document.getElementById('project-picker');
+  const projectPickerLoadBtn  = document.getElementById('project-picker-load');
   const resetRowEl            = document.getElementById('reset-row');
   const projectListSectionEl  = document.getElementById('project-list-section');
   const projectListEl         = document.getElementById('project-list');
@@ -1348,6 +1371,18 @@
     }
     projectListSectionEl.hidden = false;
     projectListEl.innerHTML = '';
+
+    // Populate picker — preserve selection if possible
+    const prevSelection = projectPickerEl.value;
+    projectPickerEl.innerHTML = '<option value="">Select a project\u2026</option>';
+    for (const p of projects) {
+      const opt = document.createElement('option');
+      opt.value = p.projectName;
+      opt.textContent = p.projectName + (p.band ? ` — ${p.band}` : '');
+      if (p.projectName === (currentReport?.projectName)) opt.textContent += ' ✓';
+      projectPickerEl.appendChild(opt);
+    }
+    projectPickerEl.value = prevSelection || (currentReport?.projectName ?? '');
     for (const p of projects) {
       const card = document.createElement('div');
       card.className = 'project-card';
@@ -1532,6 +1567,25 @@
     contextSummaryEl.hidden = true;
     contextFormEl.hidden    = false;
     contextFormEl.querySelector('input').focus();
+  });
+
+  newProjectBtn.addEventListener('click', () => {
+    // Clear form to blank — does not wipe currentReport until user saves
+    projectNameInput.value = '';
+    assessBtn.disabled = true;
+    document.querySelectorAll('input[type="range"][data-signal]').forEach(s => {
+      s.value = '0'; s.dispatchEvent(new Event('input'));
+    });
+    presetButtonsEl.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+    contextSummaryEl.hidden = true;
+    contextFormEl.hidden    = false;
+    projectNameInput.focus();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  projectPickerLoadBtn.addEventListener('click', () => {
+    const name = projectPickerEl.value;
+    if (name) loadProjectContext(name);
   });
 
   // ---------------------------------------------------------------------------
