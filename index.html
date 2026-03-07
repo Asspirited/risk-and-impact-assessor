@@ -645,6 +645,7 @@
         <button class="tool-nav-btn" data-tool="gqm"><span class="tool-nav-btn-label">GQM</span><span class="tool-nav-btn-desc">Goal–Question–Metric — every measurement traces back to something you actually care about</span></button>
         <button class="tool-nav-btn" data-tool="spc"><span class="tool-nav-btn-label">SPC</span><span class="tool-nav-btn-desc">Statistical Process Control — tell the difference between noise and a real signal before you act</span></button>
         <button class="tool-nav-btn" data-tool="testquadrants"><span class="tool-nav-btn-label">Test Quadrants</span><span class="tool-nav-btn-desc">Map your testing by purpose — find the quadrant you're neglecting</span></button>
+        <button class="tool-nav-btn" data-tool="bdd"><span class="tool-nav-btn-label">BDD / Spec by Example</span><span class="tool-nav-btn-desc">Turn a feature or story into Given/When/Then scenarios — acceptance criteria that drive the build</span></button>
       </div>
     </div>
     <div>
@@ -1629,6 +1630,50 @@
       </div>
     </div>
 
+    <!-- BDD / Specification by Example -->
+    <div class="tool-panel" id="tp-bdd">
+      <div class="tool-panel-title">BDD / Specification by Example</div>
+      <div class="tool-panel-desc">Turns a feature or user story into Given/When/Then scenarios with concrete values. Each scenario serves three roles at once: it defines done, it becomes a regression test, and it documents the system. Vague acceptance criteria cannot survive contact with a concrete example.</div>
+      <details class="tool-guidance">
+        <summary></summary>
+        <div class="tool-guidance-body">
+          <ol class="tool-guidance-steps">
+            <li>Describe the feature or story in plain language — what the user wants to do and why. Don't describe implementation</li>
+            <li>The tool will write Given/When/Then scenarios: <strong>Given</strong> sets the context, <strong>When</strong> is the single event or action, <strong>Then</strong> is what the user observes as a result</li>
+            <li>Good scenarios use real values — a specific email address, a specific count, a specific error message. "Valid input" is not a concrete example</li>
+            <li>Check the anti-patterns list: if your story describes implementation ("the DB is updated") or uses vague language ("the system responds correctly"), that's flagged</li>
+            <li>The examples table parametrises one scenario across multiple inputs — this is where Specification by Example earns its name</li>
+          </ol>
+          <div class="tool-guidance-source"><strong>Source:</strong> Dan North — Behaviour-Driven Development (2003, dannorth.net); Gojko Adzic, <em>Specification by Example</em> (2011); Cucumber / Gherkin language (Aslak Hellesøy). Used by teams following ATDD (Acceptance Test-Driven Development) and Living Documentation practices.</div>
+        </div>
+      </details>
+      <div class="tool-field">
+        <label for="bdd-feature">Feature or user story</label>
+        <textarea id="bdd-feature" placeholder="e.g. As a registered user, I want to log in with my email and password so I can access my account. After 5 failed attempts the account is locked."></textarea>
+      </div>
+      <div class="tool-field">
+        <label for="bdd-context">Context and rules (optional)</label>
+        <input type="text" id="bdd-context" placeholder="e.g. Passwords are case-sensitive. Email must be verified. Sessions expire after 30 minutes.">
+      </div>
+      <div class="tool-actions">
+        <button class="tool-btn-run" id="bdd-run">Write Scenarios</button>
+        <button class="tool-btn-clear" id="bdd-clear">Clear</button>
+      </div>
+      <div class="tool-msg tool-warning" id="bdd-warning" hidden>Enter a feature or story first.</div>
+      <div class="tool-msg tool-loading" id="bdd-loading" hidden>Writing scenarios&#x2026;</div>
+      <div class="tool-msg tool-error" id="bdd-error" hidden></div>
+      <div class="tool-output" id="bdd-output">
+        <div class="tool-section-lbl">Scenarios</div>
+        <div id="bdd-scenarios"></div>
+        <div class="tool-section-lbl">Examples table</div>
+        <div id="bdd-examples"></div>
+        <div class="tool-section-lbl">Anti-patterns spotted</div>
+        <div id="bdd-antipatterns"></div>
+        <div class="tool-section-lbl">Definition of Done</div>
+        <div id="bdd-dod"></div>
+      </div>
+    </div>
+
     <!-- Apollo RCA -->
     <div class="tool-panel" id="tp-apollorca">
       <div class="tool-panel-title">Apollo RCA</div>
@@ -1964,7 +2009,7 @@
            DORA_SYS, SEVENWASTES_SYS, TOC_SYS, CYNEFIN_SYS, DMAIC_SYS, SWOT_SYS,
            SPACE_SYS, FTA_SYS, SPC_SYS, TESTQUADRANTS_SYS, WSJF_SYS, FLOWMETRICS_SYS,
            GQM_SYS, KT_SYS, BOWTIE_SYS, PREMORTEM_SYS, SOCRATIC_SYS,
-           MONTECARLO_SYS, OKR_SYS, APOLLO_RCA_SYS } from './src/tool-prompts.js';
+           MONTECARLO_SYS, OKR_SYS, APOLLO_RCA_SYS, BDD_SYS } from './src/tool-prompts.js';
   import {
     saveProject, listProjects, loadProject, deleteProject, clearAllProjects,
     saveProjectState, loadProjectState, clearProjectState
@@ -3381,6 +3426,54 @@
   document.getElementById('wsjf-clear').addEventListener('click', () =>
     clearTool({ output:'wsjf-output', warning:'wsjf-warning', error:'wsjf-error', loading:'wsjf-loading' },
               ['wsjf-items']));
+
+  // ── BDD / Specification by Example ──────────────────────────────────────────
+
+  document.getElementById('bdd-run').addEventListener('click', () => {
+    const feature = document.getElementById('bdd-feature').value.trim();
+    if (!feature) { document.getElementById('bdd-warning').hidden = false; return; }
+    document.getElementById('bdd-warning').hidden = true;
+    const ctx = document.getElementById('bdd-context').value.trim();
+    runToolCall(BDD_SYS, `Feature: ${feature}${ctx ? `\nRules: ${ctx}` : ''}`,
+      { output:'bdd-output', loading:'bdd-loading', error:'bdd-error', warning:'bdd-warning' },
+      (d) => {
+        renderList('bdd-scenarios', d.scenarios ?? [], s => {
+          const tags = (s.tags ?? []).map(t => `<span style="font-size:0.65rem;background:var(--brand-light);color:var(--brand);border-radius:3px;padding:0.1rem 0.35rem;font-weight:600">@${esc(t)}</span>`).join(' ');
+          const given = (Array.isArray(s.given) ? s.given : [s.given]).map(g => `<div><span style="color:var(--muted);font-weight:700">Given</span> ${esc(g)}</div>`).join('');
+          const then  = (Array.isArray(s.then)  ? s.then  : [s.then]).map(t => `<div><span style="color:var(--muted);font-weight:700">Then </span> ${esc(t)}</div>`).join('');
+          return `<div class="tool-card">
+            <div class="tool-card-head">${esc(s.title)} ${tags}</div>
+            <div style="font-family:monospace;font-size:0.75rem;line-height:1.6;margin:0.4rem 0">
+              ${given}
+              <div><span style="color:var(--muted);font-weight:700">When </span> ${esc(s.when)}</div>
+              ${then}
+            </div>
+            ${s.notes ? `<div class="tool-card-note">${esc(s.notes)}</div>` : ''}
+          </div>`;
+        });
+        const ex = d.examples_table;
+        if (ex?.applicable && ex.columns?.length) {
+          const cols = ex.columns.map(c => `<th style="padding:0.25rem 0.5rem;text-align:left;font-size:0.72rem">${esc(c)}</th>`).join('');
+          const rows = (ex.rows ?? []).map(r =>
+            `<tr>${r.map(cell => `<td style="padding:0.2rem 0.5rem;font-size:0.72rem;border-top:1px solid var(--border)">${esc(cell)}</td>`).join('')}</tr>`
+          ).join('');
+          document.getElementById('bdd-examples').innerHTML =
+            `<div class="tool-card"><table style="width:100%;border-collapse:collapse"><thead><tr>${cols}</tr></thead><tbody>${rows}</tbody></table></div>`;
+        } else {
+          document.getElementById('bdd-examples').innerHTML =
+            `<div class="tool-card"><div class="tool-card-note" style="color:var(--muted)">No parametrised examples applicable for this feature.</div></div>`;
+        }
+        const aps = d.anti_patterns_spotted ?? [];
+        document.getElementById('bdd-antipatterns').innerHTML = aps.length
+          ? aps.map(a => `<div class="tool-card"><div class="tool-card-note">${esc(a)}</div></div>`).join('')
+          : `<div class="tool-card"><div class="tool-card-note" style="color:var(--muted)">None spotted.</div></div>`;
+        renderList('bdd-dod', d.definition_of_done ?? [], item =>
+          `<div class="tool-card"><div class="tool-card-note">&#10003; ${esc(item)}</div></div>`);
+      });
+  });
+  document.getElementById('bdd-clear').addEventListener('click', () =>
+    clearTool({ output:'bdd-output', warning:'bdd-warning', error:'bdd-error', loading:'bdd-loading' },
+              ['bdd-feature','bdd-context']));
 
   // ── Apollo RCA ──────────────────────────────────────────────────────────────
 
