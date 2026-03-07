@@ -1822,6 +1822,7 @@
     assessmentViewEl.hidden = true;
     activeToolName = name;
 
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     closeToolsDrawer(); // no-op on desktop
   }
 
@@ -1837,6 +1838,7 @@
     toolMainViewEl.hidden  = true;
     assessmentViewEl.hidden = false;
     document.querySelectorAll('.tool-nav-btn').forEach(b => b.classList.remove('active'));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   document.getElementById('tool-view-back').addEventListener('click', showAssessmentView);
