@@ -613,6 +613,7 @@
         <button class="tool-nav-btn" data-tool="premortem"><span class="tool-nav-btn-label">Pre-mortem</span><span class="tool-nav-btn-desc">Imagine the project has failed — work backwards to find what caused it before it happens</span></button>
         <button class="tool-nav-btn" data-tool="bowtie"><span class="tool-nav-btn-label">Bow-Tie</span><span class="tool-nav-btn-desc">Map threats → controls → hazard → controls → consequences — see where your barriers are thin</span></button>
         <button class="tool-nav-btn" data-tool="fmea"><span class="tool-nav-btn-label">FMEA</span><span class="tool-nav-btn-desc">Failure Mode &amp; Effects Analysis — score and prioritise what could go wrong</span></button>
+        <button class="tool-nav-btn" data-tool="swot"><span class="tool-nav-btn-label">SWOT</span><span class="tool-nav-btn-desc">Strengths, Weaknesses, Opportunities, Threats — strategic risk surface for any project or decision</span></button>
       </div>
     </div>
     <div>
@@ -745,6 +746,48 @@
         <div id="socratic-questions"></div>
         <div class="tool-section-lbl">Making it measurable</div>
         <div id="socratic-measurable"></div>
+      </div>
+    </div>
+
+    <!-- SWOT -->
+    <div class="tool-panel" id="tp-swot">
+      <div class="tool-panel-title">SWOT Analysis</div>
+      <div class="tool-panel-desc">Maps the strategic risk landscape: internal Strengths and Weaknesses, external Opportunities and Threats. Used to expose the gap between where you are and where you need to be before committing to a plan.</div>
+      <details class="tool-guidance">
+        <summary></summary>
+        <div class="tool-guidance-body">
+          <ol class="tool-guidance-steps">
+            <li><strong>Strengths:</strong> internal advantages you control — skills, resources, capabilities, existing relationships</li>
+            <li><strong>Weaknesses:</strong> internal disadvantages — gaps in capability, resource constraints, technical debt, team limitations</li>
+            <li><strong>Opportunities:</strong> external conditions you could exploit — market changes, competitor gaps, new technology, regulatory shifts</li>
+            <li><strong>Threats:</strong> external conditions that could harm you — competitor moves, dependency risks, regulatory changes, economic factors</li>
+            <li>After identifying all four quadrants, look for SO strategies (use strengths to exploit opportunities), ST strategies (use strengths to mitigate threats), WO strategies (use opportunities to overcome weaknesses), and WT strategies (minimise weakness exposure to threats)</li>
+          </ol>
+          <div class="tool-guidance-source"><strong>Source:</strong> Learned, Christensen, Andrews &amp; Guth, Harvard Business School (1960s). Popularised by Ansoff; widely used in strategy, product planning, and project risk.</div>
+        </div>
+      </details>
+      <div class="tool-field">
+        <label for="swot-subject">Project or decision</label>
+        <textarea id="swot-subject" placeholder="e.g. Launching a new self-serve onboarding flow to replace our current sales-assisted process. Team of 4, 3-month delivery window, one existing competitor with similar functionality."></textarea>
+      </div>
+      <div class="tool-actions">
+        <button class="tool-btn-run" id="swot-run">Analyse</button>
+        <button class="tool-btn-clear" id="swot-clear">Clear</button>
+      </div>
+      <div class="tool-msg tool-warning" id="swot-warning" hidden>Describe the project or decision first.</div>
+      <div class="tool-msg tool-loading" id="swot-loading" hidden>Mapping the strategic landscape&#x2026;</div>
+      <div class="tool-msg tool-error" id="swot-error" hidden></div>
+      <div class="tool-output" id="swot-output">
+        <div class="tool-section-lbl">Strengths</div>
+        <div id="swot-strengths"></div>
+        <div class="tool-section-lbl">Weaknesses</div>
+        <div id="swot-weaknesses"></div>
+        <div class="tool-section-lbl">Opportunities</div>
+        <div id="swot-opportunities"></div>
+        <div class="tool-section-lbl">Threats</div>
+        <div id="swot-threats"></div>
+        <div class="tool-section-lbl">Strategic priority</div>
+        <div id="swot-strategy"></div>
       </div>
     </div>
 
@@ -2402,9 +2445,9 @@
 
   const TOOL_LABELS = {
     socratic: 'Socratic Questioning', premortem: 'Pre-mortem', bowtie: 'Bow-Tie Analysis',
-    fta: 'Fault Tree Analysis', acc: 'ACC Matrix', fmea: 'FMEA', fivewhys: '5 Whys',
-    ishikawa: 'Ishikawa', kt: 'Kepner-Tregoe', gqm: 'GQM', spc: 'SPC',
-    testquadrants: 'Test Quadrants', pdca: 'PDCA', vsm: 'Value Stream Map',
+    swot: 'SWOT', fta: 'Fault Tree Analysis', acc: 'ACC Matrix', fmea: 'FMEA',
+    fivewhys: '5 Whys', ishikawa: 'Ishikawa', kt: 'Kepner-Tregoe', gqm: 'GQM',
+    spc: 'SPC', testquadrants: 'Test Quadrants', pdca: 'PDCA', vsm: 'Value Stream Map',
     wsjf: 'WSJF / CD3', flowmetrics: 'Flow Metrics', dora: 'DORA Metrics', space: 'SPACE',
   };
 
@@ -2757,6 +2800,42 @@ commentary: max 1 sentence each. Be concise.`;
   document.getElementById('dora-clear').addEventListener('click', () =>
     clearTool({ output:'dora-output', warning:'dora-warning', error:'dora-error', loading:'dora-loading' },
               ['dora-df','dora-lt','dora-cfr','dora-ttr']));
+
+  // ── SWOT ────────────────────────────────────────────────────────────────────
+
+  const SWOT_SYS = `Perform a SWOT analysis (Strengths, Weaknesses, Opportunities, Threats) for the described project or decision.
+
+Return ONLY valid JSON (no markdown, no code fences):
+{
+  "strengths": [{ "point": "...", "why_it_matters": "..." }],
+  "weaknesses": [{ "point": "...", "why_it_matters": "..." }],
+  "opportunities": [{ "point": "...", "why_it_matters": "..." }],
+  "threats": [{ "point": "...", "why_it_matters": "..." }],
+  "strategic_priority": "The single most important strategic action given the full SWOT picture — should either exploit the most valuable opportunity using a key strength (SO strategy), or mitigate the most dangerous threat using a strength (ST strategy). 2–3 sentences."
+}
+
+3–5 items per quadrant. Be specific to the described situation — no generic SWOT platitudes. Threats and Weaknesses must be honest, not softened.`;
+
+  document.getElementById('swot-run').addEventListener('click', () => {
+    const subject = document.getElementById('swot-subject').value.trim();
+    if (!subject) { document.getElementById('swot-warning').hidden = false; return; }
+    document.getElementById('swot-warning').hidden = true;
+    runToolCall(SWOT_SYS, `Subject: ${subject}`,
+      { output:'swot-output', loading:'swot-loading', error:'swot-error', warning:'swot-warning' },
+      (d) => {
+        const renderSwot = (id, items) => renderList(id, items ?? [], i =>
+          `<div class="tool-card"><div class="tool-card-head">${esc(i.point)}</div><div class="tool-card-note">${esc(i.why_it_matters)}</div></div>`);
+        renderSwot('swot-strengths', d.strengths);
+        renderSwot('swot-weaknesses', d.weaknesses);
+        renderSwot('swot-opportunities', d.opportunities);
+        renderSwot('swot-threats', d.threats);
+        document.getElementById('swot-strategy').innerHTML =
+          `<div class="tool-card"><div class="tool-card-note">${esc(d.strategic_priority)}</div></div>`;
+      });
+  });
+  document.getElementById('swot-clear').addEventListener('click', () =>
+    clearTool({ output:'swot-output', warning:'swot-warning', error:'swot-error', loading:'swot-loading' },
+              ['swot-subject']));
 
   // ── SPACE ───────────────────────────────────────────────────────────────────
 

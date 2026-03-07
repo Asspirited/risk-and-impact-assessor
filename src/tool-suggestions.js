@@ -11,7 +11,7 @@
  *    suggestions are grounded in what the analysis actually found.
  */
 
-export const VALID_TOOLS = new Set(['acc', 'fmea', 'fivewhys', 'ishikawa', 'pdca', 'vsm', 'dora', 'socratic', 'premortem', 'bowtie', 'kt', 'gqm', 'flowmetrics', 'wsjf', 'spc', 'testquadrants', 'fta', 'space']);
+export const VALID_TOOLS = new Set(['acc', 'fmea', 'fivewhys', 'ishikawa', 'pdca', 'vsm', 'dora', 'socratic', 'premortem', 'bowtie', 'kt', 'gqm', 'flowmetrics', 'wsjf', 'spc', 'testquadrants', 'fta', 'space', 'swot']);
 
 // ── Static suggestions by RAID type ─────────────────────────────────────────
 
@@ -106,6 +106,14 @@ export const TOOL_SIGNALS = {
       'barrier', 'control', 'threat', 'hazard', 'consequence', 'preventive',
       'cause and consequence', 'escalation', 'mitigation', 'safeguard', 'bow-tie',
       'recovery control', 'barrier gap', 'critical event', 'unwanted event',
+    ],
+  },
+  swot: {
+    label: 'Map strategic strengths, weaknesses, opportunities, threats',
+    keywords: [
+      'strategic', 'strategy', 'swot', 'strength', 'weakness', 'opportunity', 'threat',
+      'competitive', 'market', 'internal', 'external', 'advantage', 'gap',
+      'position', 'landscape', 'risk landscape', 'strategic risk',
     ],
   },
   fta: {
