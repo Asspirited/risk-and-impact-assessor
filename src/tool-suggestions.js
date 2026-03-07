@@ -18,8 +18,9 @@ import { signals as _montecarloSignals } from './tools/montecarlo.js';
 import { signals as _okrSignals }        from './tools/okr.js';
 import { signals as _apollorcaSignals }  from './tools/apollo-rca.js';
 import { signals as _bddSignals }        from './tools/bdd.js';
+import { signals as _aieSignals }        from './tools/aie.js';
 
-export const VALID_TOOLS = new Set(['acc', 'fmea', 'fivewhys', 'ishikawa', 'pdca', 'vsm', 'dora', 'socratic', 'premortem', 'bowtie', 'kt', 'gqm', 'flowmetrics', 'wsjf', 'spc', 'testquadrants', 'fta', 'space', 'swot', 'dmaic', 'cynefin', 'toc', 'sevenwastes', 'montecarlo', 'okr', 'apollorca', 'bdd']);
+export const VALID_TOOLS = new Set(['acc', 'fmea', 'fivewhys', 'ishikawa', 'pdca', 'vsm', 'dora', 'socratic', 'premortem', 'bowtie', 'kt', 'gqm', 'flowmetrics', 'wsjf', 'spc', 'testquadrants', 'fta', 'space', 'swot', 'dmaic', 'cynefin', 'toc', 'sevenwastes', 'montecarlo', 'okr', 'apollorca', 'bdd', 'aie']);
 
 // ── Static suggestions by RAID type ─────────────────────────────────────────
 
@@ -238,6 +239,7 @@ export const TOOL_SIGNALS = {
   okr:         _okrSignals,
   montecarlo:  _montecarloSignals,
   bdd:         _bddSignals,
+  aie:         _aieSignals,
   kt: {
     label: 'Bound the problem with Is / Is Not',
     rationale: 'The problem is inconsistent or bounded — Kepner-Tregoe Is/Is Not analysis defines precisely where and when the problem occurs vs where it doesn\'t, to locate its cause.',

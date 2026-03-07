@@ -663,6 +663,7 @@
         <button class="tool-nav-btn" data-tool="flowmetrics"><span class="tool-nav-btn-label">Flow Metrics</span><span class="tool-nav-btn-desc">Cycle time, throughput, WIP — predict delivery without estimates using Little's Law</span></button>
         <button class="tool-nav-btn" data-tool="dora"><span class="tool-nav-btn-label">DORA</span><span class="tool-nav-btn-desc">DevOps Research — four key delivery performance metrics</span></button>
         <button class="tool-nav-btn" data-tool="space"><span class="tool-nav-btn-label">SPACE</span><span class="tool-nav-btn-desc">Developer productivity across five dimensions — goes beyond DORA's delivery focus</span></button>
+        <button class="tool-nav-btn" data-tool="aie"><span class="tool-nav-btn-label">Applied Information Economics</span><span class="tool-nav-btn-desc">Quantify the value of reducing uncertainty — find out if more data is worth gathering before you act</span></button>
       </div>
     </div>
     <div>
@@ -1630,6 +1631,50 @@
       </div>
     </div>
 
+    <!-- Applied Information Economics -->
+    <div class="tool-panel" id="tp-aie">
+      <div class="tool-panel-title">Applied Information Economics</div>
+      <div class="tool-panel-desc">Before you gather more data, ask: what would you do differently if you knew the answer? If nothing changes, the information has no value. AIE quantifies the Expected Value of Perfect Information (EVPI) so you know whether to act now or invest in reducing uncertainty first.</div>
+      <details class="tool-guidance">
+        <summary></summary>
+        <div class="tool-guidance-body">
+          <ol class="tool-guidance-steps">
+            <li>Describe the decision you're facing — what commitment does it require, and what could go wrong?</li>
+            <li>The tool identifies the key uncertain variables affecting the decision and asks you to express your current belief as a <strong>90% confidence interval</strong> — a range you'd bet 9 to 1 odds on containing the true value</li>
+            <li><strong>EVPI</strong> (Expected Value of Perfect Information) = probability you're currently wrong × cost of making the wrong decision. If EVPI is small, stop deliberating and act</li>
+            <li>If EVPI is large relative to the cost of gathering information, you've found where to focus your measurement effort</li>
+            <li>A measurement doesn't need to eliminate uncertainty — it only needs to reduce it enough to change what you'd decide</li>
+          </ol>
+          <div class="tool-guidance-source"><strong>Source:</strong> Douglas Hubbard, <em>How to Measure Anything</em> (3rd ed., 2014); <em>The Failure of Risk Management</em> (2009). Hubbard Decision Research — Applied Information Economics methodology. Draws on decision theory, Bayesian reasoning, and calibrated probability estimation.</div>
+        </div>
+      </details>
+      <div class="tool-field">
+        <label for="aie-decision">What decision are you facing?</label>
+        <textarea id="aie-decision" placeholder="e.g. Whether to build our own data pipeline or buy an off-the-shelf tool. The build option would take 12 months; the buy option costs £180k/year. The wrong choice sets us back 18 months."></textarea>
+      </div>
+      <div class="tool-field">
+        <label for="aie-context">Context and constraints (optional)</label>
+        <input type="text" id="aie-context" placeholder="e.g. £200k budget, 18-month deadline, team has no data engineering experience, 3 competing vendors">
+      </div>
+      <div class="tool-actions">
+        <button class="tool-btn-run" id="aie-run">Analyse Decision</button>
+        <button class="tool-btn-clear" id="aie-clear">Clear</button>
+      </div>
+      <div class="tool-msg tool-warning" id="aie-warning" hidden>Enter the decision you're facing first.</div>
+      <div class="tool-msg tool-loading" id="aie-loading" hidden>Calculating the value of information&#x2026;</div>
+      <div class="tool-msg tool-error" id="aie-error" hidden></div>
+      <div class="tool-output" id="aie-output">
+        <div class="tool-section-lbl">Key uncertainties</div>
+        <div id="aie-uncertainties"></div>
+        <div class="tool-section-lbl">Expected Value of Perfect Information</div>
+        <div id="aie-evpi"></div>
+        <div class="tool-section-lbl">Measurement options</div>
+        <div id="aie-measurement"></div>
+        <div class="tool-section-lbl">Recommendation</div>
+        <div id="aie-recommendation"></div>
+      </div>
+    </div>
+
     <!-- BDD / Specification by Example -->
     <div class="tool-panel" id="tp-bdd">
       <div class="tool-panel-title">BDD / Specification by Example</div>
@@ -2009,7 +2054,7 @@
            DORA_SYS, SEVENWASTES_SYS, TOC_SYS, CYNEFIN_SYS, DMAIC_SYS, SWOT_SYS,
            SPACE_SYS, FTA_SYS, SPC_SYS, TESTQUADRANTS_SYS, WSJF_SYS, FLOWMETRICS_SYS,
            GQM_SYS, KT_SYS, BOWTIE_SYS, PREMORTEM_SYS, SOCRATIC_SYS,
-           MONTECARLO_SYS, OKR_SYS, APOLLO_RCA_SYS, BDD_SYS } from './src/tool-prompts.js';
+           MONTECARLO_SYS, OKR_SYS, APOLLO_RCA_SYS, BDD_SYS, AIE_SYS } from './src/tool-prompts.js';
   import {
     saveProject, listProjects, loadProject, deleteProject, clearAllProjects,
     saveProjectState, loadProjectState, clearProjectState
@@ -3426,6 +3471,52 @@
   document.getElementById('wsjf-clear').addEventListener('click', () =>
     clearTool({ output:'wsjf-output', warning:'wsjf-warning', error:'wsjf-error', loading:'wsjf-loading' },
               ['wsjf-items']));
+
+  // ── Applied Information Economics ───────────────────────────────────────────
+
+  document.getElementById('aie-run').addEventListener('click', () => {
+    const decision = document.getElementById('aie-decision').value.trim();
+    if (!decision) { document.getElementById('aie-warning').hidden = false; return; }
+    document.getElementById('aie-warning').hidden = true;
+    const ctx = document.getElementById('aie-context').value.trim();
+    runToolCall(AIE_SYS, `Decision: ${decision}${ctx ? `\nContext: ${ctx}` : ''}`,
+      { output:'aie-output', loading:'aie-loading', error:'aie-error', warning:'aie-warning' },
+      (d) => {
+        const IMPACT_COL = { high: '#dc2626', medium: 'var(--brand)', low: 'var(--muted)' };
+        renderList('aie-uncertainties', d.uncertainties ?? [], u => {
+          const col = IMPACT_COL[u.impact_on_decision] ?? 'var(--muted)';
+          return `<div class="tool-card">
+            <div class="tool-card-head">${esc(u.variable)} <span style="font-size:0.68rem;color:${col};font-weight:700;text-transform:uppercase">${esc(u.impact_on_decision)} impact</span></div>
+            <div style="font-size:0.75rem;margin:0.3rem 0">${esc(u.current_belief)}</div>
+            <div style="font-size:0.72rem;color:var(--muted)">90% CI: <strong>${esc(u.range_low)}</strong> — <strong>${esc(u.range_high)}</strong></div>
+            <div class="tool-card-note" style="margin-top:0.3rem"><strong>How to measure:</strong> ${esc(u.measurability)}</div>
+          </div>`;
+        });
+        const ev = d.evpi_assessment ?? {};
+        const worthColour = ev.worth_measuring ? '#16a34a' : 'var(--muted)';
+        const worthLabel  = ev.worth_measuring ? 'WORTH MEASURING' : 'ACT NOW — NOT WORTH MEASURING';
+        document.getElementById('aie-evpi').innerHTML =
+          `<div class="tool-card">
+            <div style="font-size:0.8rem;font-weight:700;color:${worthColour};margin-bottom:0.4rem">${esc(worthLabel)}</div>
+            <div style="font-size:0.78rem;margin-bottom:0.15rem"><strong>Key uncertainty:</strong> ${esc(ev.key_uncertainty)}</div>
+            <div style="font-size:0.78rem;margin-bottom:0.15rem"><strong>Cost of wrong decision:</strong> ${esc(ev.wrong_decision_cost)}</div>
+            <div style="font-size:0.78rem;margin-bottom:0.15rem"><strong>Probability currently wrong:</strong> ${esc(ev.probability_currently_wrong)}</div>
+            <div style="font-size:0.78rem"><strong>EVPI estimate:</strong> ${esc(ev.evpi_estimate)}</div>
+          </div>`;
+        renderList('aie-measurement', d.measurement_options ?? [], m =>
+          `<div class="tool-card">
+            <div class="tool-card-head">${esc(m.what_to_measure)}</div>
+            <div style="font-size:0.75rem;margin:0.2rem 0"><strong>How:</strong> ${esc(m.how)}</div>
+            <div style="font-size:0.75rem;margin:0.2rem 0"><strong>Cost:</strong> ${esc(m.cost)}</div>
+            <div class="tool-card-note"><strong>Uncertainty reduction:</strong> ${esc(m.expected_uncertainty_reduction)}</div>
+          </div>`);
+        document.getElementById('aie-recommendation').innerHTML =
+          `<div class="tool-card"><div class="tool-card-note">${esc(d.recommendation)}</div></div>`;
+      });
+  });
+  document.getElementById('aie-clear').addEventListener('click', () =>
+    clearTool({ output:'aie-output', warning:'aie-warning', error:'aie-error', loading:'aie-loading' },
+              ['aie-decision','aie-context']));
 
   // ── BDD / Specification by Example ──────────────────────────────────────────
 

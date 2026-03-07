@@ -11,6 +11,7 @@ export { systemPrompt as MONTECARLO_SYS } from './tools/montecarlo.js';
 export { systemPrompt as OKR_SYS }        from './tools/okr.js';
 export { systemPrompt as APOLLO_RCA_SYS } from './tools/apollo-rca.js';
 export { systemPrompt as BDD_SYS }        from './tools/bdd.js';
+export { systemPrompt as AIE_SYS }        from './tools/aie.js';
 
 export const ACC_SYS = `Build an ACC Matrix (Attributes, Components, Capabilities) for the described system or feature.
 ACC is a test coverage heuristic from James Whittaker and "50 Quick Ideas to Improve Your Tests" (Adzic & Evans).
