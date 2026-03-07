@@ -146,3 +146,29 @@ describe('meta worker-url', () => {
     expect(html).toMatch(/meta[^>]+name="worker-url"[^>]+content="https?:\/\//);
   });
 });
+
+// ============================================================================
+// 6. showToolSuggestion DOM wiring
+// ============================================================================
+
+describe('showToolSuggestion structural integrity', () => {
+  test('showToolSuggestion function is declared', () => {
+    expect(moduleScript).toMatch(/function showToolSuggestion\s*\(/);
+  });
+
+  test('tool-recommend-block ID is used as the suggestion container', () => {
+    expect(moduleScript).toMatch(/tool-recommend-block/);
+  });
+
+  test('data-suggest-tool attribute is set on suggestion buttons', () => {
+    expect(moduleScript).toMatch(/data-suggest-tool/);
+  });
+
+  test('TOOL_SUGGESTIONS is imported from src/tool-suggestions.js', () => {
+    expect(moduleScript).toMatch(/TOOL_SUGGESTIONS.*from.*tool-suggestions/);
+  });
+
+  test('suggestion buttons trigger switchTool on click', () => {
+    expect(moduleScript).toMatch(/switchTool\(btn\.dataset\.suggestTool\)/);
+  });
+});

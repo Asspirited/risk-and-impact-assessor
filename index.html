@@ -1092,6 +1092,7 @@
   import { ARCHETYPE_LABELS }     from './src/archetypes.js';
   import { DIMENSION_LABELS }     from './src/dimensions.js';
   import { RAID_ITEM_TYPES, buildRaidItemPrompt } from './src/raid-item.js';
+  import { TOOL_SUGGESTIONS } from './src/tool-suggestions.js';
   import {
     saveProject, listProjects, loadProject, deleteProject, clearAllProjects,
     saveProjectState, loadProjectState, clearProjectState
@@ -2148,14 +2149,6 @@ commentary: max 1 sentence each. Be concise.`;
               ['dora-df','dora-lt','dora-cfr','dora-ttr']));
 
   // ── Tool recommender ────────────────────────────────────────────────────────
-
-  const TOOL_SUGGESTIONS = {
-    risk:       [{ tool:'fmea', label:'FMEA' }, { tool:'fivewhys', label:'5 Whys' }],
-    assumption: [{ tool:'acc',  label:'ACC Analysis' }, { tool:'pdca', label:'PDCA' }],
-    issue:      [{ tool:'fivewhys', label:'5 Whys' }, { tool:'ishikawa', label:'Ishikawa' }, { tool:'pdca', label:'PDCA' }],
-    dependency: [{ tool:'vsm', label:'Value Stream Map' }, { tool:'acc', label:'ACC Analysis' }],
-    change:     [{ tool:'pdca', label:'PDCA' }, { tool:'fmea', label:'FMEA' }],
-  };
 
   function showToolSuggestion(raidType) {
     const suggestions = TOOL_SUGGESTIONS[raidType];
