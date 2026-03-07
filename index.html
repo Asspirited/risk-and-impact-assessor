@@ -287,6 +287,7 @@
     }
     .card-btn-load   { background: var(--teal); color: #fff; border-color: var(--teal); }
     .card-btn-load:hover { opacity: 0.88; }
+    .card-btn-loaded { background: var(--low-bg); color: var(--low); border-color: var(--low); cursor: default; font-weight: 600; }
     .card-btn-delete { background: transparent; color: var(--muted); }
     .card-btn-delete:hover { background: var(--critical-bg); color: var(--critical); border-color: var(--critical); }
 
@@ -349,7 +350,23 @@
     .tool-panel.active { display: block; }
 
     .tool-panel-title { font-size: 0.92rem; font-weight: 700; color: var(--brand); margin-bottom: 0.2rem; }
-    .tool-panel-desc { font-size: 0.77rem; color: var(--muted); line-height: 1.5; margin-bottom: 0.85rem; }
+    .tool-panel-desc { font-size: 0.77rem; color: var(--muted); line-height: 1.5; margin-bottom: 0.5rem; }
+
+    .tool-guidance {
+      background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius);
+      margin-bottom: 0.85rem;
+    }
+    .tool-guidance > summary {
+      padding: 0.38rem 0.75rem; cursor: pointer; color: var(--muted);
+      font-size: 0.75rem; font-weight: 600; list-style: none; user-select: none;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .tool-guidance > summary::-webkit-details-marker { display: none; }
+    .tool-guidance > summary::after { content: 'How to use ▾'; }
+    .tool-guidance[open] > summary::after { content: 'How to use ▴'; }
+    .tool-guidance-body { padding: 0.1rem 0.75rem 0.75rem; }
+    .tool-guidance-steps { margin: 0; padding-left: 1.3em; line-height: 1.85; font-size: 0.77rem; color: var(--text); }
+    .tool-guidance-source { margin-top: 0.55rem; font-size: 0.71rem; color: var(--muted); line-height: 1.5; border-top: 1px solid var(--border); padding-top: 0.4rem; }
 
     .tool-field { margin-bottom: 0.75rem; }
     .tool-field label { font-size: 0.78rem; font-weight: 500; display: block; margin-bottom: 0.25rem; }
@@ -457,6 +474,16 @@
       position: sticky; top: 0; z-index: 10;
       background: var(--surface); border-bottom: 2px solid var(--brand);
       padding: 0.65rem 1rem;
+      display: flex; align-items: center; gap: 0.75rem;
+    }
+    .tool-view-context {
+      flex: 1; display: flex; align-items: center; gap: 0.4rem;
+      font-size: 0.75rem; color: var(--muted); overflow: hidden;
+    }
+    .tool-view-context strong { color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 18ch; }
+    .tool-view-name {
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em;
+      text-transform: uppercase; color: var(--brand); white-space: nowrap; flex-shrink: 0;
     }
     .tool-view-back {
       display: inline-flex; align-items: center; gap: 0.4rem;
@@ -557,6 +584,19 @@
     <div class="tool-panel" id="tp-acc">
       <div class="tool-panel-title">ACC Matrix</div>
       <div class="tool-panel-desc">Attributes, Components, Capabilities — a coverage heuristic from James Whittaker (Google) and <em>50 Quick Ideas to Improve Your Tests</em> (Adzic &amp; Evans). Map what your system does (Capabilities) through how it&rsquo;s built (Components) against quality goals (Attributes).</div>
+      <details class="tool-guidance">
+        <summary></summary>
+        <div class="tool-guidance-body">
+          <ol class="tool-guidance-steps">
+            <li>Name the system or feature you want to test</li>
+            <li>List its <strong>Capabilities</strong> — what does it actually do? (user-facing behaviours)</li>
+            <li>Break it into <strong>Components</strong> — how is it built? (modules, services, APIs, storage)</li>
+            <li>Define <strong>Attributes</strong> — your quality goals (security, performance, reliability, accessibility…)</li>
+            <li>Use the matrix intersections to find coverage gaps: which capability × component × attribute combinations have no test?</li>
+          </ol>
+          <div class="tool-guidance-source"><strong>Source:</strong> James Whittaker &amp; Jonathan Bach (Google); Gojko Adzic &amp; David Evans, <em>50 Quick Ideas to Improve Your Tests</em> (2014).</div>
+        </div>
+      </details>
       <div class="tool-field">
         <label for="acc-title">System or feature</label>
         <input type="text" id="acc-title" placeholder="e.g. User authentication service">
@@ -582,7 +622,20 @@
     <!-- FMEA -->
     <div class="tool-panel" id="tp-fmea">
       <div class="tool-panel-title">FMEA</div>
-      <div class="tool-panel-desc">Failure Mode and Effects Analysis — identify potential failures, their effects, and RPN scores.</div>
+      <div class="tool-panel-desc">Failure Mode and Effects Analysis — identify potential failures, their effects, and prioritise by Risk Priority Number (Severity × Occurrence × Detection).</div>
+      <details class="tool-guidance">
+        <summary></summary>
+        <div class="tool-guidance-body">
+          <ol class="tool-guidance-steps">
+            <li>Name the process or system under analysis</li>
+            <li>For each step or component, ask: <em>what could go wrong?</em> — these are your failure modes</li>
+            <li>For each failure mode, score three factors 1–10: <strong>Severity</strong> (how bad is the effect?), <strong>Occurrence</strong> (how likely is it?), <strong>Detection</strong> (how easily would you catch it?)</li>
+            <li><strong>RPN = S × O × D</strong> — higher scores demand more attention</li>
+            <li>Focus first on high-RPN items and failures with Severity 9–10 regardless of RPN</li>
+          </ol>
+          <div class="tool-guidance-source"><strong>Source:</strong> MIL-STD-1629A, US Department of Defense (1980); SAE J1739; widely adopted in manufacturing, aerospace, healthcare, and software.</div>
+        </div>
+      </details>
       <div class="tool-field">
         <label for="fmea-process">Process or system</label>
         <input type="text" id="fmea-process" placeholder="e.g. Order fulfilment pipeline">
@@ -607,7 +660,20 @@
     <!-- 5 Whys -->
     <div class="tool-panel" id="tp-fivewhys">
       <div class="tool-panel-title">5 Whys</div>
-      <div class="tool-panel-desc">Drill to the root cause of a problem by asking why five times.</div>
+      <div class="tool-panel-desc">Drill past symptoms to root cause by repeatedly asking why. Each answer becomes the subject of the next question — stop when you reach something you can actually fix.</div>
+      <details class="tool-guidance">
+        <summary></summary>
+        <div class="tool-guidance-body">
+          <ol class="tool-guidance-steps">
+            <li>Write a clear, specific problem statement (not "things are slow" — "the nightly batch job takes 6 hours instead of 1")</li>
+            <li>Ask: <strong>Why did this happen?</strong> — write down the most direct cause</li>
+            <li>Take that cause and ask why again — you're going deeper, not sideways</li>
+            <li>Repeat until you reach a root cause with a concrete countermeasure. This often takes 3–7 iterations, not exactly five</li>
+            <li>If each "why" branches into multiple causes, trace the most impactful branch first</li>
+          </ol>
+          <div class="tool-guidance-source"><strong>Source:</strong> Taiichi Ohno, Toyota Production System (1978). Widely used in Lean, Six Sigma, and post-incident reviews.</div>
+        </div>
+      </details>
       <div class="tool-field">
         <label for="fivewhys-problem">Problem statement</label>
         <textarea id="fivewhys-problem" placeholder="Describe the problem concisely"></textarea>
@@ -634,7 +700,20 @@
     <!-- Ishikawa -->
     <div class="tool-panel" id="tp-ishikawa">
       <div class="tool-panel-title">Ishikawa</div>
-      <div class="tool-panel-desc">Fishbone diagram — map causes across six categories to a stated effect.</div>
+      <div class="tool-panel-desc">Fishbone (cause-and-effect) diagram — map contributing causes across six standard categories to understand what's driving a problem or outcome.</div>
+      <details class="tool-guidance">
+        <summary></summary>
+        <div class="tool-guidance-body">
+          <ol class="tool-guidance-steps">
+            <li>State the <strong>effect</strong> clearly — the problem or outcome at the head of the fishbone</li>
+            <li>Work across the six bones: <strong>People</strong> (skills, behaviour), <strong>Methods</strong> (processes, procedures), <strong>Machines</strong> (tools, technology), <strong>Materials</strong> (inputs, data), <strong>Measurement</strong> (how success is defined/tracked), <strong>Environment</strong> (context, constraints)</li>
+            <li>Brainstorm causes under each category — don't filter at this stage</li>
+            <li>Look for causes that appear under multiple categories — high likelihood these are genuine root contributors</li>
+            <li>Use alongside 5 Whys to drill further into the most significant causes</li>
+          </ol>
+          <div class="tool-guidance-source"><strong>Source:</strong> Kaoru Ishikawa, <em>Guide to Quality Control</em> (1968). Foundational in TQM, ISO 9001, and healthcare quality management.</div>
+        </div>
+      </details>
       <div class="tool-field">
         <label for="ishikawa-effect">Effect / problem</label>
         <input type="text" id="ishikawa-effect" placeholder="e.g. High defect rate in production">
@@ -660,7 +739,20 @@
     <!-- PDCA -->
     <div class="tool-panel" id="tp-pdca">
       <div class="tool-panel-title">PDCA</div>
-      <div class="tool-panel-desc">Plan–Do–Check–Act cycle with hypothesis-driven framing and SMART actions.</div>
+      <div class="tool-panel-desc">Plan–Do–Check–Act — a structured improvement cycle that treats every change as an experiment with a measurable outcome.</div>
+      <details class="tool-guidance">
+        <summary></summary>
+        <div class="tool-guidance-body">
+          <ol class="tool-guidance-steps">
+            <li><strong>Plan:</strong> define the problem, your hypothesis for improvement, and how you'll measure success — be specific</li>
+            <li><strong>Do:</strong> implement the change on a small, controlled scale — don't roll out globally yet</li>
+            <li><strong>Check:</strong> measure results against your prediction — did it work? By how much? Was the effect consistent?</li>
+            <li><strong>Act:</strong> if successful, standardise the change and widen the rollout; if not, use what you learned to refine the plan and repeat</li>
+            <li>Each cycle should be short and scoped — the value is in repeated rapid iteration, not one large experiment</li>
+          </ol>
+          <div class="tool-guidance-source"><strong>Source:</strong> Walter Shewhart (1939), popularised by W. Edwards Deming. Foundational in ISO standards, Lean, and continuous improvement frameworks.</div>
+        </div>
+      </details>
       <div class="tool-field">
         <label for="pdca-goal">Improvement goal</label>
         <input type="text" id="pdca-goal" placeholder="e.g. Reduce deployment lead time by 50%">
@@ -688,7 +780,20 @@
     <!-- VSM -->
     <div class="tool-panel" id="tp-vsm">
       <div class="tool-panel-title">Value Stream Map</div>
-      <div class="tool-panel-desc">Map flow steps, identify waste, and surface improvement opportunities.</div>
+      <div class="tool-panel-desc">Value Stream Mapping — trace the full flow of work from request to delivery, expose waste and delays, and design a leaner future state.</div>
+      <details class="tool-guidance">
+        <summary></summary>
+        <div class="tool-guidance-body">
+          <ol class="tool-guidance-steps">
+            <li>Define your value stream — pick a specific product family or workflow from trigger to delivery</li>
+            <li>Map the <strong>current state</strong>: every step, handoff, wait time, queue, and information flow as they actually are — not as intended</li>
+            <li>Identify waste: delays (waiting), rework (defects), over-processing, unnecessary handoffs, inventory build-up between steps</li>
+            <li>Calculate total lead time vs value-add time — the ratio is often surprising</li>
+            <li>Design the <strong>future state</strong> map with waste removed, then build a time-boxed implementation plan to close the gap</li>
+          </ol>
+          <div class="tool-guidance-source"><strong>Source:</strong> Mike Rother &amp; John Shook, <em>Learning to See</em> (1998), Lean Enterprise Institute. Adapted from Toyota's material and information flow mapping.</div>
+        </div>
+      </details>
       <div class="tool-field">
         <label for="vsm-process">Process name</label>
         <input type="text" id="vsm-process" placeholder="e.g. Software feature delivery">
@@ -714,7 +819,20 @@
     <!-- DORA -->
     <div class="tool-panel" id="tp-dora">
       <div class="tool-panel-title">DORA Metrics</div>
-      <div class="tool-panel-desc">Assess your DevOps performance band across the four key DORA metrics.</div>
+      <div class="tool-panel-desc">Four metrics that reliably predict software delivery performance and organisational outcomes — from the six-year DORA research programme (Accelerate).</div>
+      <details class="tool-guidance">
+        <summary></summary>
+        <div class="tool-guidance-body">
+          <ol class="tool-guidance-steps">
+            <li><strong>Deployment Frequency:</strong> how often does your team deploy to production? (Elite: multiple times/day; Low: less than once/month)</li>
+            <li><strong>Lead Time for Changes:</strong> from commit to production, how long? (Elite: under one hour; Low: over six months)</li>
+            <li><strong>Change Failure Rate:</strong> what % of deployments cause a degraded service or require remediation? (Elite: 0–5%; Low: 46–60%)</li>
+            <li><strong>Time to Restore Service:</strong> when an incident occurs, how long to recover? (Elite: under one hour; Low: over six months)</li>
+            <li>Your band (Elite / High / Medium / Low) reflects where you sit across all four metrics — use it to identify which metric is your constraint</li>
+          </ol>
+          <div class="tool-guidance-source"><strong>Source:</strong> DORA Research Programme; Nicole Forsgren, Jez Humble &amp; Gene Kim, <em>Accelerate: The Science of Lean Software and DevOps</em> (2018). Annual State of DevOps Report.</div>
+        </div>
+      </details>
       <div class="dora-grid">
         <div class="tool-field">
           <label for="dora-df">Deployment frequency</label>
@@ -797,6 +915,8 @@
   <div id="tool-main-view" hidden>
     <div class="tool-view-back-bar">
       <button class="tool-view-back" id="tool-view-back">&#8592; Back to assessment</button>
+      <div class="tool-view-context" id="tool-view-context"></div>
+      <span class="tool-view-name" id="tool-view-name"></span>
     </div>
     <div id="tool-main-panel"></div>
   </div>
@@ -1258,9 +1378,11 @@
       actionsEl.className = 'project-card-actions';
 
       const loadBtn = document.createElement('button');
-      loadBtn.className = 'card-btn card-btn-load';
-      loadBtn.textContent = 'Load';
-      loadBtn.addEventListener('click', () => loadProjectContext(p.projectName));
+      const isLoaded = currentReport?.projectName === p.projectName;
+      loadBtn.className = `card-btn ${isLoaded ? 'card-btn-loaded' : 'card-btn-load'}`;
+      loadBtn.textContent = isLoaded ? '✓ Loaded' : 'Load';
+      loadBtn.disabled = isLoaded;
+      if (!isLoaded) loadBtn.addEventListener('click', () => loadProjectContext(p.projectName));
 
       const delBtn = document.createElement('button');
       delBtn.className = 'card-btn card-btn-delete';
@@ -1297,6 +1419,7 @@
       commentaryCache.panel.clear();
       commentaryCache.persona.clear();
       applyContext(report);
+      renderProjectList(); // refresh load buttons — active project shows "✓ Loaded"
       clearRaidOutput();
       selectedRaidType = null;
       raidTypeSelectorEl.querySelectorAll('.raid-type-btn').forEach(b => b.classList.remove('active'));
@@ -1342,10 +1465,10 @@
       band:           report.band,
       tradAgileLabel: report.tradAgileLabel
     });
-    renderProjectList();
     commentaryCache.panel.clear();
     commentaryCache.persona.clear();
     applyContext(report);
+    renderProjectList(); // refresh after applyContext so currentReport is set
     clearRaidOutput();
     selectedRaidType = null;
     raidTypeSelectorEl.querySelectorAll('.raid-type-btn').forEach(b => b.classList.remove('active'));
@@ -1613,6 +1736,7 @@
   // ---------------------------------------------------------------------------
 
   resetBtn.addEventListener('click', () => {
+    if (!confirm('Reset everything? This will clear all sliders, results, and saved projects. This cannot be undone.')) return;
     // Clear sliders and preset selection
     document.querySelectorAll('input[type="range"][data-signal]').forEach(s => {
       s.value = '0'; s.dispatchEvent(new Event('input'));
@@ -1668,6 +1792,11 @@
 
   let activeToolName = null;
 
+  const TOOL_LABELS = {
+    acc: 'ACC Matrix', fmea: 'FMEA', fivewhys: '5 Whys',
+    ishikawa: 'Ishikawa', pdca: 'PDCA', vsm: 'Value Stream Map', dora: 'DORA Metrics',
+  };
+
   function switchTool(name) {
     const panel = document.getElementById(`tp-${name}`);
     if (!panel) return;
@@ -1679,6 +1808,15 @@
     toolMainPanelEl.innerHTML = '';
     toolMainPanelEl.appendChild(panel);
     panel.classList.add('active');
+
+    // Populate sticky bar — tool name + project context
+    document.getElementById('tool-view-name').textContent = TOOL_LABELS[name] ?? name;
+    const ctxEl = document.getElementById('tool-view-context');
+    if (currentReport) {
+      ctxEl.innerHTML = `For: <strong>${esc(currentReport.projectName)}</strong>&ensp;<span class="badge ${BAND_CLASS[currentReport.band] ?? ''}">${currentReport.band}</span>`;
+    } else {
+      ctxEl.innerHTML = '<em>No project context set</em>';
+    }
 
     toolMainViewEl.hidden  = false;
     assessmentViewEl.hidden = true;
