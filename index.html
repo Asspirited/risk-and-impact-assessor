@@ -621,6 +621,7 @@
         <button class="tool-nav-btn" data-tool="fivewhys"><span class="tool-nav-btn-label">5 Whys</span><span class="tool-nav-btn-desc">Ask why until the real cause surfaces — stops fixes treating symptoms</span></button>
         <button class="tool-nav-btn" data-tool="ishikawa"><span class="tool-nav-btn-label">Ishikawa</span><span class="tool-nav-btn-desc">Fishbone diagram — map all contributing causes across six categories</span></button>
         <button class="tool-nav-btn" data-tool="kt"><span class="tool-nav-btn-label">Kepner-Tregoe</span><span class="tool-nav-btn-desc">Is / Is Not analysis — bound a problem precisely to find its cause</span></button>
+        <button class="tool-nav-btn" data-tool="fta"><span class="tool-nav-btn-label">Fault Tree Analysis</span><span class="tool-nav-btn-desc">Top-down deductive — map all paths from root causes to the undesired event</span></button>
       </div>
     </div>
     <div>
@@ -645,6 +646,7 @@
       <div class="tools-nav-group-label">Metrics</div>
       <div class="tools-nav-btns">
         <button class="tool-nav-btn" data-tool="dora"><span class="tool-nav-btn-label">DORA</span><span class="tool-nav-btn-desc">DevOps Research — four key delivery performance metrics</span></button>
+        <button class="tool-nav-btn" data-tool="space"><span class="tool-nav-btn-label">SPACE</span><span class="tool-nav-btn-desc">Developer productivity across five dimensions — goes beyond DORA's delivery focus</span></button>
       </div>
     </div>
     <div>
@@ -905,6 +907,50 @@
         <div id="fivewhys-corrective"></div>
         <div class="tool-section-lbl">Preventive Action</div>
         <div id="fivewhys-preventive"></div>
+      </div>
+    </div>
+
+    <!-- FTA -->
+    <div class="tool-panel" id="tp-fta">
+      <div class="tool-panel-title">Fault Tree Analysis</div>
+      <div class="tool-panel-desc">Starts from the undesired top-level event and works downwards: what combinations of failures could cause this? AND gates (all required) and OR gates (any one sufficient) reveal which failure paths are most dangerous — the ones with the fewest, most likely causes.</div>
+      <details class="tool-guidance">
+        <summary></summary>
+        <div class="tool-guidance-body">
+          <ol class="tool-guidance-steps">
+            <li>Define the top event precisely — the specific failure you want to prevent (e.g. "customer payment fails at checkout")</li>
+            <li>Ask: what immediate causes could produce this? For each, is it AND (all must occur) or OR (any one is sufficient)?</li>
+            <li>Continue downwards — each intermediate event becomes the top event for the next level of the tree</li>
+            <li>Stop at basic events — hardware failures, human errors, software faults — where no further decomposition is useful</li>
+            <li>The most dangerous paths are OR gates with high-probability basic events — any one of them is enough to cause the top event</li>
+          </ol>
+          <div class="tool-guidance-source"><strong>Source:</strong> H.A. Watson, Bell Labs (1961); formalised in IEC 61025 Fault Tree Analysis standard. Widely used in aerospace, nuclear, automotive, and software safety.</div>
+        </div>
+      </details>
+      <div class="tool-field">
+        <label for="fta-event">Top-level undesired event</label>
+        <input type="text" id="fta-event" placeholder="e.g. Customer payment fails at checkout">
+      </div>
+      <div class="tool-field">
+        <label for="fta-context">System context (optional)</label>
+        <textarea id="fta-context" placeholder="Describe the system components, known failure modes, or constraints to help build a realistic tree"></textarea>
+      </div>
+      <div class="tool-actions">
+        <button class="tool-btn-run" id="fta-run">Build Fault Tree</button>
+        <button class="tool-btn-clear" id="fta-clear">Clear</button>
+      </div>
+      <div class="tool-msg tool-warning" id="fta-warning" hidden>Enter the top-level undesired event first.</div>
+      <div class="tool-msg tool-loading" id="fta-loading" hidden>Building fault tree&#x2026;</div>
+      <div class="tool-msg tool-error" id="fta-error" hidden></div>
+      <div class="tool-output" id="fta-output">
+        <div class="tool-section-lbl">Top event</div>
+        <div id="fta-top-event"></div>
+        <div class="tool-section-lbl">Fault paths</div>
+        <div id="fta-paths"></div>
+        <div class="tool-section-lbl">Critical path</div>
+        <div id="fta-critical"></div>
+        <div class="tool-section-lbl">Recommended mitigations</div>
+        <div id="fta-mitigations"></div>
       </div>
     </div>
 
@@ -1291,6 +1337,44 @@
         <div id="dora-metrics"></div>
         <div class="tool-section-lbl">Top action</div>
         <div id="dora-action"></div>
+      </div>
+    </div>
+
+    <!-- SPACE -->
+    <div class="tool-panel" id="tp-space">
+      <div class="tool-panel-title">SPACE Framework</div>
+      <div class="tool-panel-desc">Developer productivity across five dimensions: Satisfaction, Performance, Activity, Communication/Collaboration, Efficiency. Corrects DORA's bias toward deployment metrics — productivity is multidimensional and can't be reduced to four numbers.</div>
+      <details class="tool-guidance">
+        <summary></summary>
+        <div class="tool-guidance-body">
+          <ol class="tool-guidance-steps">
+            <li><strong>Satisfaction:</strong> developer wellbeing, job satisfaction, burnout signals — measured by survey, eNPS, attrition</li>
+            <li><strong>Performance:</strong> outcomes of the work — reliability, quality, customer-facing metrics. Not output volume</li>
+            <li><strong>Activity:</strong> observable actions — PRs, code reviews, deployments. Important: activity ≠ productivity. Use as context, not as a productivity signal</li>
+            <li><strong>Communication/Collaboration:</strong> how work flows between people — review turnaround, knowledge sharing, onboarding time</li>
+            <li><strong>Efficiency &amp; Flow:</strong> uninterrupted focus time, flow state, interruption rate, WIP per person</li>
+          </ol>
+          <div class="tool-guidance-source"><strong>Source:</strong> Nicole Forsgren, Margaret-Anne Storey, Chandra Maddila, Thomas Zimmermann, Brian Houck, Jenna Butler — "The SPACE of Developer Productivity", <em>ACM Queue</em> (2021). Published by GitHub &amp; Microsoft Research.</div>
+        </div>
+      </details>
+      <div class="tool-field">
+        <label for="space-team">Describe your team's current situation</label>
+        <textarea id="space-team" placeholder="e.g. Team of 6, shipping weekly. Deployment frequency is good but code review takes 3+ days. One senior engineer is showing burnout signals. Lots of context-switching between features and support tickets."></textarea>
+      </div>
+      <div class="tool-actions">
+        <button class="tool-btn-run" id="space-run">Assess SPACE</button>
+        <button class="tool-btn-clear" id="space-clear">Clear</button>
+      </div>
+      <div class="tool-msg tool-warning" id="space-warning" hidden>Describe your team situation first.</div>
+      <div class="tool-msg tool-loading" id="space-loading" hidden>Assessing across five dimensions&#x2026;</div>
+      <div class="tool-msg tool-error" id="space-error" hidden></div>
+      <div class="tool-output" id="space-output">
+        <div class="tool-section-lbl">Dimension assessment</div>
+        <div id="space-dimensions"></div>
+        <div class="tool-section-lbl">Key insight</div>
+        <div id="space-insight"></div>
+        <div class="tool-section-lbl">Priority action</div>
+        <div id="space-action"></div>
       </div>
     </div>
 
@@ -2318,9 +2402,10 @@
 
   const TOOL_LABELS = {
     socratic: 'Socratic Questioning', premortem: 'Pre-mortem', bowtie: 'Bow-Tie Analysis',
-    acc: 'ACC Matrix', fmea: 'FMEA', fivewhys: '5 Whys', ishikawa: 'Ishikawa', kt: 'Kepner-Tregoe',
-    gqm: 'GQM', spc: 'SPC', testquadrants: 'Test Quadrants', pdca: 'PDCA',
-    vsm: 'Value Stream Map', wsjf: 'WSJF / CD3', flowmetrics: 'Flow Metrics', dora: 'DORA Metrics',
+    fta: 'Fault Tree Analysis', acc: 'ACC Matrix', fmea: 'FMEA', fivewhys: '5 Whys',
+    ishikawa: 'Ishikawa', kt: 'Kepner-Tregoe', gqm: 'GQM', spc: 'SPC',
+    testquadrants: 'Test Quadrants', pdca: 'PDCA', vsm: 'Value Stream Map',
+    wsjf: 'WSJF / CD3', flowmetrics: 'Flow Metrics', dora: 'DORA Metrics', space: 'SPACE',
   };
 
   function switchTool(name) {
@@ -2672,6 +2757,131 @@ commentary: max 1 sentence each. Be concise.`;
   document.getElementById('dora-clear').addEventListener('click', () =>
     clearTool({ output:'dora-output', warning:'dora-warning', error:'dora-error', loading:'dora-loading' },
               ['dora-df','dora-lt','dora-cfr','dora-ttr']));
+
+  // ── SPACE ───────────────────────────────────────────────────────────────────
+
+  const SPACE_SYS = `You are assessing a software development team's productivity using the SPACE framework (Forsgren et al., 2021). SPACE has five dimensions: Satisfaction, Performance, Activity, Communication/Collaboration, Efficiency & Flow.
+
+Key principle: no single dimension tells the full story. Activity ≠ productivity. Satisfaction correlates with performance but is hard to observe. Efficiency is about uninterrupted flow, not hours worked.
+
+Return ONLY valid JSON (no markdown, no code fences):
+{
+  "dimensions": [
+    {
+      "name": "Satisfaction",
+      "status": "strong | partial | concern",
+      "observation": "What the described situation signals about team satisfaction, wellbeing, or burnout risk",
+      "suggested_metric": "A specific, collectable measurement"
+    },
+    {
+      "name": "Performance",
+      "status": "strong | partial | concern",
+      "observation": "What outcomes (quality, reliability, customer impact) can be inferred",
+      "suggested_metric": "A specific, collectable measurement"
+    },
+    {
+      "name": "Activity",
+      "status": "strong | partial | concern",
+      "observation": "Observable work actions — note where activity signals health vs where it might mask problems",
+      "suggested_metric": "A specific, collectable measurement"
+    },
+    {
+      "name": "Communication & Collaboration",
+      "status": "strong | partial | concern",
+      "observation": "How work flows between people — review turnaround, knowledge sharing, handoffs",
+      "suggested_metric": "A specific, collectable measurement"
+    },
+    {
+      "name": "Efficiency & Flow",
+      "status": "strong | partial | concern",
+      "observation": "Uninterrupted focus time, context switching, WIP per person",
+      "suggested_metric": "A specific, collectable measurement"
+    }
+  ],
+  "key_insight": "The most important finding across the five dimensions — what is the dominant productivity constraint for this team?",
+  "priority_action": "The single highest-leverage action to take first. Why this one."
+}`;
+
+  document.getElementById('space-run').addEventListener('click', () => {
+    const team = document.getElementById('space-team').value.trim();
+    if (!team) { document.getElementById('space-warning').hidden = false; return; }
+    document.getElementById('space-warning').hidden = true;
+    runToolCall(SPACE_SYS, `Team situation: ${team}`,
+      { output:'space-output', loading:'space-loading', error:'space-error', warning:'space-warning' },
+      (d) => {
+        const statusTag = s => {
+          if (s === 'concern') return tcTag('critical','CONCERN');
+          if (s === 'partial') return tcTag('band','PARTIAL');
+          return tcTag('low','STRONG');
+        };
+        renderList('space-dimensions', d.dimensions ?? [], dim =>
+          `<div class="tool-card">
+            <div class="tool-card-head">${esc(dim.name)}${statusTag(dim.status)}</div>
+            <div class="tool-card-note">${esc(dim.observation)}</div>
+            <div style="margin-top:0.4rem;font-size:0.78rem"><strong>Measure:</strong> ${esc(dim.suggested_metric)}</div>
+          </div>`);
+        document.getElementById('space-insight').innerHTML =
+          `<div class="tool-card"><div class="tool-card-note">${esc(d.key_insight)}</div></div>`;
+        document.getElementById('space-action').innerHTML =
+          `<div class="tool-card"><div class="tool-card-note">${esc(d.priority_action)}</div></div>`;
+      });
+  });
+  document.getElementById('space-clear').addEventListener('click', () =>
+    clearTool({ output:'space-output', warning:'space-warning', error:'space-error', loading:'space-loading' },
+              ['space-team']));
+
+  // ── FTA ─────────────────────────────────────────────────────────────────────
+
+  const FTA_SYS = `You are building a Fault Tree Analysis (FTA) for a specified top-level undesired event. FTA is top-down and deductive: start from the failure and work down through AND gates (all inputs required) and OR gates (any input sufficient).
+
+Return ONLY valid JSON (no markdown, no code fences):
+{
+  "top_event": "The undesired event restated precisely",
+  "paths": [
+    {
+      "path_name": "Short name for this fault path",
+      "gate_type": "AND or OR",
+      "immediate_causes": ["Cause 1", "Cause 2"],
+      "basic_events": ["The underlying root-level failures or errors that could trigger this path"],
+      "likelihood": "high | medium | low — qualitative assessment based on the context"
+    }
+  ],
+  "critical_path": "The single most dangerous path — fewest causes, highest likelihood, or hardest to detect. Explain why.",
+  "mitigations": ["Specific mitigation for the critical path", "Mitigation for the next most dangerous path", "Systemic mitigation that addresses multiple paths"]
+}
+
+3–5 paths. Be specific to the described system. Gate type must match: AND = all causes must occur simultaneously; OR = any single cause is sufficient.`;
+
+  document.getElementById('fta-run').addEventListener('click', () => {
+    const event = document.getElementById('fta-event').value.trim();
+    if (!event) { document.getElementById('fta-warning').hidden = false; return; }
+    document.getElementById('fta-warning').hidden = true;
+    const ctx = document.getElementById('fta-context').value.trim();
+    const msg = ctx ? `Top event: ${event}. System: ${ctx}` : `Top event: ${event}`;
+    runToolCall(FTA_SYS, msg,
+      { output:'fta-output', loading:'fta-loading', error:'fta-error', warning:'fta-warning' },
+      (d) => {
+        document.getElementById('fta-top-event').innerHTML =
+          `<div class="tool-card"><div class="tool-card-note">${esc(d.top_event)}</div></div>`;
+        renderList('fta-paths', d.paths ?? [], p => {
+          const gateTag = p.gate_type === 'AND' ? tcTag('band','AND') : tcTag('critical','OR');
+          const likeTag = p.likelihood === 'high' ? tcTag('critical','HIGH') :
+                         p.likelihood === 'medium' ? tcTag('band','MEDIUM') : tcTag('low','LOW');
+          return `<div class="tool-card">
+            <div class="tool-card-head">${esc(p.path_name)}${gateTag}${likeTag}</div>
+            <div style="font-size:0.78rem;margin-bottom:0.1rem"><strong>Immediate causes:</strong> ${(p.immediate_causes||[]).map(esc).join(', ')}</div>
+            <div class="tool-card-note"><strong>Basic events:</strong> ${(p.basic_events||[]).map(esc).join(', ')}</div>
+          </div>`;
+        });
+        document.getElementById('fta-critical').innerHTML =
+          `<div class="tool-card"><div class="tool-card-note">${esc(d.critical_path)}</div></div>`;
+        renderList('fta-mitigations', d.mitigations ?? [], m =>
+          `<div class="tool-card"><div class="tool-card-note">${esc(m)}</div></div>`);
+      });
+  });
+  document.getElementById('fta-clear').addEventListener('click', () =>
+    clearTool({ output:'fta-output', warning:'fta-warning', error:'fta-error', loading:'fta-loading' },
+              ['fta-event','fta-context']));
 
   // ── SPC ─────────────────────────────────────────────────────────────────────
 

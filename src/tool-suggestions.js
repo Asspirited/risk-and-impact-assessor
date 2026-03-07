@@ -11,7 +11,7 @@
  *    suggestions are grounded in what the analysis actually found.
  */
 
-export const VALID_TOOLS = new Set(['acc', 'fmea', 'fivewhys', 'ishikawa', 'pdca', 'vsm', 'dora', 'socratic', 'premortem', 'bowtie', 'kt', 'gqm', 'flowmetrics', 'wsjf', 'spc', 'testquadrants']);
+export const VALID_TOOLS = new Set(['acc', 'fmea', 'fivewhys', 'ishikawa', 'pdca', 'vsm', 'dora', 'socratic', 'premortem', 'bowtie', 'kt', 'gqm', 'flowmetrics', 'wsjf', 'spc', 'testquadrants', 'fta', 'space']);
 
 // ── Static suggestions by RAID type ─────────────────────────────────────────
 
@@ -106,6 +106,22 @@ export const TOOL_SIGNALS = {
       'barrier', 'control', 'threat', 'hazard', 'consequence', 'preventive',
       'cause and consequence', 'escalation', 'mitigation', 'safeguard', 'bow-tie',
       'recovery control', 'barrier gap', 'critical event', 'unwanted event',
+    ],
+  },
+  fta: {
+    label: 'Map all paths from causes to the failure event',
+    keywords: [
+      'fault tree', 'top event', 'and gate', 'or gate', 'basic event', 'deductive',
+      'failure path', 'system failure', 'cascading failure', 'failure combination',
+      'single point', 'redundancy', 'safety', 'undesired event', 'top-down analysis',
+    ],
+  },
+  space: {
+    label: 'Assess developer productivity across five dimensions',
+    keywords: [
+      'developer productivity', 'satisfaction', 'burnout', 'flow state', 'focus time',
+      'context switching', 'collaboration', 'review turnaround', 'team health',
+      'wellbeing', 'developer experience', 'productivity', 'space framework',
     ],
   },
   spc: {
