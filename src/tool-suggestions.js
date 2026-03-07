@@ -11,7 +11,7 @@
  *    suggestions are grounded in what the analysis actually found.
  */
 
-export const VALID_TOOLS = new Set(['acc', 'fmea', 'fivewhys', 'ishikawa', 'pdca', 'vsm', 'dora', 'socratic', 'premortem', 'bowtie', 'kt', 'gqm', 'flowmetrics', 'wsjf', 'spc', 'testquadrants', 'fta', 'space', 'swot', 'dmaic']);
+export const VALID_TOOLS = new Set(['acc', 'fmea', 'fivewhys', 'ishikawa', 'pdca', 'vsm', 'dora', 'socratic', 'premortem', 'bowtie', 'kt', 'gqm', 'flowmetrics', 'wsjf', 'spc', 'testquadrants', 'fta', 'space', 'swot', 'dmaic', 'cynefin']);
 
 // ── Static suggestions by RAID type ─────────────────────────────────────────
 
@@ -106,6 +106,14 @@ export const TOOL_SIGNALS = {
       'barrier', 'control', 'threat', 'hazard', 'consequence', 'preventive',
       'cause and consequence', 'escalation', 'mitigation', 'safeguard', 'bow-tie',
       'recovery control', 'barrier gap', 'critical event', 'unwanted event',
+    ],
+  },
+  cynefin: {
+    label: 'Classify the domain before choosing your approach',
+    keywords: [
+      'complexity', 'domain', 'complicated', 'complex', 'chaotic', 'emergent',
+      'sense make', 'what kind of problem', 'which approach', 'unknown unknowns',
+      'probe sense respond', 'best practice', 'disorder', 'cynefin', 'snowden',
     ],
   },
   dmaic: {

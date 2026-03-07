@@ -653,7 +653,7 @@
     <div>
       <div class="tools-nav-group-label">On the backlog</div>
       <div class="tools-nav-btns">
-        <button class="tool-nav-btn" data-tool="cynefin" disabled><span class="tool-nav-btn-label">Cynefin</span><span class="tool-nav-btn-desc">Complexity framework — navigate simple, complicated, complex, chaotic domains</span></button>
+        <button class="tool-nav-btn" data-tool="cynefin"><span class="tool-nav-btn-label">Cynefin</span><span class="tool-nav-btn-desc">Complexity framework — understand which type of problem you have before choosing your approach</span></button>
         <button class="tool-nav-btn" data-tool="toc" disabled><span class="tool-nav-btn-label">Theory of Constraints</span><span class="tool-nav-btn-desc">Identify and exploit the single bottleneck limiting system throughput</span></button>
         <button class="tool-nav-btn" data-tool="sevenwastes" disabled><span class="tool-nav-btn-label">7 Wastes</span><span class="tool-nav-btn-desc">Lean waste identification — transport, inventory, motion, waiting, overproduction, over-processing, defects</span></button>
         <button class="tool-nav-btn" data-tool="dmaic"><span class="tool-nav-btn-label">DMAIC</span><span class="tool-nav-btn-desc">Define–Measure–Analyse–Improve–Control — Six Sigma structured problem solving with statistical rigour</span></button>
@@ -1423,7 +1423,42 @@
 
     <!-- Backlog stubs -->
     <div class="tool-panel" id="tp-cynefin">
-      <div class="tool-backlog"><div class="tool-backlog-badge">On the backlog</div><strong>Cynefin Framework</strong>Categorise your situation into Simple, Complicated, Complex or Chaotic domains and choose the right response.</div>
+      <div class="tool-panel-title">Cynefin Framework</div>
+      <div class="tool-panel-desc">Before choosing a method, understand what type of situation you're in. Cynefin has five domains — each requires a fundamentally different response. Using a complicated-domain tool on a complex problem makes things worse, not better.</div>
+      <details class="tool-guidance">
+        <summary></summary>
+        <div class="tool-guidance-body">
+          <ol class="tool-guidance-steps">
+            <li><strong>Clear:</strong> cause and effect are obvious. Best practice exists. Sense–Categorise–Respond. Don't over-complicate it</li>
+            <li><strong>Complicated:</strong> cause and effect require expert analysis but can be understood. Sense–Analyse–Respond. FMEA, RCA, and structured methods live here</li>
+            <li><strong>Complex:</strong> cause and effect only understood in retrospect. No best practice — run safe-to-fail experiments. Probe–Sense–Respond. Agile methods, A/B testing, hypothesis-driven delivery</li>
+            <li><strong>Chaotic:</strong> no discernible cause-effect relationship — act first to stabilise, then sense, then respond. Crisis management, incident response</li>
+            <li><strong>Disorder:</strong> you don't know which domain you're in. The most dangerous state — people default to their preferred domain regardless of fit</li>
+          </ol>
+          <div class="tool-guidance-source"><strong>Source:</strong> Dave Snowden &amp; Mary Boone, <em>A Leader's Framework for Decision Making</em>, Harvard Business Review (2007). Originally developed at IBM Global Services (late 1990s).</div>
+        </div>
+      </details>
+      <div class="tool-field">
+        <label for="cynefin-situation">Describe your situation or problem</label>
+        <textarea id="cynefin-situation" placeholder="e.g. We are trying to improve our customer retention rate. We have data showing churn is increasing but we don't know why — multiple teams have hypotheses but no single root cause has been confirmed."></textarea>
+      </div>
+      <div class="tool-actions">
+        <button class="tool-btn-run" id="cynefin-run">Classify</button>
+        <button class="tool-btn-clear" id="cynefin-clear">Clear</button>
+      </div>
+      <div class="tool-msg tool-warning" id="cynefin-warning" hidden>Describe your situation first.</div>
+      <div class="tool-msg tool-loading" id="cynefin-loading" hidden>Classifying domain&#x2026;</div>
+      <div class="tool-msg tool-error" id="cynefin-error" hidden></div>
+      <div class="tool-output" id="cynefin-output">
+        <div class="tool-section-lbl">Domain classification</div>
+        <div id="cynefin-domain"></div>
+        <div class="tool-section-lbl">Why this domain</div>
+        <div id="cynefin-rationale"></div>
+        <div class="tool-section-lbl">Appropriate response</div>
+        <div id="cynefin-response"></div>
+        <div class="tool-section-lbl">Danger signals — watch for</div>
+        <div id="cynefin-dangers"></div>
+      </div>
     </div>
     <div class="tool-panel" id="tp-toc">
       <div class="tool-backlog"><div class="tool-backlog-badge">On the backlog</div><strong>Theory of Constraints</strong>Identify and exploit the single biggest constraint limiting throughput in your system.</div>
@@ -2487,8 +2522,8 @@
   const TOOL_LABELS = {
     socratic: 'Socratic Questioning', premortem: 'Pre-mortem', bowtie: 'Bow-Tie Analysis',
     swot: 'SWOT', fta: 'Fault Tree Analysis', acc: 'ACC Matrix', fmea: 'FMEA',
-    fivewhys: '5 Whys', ishikawa: 'Ishikawa', kt: 'Kepner-Tregoe', gqm: 'GQM',
-    spc: 'SPC', testquadrants: 'Test Quadrants', dmaic: 'DMAIC', pdca: 'PDCA',
+    fivewhys: '5 Whys', ishikawa: 'Ishikawa', kt: 'Kepner-Tregoe', cynefin: 'Cynefin',
+    gqm: 'GQM', spc: 'SPC', testquadrants: 'Test Quadrants', dmaic: 'DMAIC', pdca: 'PDCA',
     vsm: 'Value Stream Map', wsjf: 'WSJF / CD3', flowmetrics: 'Flow Metrics',
     dora: 'DORA Metrics', space: 'SPACE',
   };
@@ -2842,6 +2877,50 @@ commentary: max 1 sentence each. Be concise.`;
   document.getElementById('dora-clear').addEventListener('click', () =>
     clearTool({ output:'dora-output', warning:'dora-warning', error:'dora-error', loading:'dora-loading' },
               ['dora-df','dora-lt','dora-cfr','dora-ttr']));
+
+  // ── Cynefin ─────────────────────────────────────────────────────────────────
+
+  const CYNEFIN_SYS = `You are classifying a situation using the Cynefin framework (Snowden & Boone, 2007).
+
+The five domains:
+- CLEAR: obvious cause and effect, best practice exists, Sense–Categorise–Respond
+- COMPLICATED: experts can analyse cause and effect, good practice, Sense–Analyse–Respond
+- COMPLEX: cause and effect only clear in retrospect, emergent, Probe–Sense–Respond
+- CHAOTIC: no perceivable cause and effect, act first to stabilise, Act–Sense–Respond
+- DISORDER: unknown which domain applies — most dangerous state
+
+Return ONLY valid JSON (no markdown, no code fences):
+{
+  "domain": "CLEAR | COMPLICATED | COMPLEX | CHAOTIC | DISORDER",
+  "confidence": "high | medium | low",
+  "rationale": "Why this domain fits — cite the specific features of the described situation that place it here. 2–3 sentences.",
+  "response": "The appropriate response pattern for this domain — what to do, in what order, and what methods or tools fit. Be specific to the situation described.",
+  "dangers": ["A specific danger signal that would indicate you're in this domain but treating it as a different one", "Another danger signal"]
+}
+
+If the situation spans multiple domains, classify the dominant one and note the tension. Never default to COMPLICATED — most situations that look complicated are actually complex.`;
+
+  document.getElementById('cynefin-run').addEventListener('click', () => {
+    const situation = document.getElementById('cynefin-situation').value.trim();
+    if (!situation) { document.getElementById('cynefin-warning').hidden = false; return; }
+    document.getElementById('cynefin-warning').hidden = true;
+    runToolCall(CYNEFIN_SYS, `Situation: ${situation}`,
+      { output:'cynefin-output', loading:'cynefin-loading', error:'cynefin-error', warning:'cynefin-warning' },
+      (d) => {
+        const domainColour = { CLEAR: 'low', COMPLICATED: 'band', COMPLEX: 'critical', CHAOTIC: 'critical', DISORDER: 'band' };
+        document.getElementById('cynefin-domain').innerHTML =
+          `<div class="tool-card"><div class="tool-card-head">${esc(d.domain)}${tcTag(domainColour[d.domain] ?? 'band', d.confidence?.toUpperCase() ?? '')}</div></div>`;
+        document.getElementById('cynefin-rationale').innerHTML =
+          `<div class="tool-card"><div class="tool-card-note">${esc(d.rationale)}</div></div>`;
+        document.getElementById('cynefin-response').innerHTML =
+          `<div class="tool-card"><div class="tool-card-note">${esc(d.response)}</div></div>`;
+        renderList('cynefin-dangers', d.dangers ?? [], danger =>
+          `<div class="tool-card"><div class="tool-card-note">${esc(danger)}</div></div>`);
+      });
+  });
+  document.getElementById('cynefin-clear').addEventListener('click', () =>
+    clearTool({ output:'cynefin-output', warning:'cynefin-warning', error:'cynefin-error', loading:'cynefin-loading' },
+              ['cynefin-situation']));
 
   // ── DMAIC ───────────────────────────────────────────────────────────────────
 
