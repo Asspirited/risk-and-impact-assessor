@@ -656,7 +656,7 @@
         <button class="tool-nav-btn" data-tool="cynefin" disabled><span class="tool-nav-btn-label">Cynefin</span><span class="tool-nav-btn-desc">Complexity framework — navigate simple, complicated, complex, chaotic domains</span></button>
         <button class="tool-nav-btn" data-tool="toc" disabled><span class="tool-nav-btn-label">Theory of Constraints</span><span class="tool-nav-btn-desc">Identify and exploit the single bottleneck limiting system throughput</span></button>
         <button class="tool-nav-btn" data-tool="sevenwastes" disabled><span class="tool-nav-btn-label">7 Wastes</span><span class="tool-nav-btn-desc">Lean waste identification — transport, inventory, motion, waiting, overproduction, over-processing, defects</span></button>
-        <button class="tool-nav-btn" data-tool="dmaic" disabled><span class="tool-nav-btn-label">DMAIC</span><span class="tool-nav-btn-desc">Define–Measure–Analyse–Improve–Control — Six Sigma problem solving</span></button>
+        <button class="tool-nav-btn" data-tool="dmaic"><span class="tool-nav-btn-label">DMAIC</span><span class="tool-nav-btn-desc">Define–Measure–Analyse–Improve–Control — Six Sigma structured problem solving with statistical rigour</span></button>
       </div>
     </div>
   </div>
@@ -1432,7 +1432,48 @@
       <div class="tool-backlog"><div class="tool-backlog-badge">On the backlog</div><strong>7 Wastes (Lean)</strong>Identify and eliminate the seven categories of waste: transport, inventory, motion, waiting, overproduction, overprocessing, defects.</div>
     </div>
     <div class="tool-panel" id="tp-dmaic">
-      <div class="tool-backlog"><div class="tool-backlog-badge">On the backlog</div><strong>DMAIC (Lean Six Sigma)</strong>Define, Measure, Analyse, Improve and Control — structured improvement with statistical rigour.</div>
+      <div class="tool-panel-title">DMAIC</div>
+      <div class="tool-panel-desc">Define–Measure–Analyse–Improve–Control. Six Sigma's structured problem-solving framework — ensures you understand the problem deeply before jumping to solutions, and confirms the improvement worked before closing it.</div>
+      <details class="tool-guidance">
+        <summary></summary>
+        <div class="tool-guidance-body">
+          <ol class="tool-guidance-steps">
+            <li><strong>Define:</strong> what is the problem, who is affected, what is the goal? Create a clear problem statement and project charter</li>
+            <li><strong>Measure:</strong> establish the current baseline — what data do you have? What is the current defect rate, cycle time, or failure frequency?</li>
+            <li><strong>Analyse:</strong> identify root causes — use 5 Whys, Ishikawa, or statistical analysis to find what is actually causing the problem</li>
+            <li><strong>Improve:</strong> design and test solutions — run pilots, measure impact against baseline, iterate</li>
+            <li><strong>Control:</strong> make the improvement stick — control plans, monitoring, handoff to operations so the problem doesn't return</li>
+          </ol>
+          <div class="tool-guidance-source"><strong>Source:</strong> Motorola (Mikel Harry, 1980s); popularised by GE (Jack Welch, 1990s). Standardised by ASQ (American Society for Quality). Part of the Lean Six Sigma methodology.</div>
+        </div>
+      </details>
+      <div class="tool-field">
+        <label for="dmaic-problem">Problem statement</label>
+        <textarea id="dmaic-problem" placeholder="e.g. Our customer onboarding process takes an average of 14 days end-to-end. The target is 5 days. The rework rate in the document verification step is approximately 35%."></textarea>
+      </div>
+      <div class="tool-field">
+        <label for="dmaic-context">Context and constraints (optional)</label>
+        <input type="text" id="dmaic-context" placeholder="e.g. Regulated financial services, manual verification step, team of 3">
+      </div>
+      <div class="tool-actions">
+        <button class="tool-btn-run" id="dmaic-run">Build DMAIC Plan</button>
+        <button class="tool-btn-clear" id="dmaic-clear">Clear</button>
+      </div>
+      <div class="tool-msg tool-warning" id="dmaic-warning" hidden>Enter a problem statement first.</div>
+      <div class="tool-msg tool-loading" id="dmaic-loading" hidden>Structuring the improvement&#x2026;</div>
+      <div class="tool-msg tool-error" id="dmaic-error" hidden></div>
+      <div class="tool-output" id="dmaic-output">
+        <div class="tool-section-lbl">Define</div>
+        <div id="dmaic-define"></div>
+        <div class="tool-section-lbl">Measure</div>
+        <div id="dmaic-measure"></div>
+        <div class="tool-section-lbl">Analyse</div>
+        <div id="dmaic-analyse"></div>
+        <div class="tool-section-lbl">Improve</div>
+        <div id="dmaic-improve"></div>
+        <div class="tool-section-lbl">Control</div>
+        <div id="dmaic-control"></div>
+      </div>
     </div>
     <div class="tool-panel" id="tp-wsjf">
       <div class="tool-panel-title">WSJF — Cost of Delay</div>
@@ -2447,8 +2488,9 @@
     socratic: 'Socratic Questioning', premortem: 'Pre-mortem', bowtie: 'Bow-Tie Analysis',
     swot: 'SWOT', fta: 'Fault Tree Analysis', acc: 'ACC Matrix', fmea: 'FMEA',
     fivewhys: '5 Whys', ishikawa: 'Ishikawa', kt: 'Kepner-Tregoe', gqm: 'GQM',
-    spc: 'SPC', testquadrants: 'Test Quadrants', pdca: 'PDCA', vsm: 'Value Stream Map',
-    wsjf: 'WSJF / CD3', flowmetrics: 'Flow Metrics', dora: 'DORA Metrics', space: 'SPACE',
+    spc: 'SPC', testquadrants: 'Test Quadrants', dmaic: 'DMAIC', pdca: 'PDCA',
+    vsm: 'Value Stream Map', wsjf: 'WSJF / CD3', flowmetrics: 'Flow Metrics',
+    dora: 'DORA Metrics', space: 'SPACE',
   };
 
   function switchTool(name) {
@@ -2800,6 +2842,86 @@ commentary: max 1 sentence each. Be concise.`;
   document.getElementById('dora-clear').addEventListener('click', () =>
     clearTool({ output:'dora-output', warning:'dora-warning', error:'dora-error', loading:'dora-loading' },
               ['dora-df','dora-lt','dora-cfr','dora-ttr']));
+
+  // ── DMAIC ───────────────────────────────────────────────────────────────────
+
+  const DMAIC_SYS = `You are building a DMAIC (Define-Measure-Analyse-Improve-Control) improvement plan for the described problem.
+
+Return ONLY valid JSON (no markdown, no code fences):
+{
+  "define": {
+    "problem_statement": "Precise restatement of the problem with scope and impact",
+    "goal": "Specific, measurable target — e.g. reduce X from Y to Z by date",
+    "stakeholders": ["Who is affected and how"]
+  },
+  "measure": {
+    "current_baseline": "The current measurable state — defect rate, time, frequency",
+    "key_metrics": ["What to measure and how to collect it"],
+    "data_gaps": "What data is missing and needs to be collected"
+  },
+  "analyse": {
+    "likely_root_causes": ["Identified or suspected root causes — be specific"],
+    "recommended_analysis": "Which root cause tool to use next (5 Whys, Ishikawa, FTA) and why"
+  },
+  "improve": {
+    "solution_options": [{ "option": "...", "expected_impact": "...", "effort": "low|medium|high" }],
+    "pilot_approach": "How to test the best solution before full rollout"
+  },
+  "control": {
+    "control_measures": ["How to sustain the improvement — monitoring, process change, owner"],
+    "success_criteria": "How you will know the improvement has held after 30/60/90 days"
+  }
+}`;
+
+  document.getElementById('dmaic-run').addEventListener('click', () => {
+    const problem = document.getElementById('dmaic-problem').value.trim();
+    if (!problem) { document.getElementById('dmaic-warning').hidden = false; return; }
+    document.getElementById('dmaic-warning').hidden = true;
+    const ctx = document.getElementById('dmaic-context').value.trim();
+    runToolCall(DMAIC_SYS, `Problem: ${problem}. ${ctx}`,
+      { output:'dmaic-output', loading:'dmaic-loading', error:'dmaic-error', warning:'dmaic-warning' },
+      (d) => {
+        const def = d.define ?? {};
+        document.getElementById('dmaic-define').innerHTML =
+          `<div class="tool-card">
+            <div class="tool-card-head">${esc(def.goal)}</div>
+            <div class="tool-card-note">${esc(def.problem_statement)}</div>
+            ${(def.stakeholders||[]).length ? `<div style="margin-top:0.4rem;font-size:0.78rem"><strong>Stakeholders:</strong> ${def.stakeholders.map(esc).join(' &bull; ')}</div>` : ''}
+          </div>`;
+        const meas = d.measure ?? {};
+        document.getElementById('dmaic-measure').innerHTML =
+          `<div class="tool-card">
+            <div class="tool-card-head">Baseline: ${esc(meas.current_baseline)}</div>
+            ${(meas.key_metrics||[]).map(m => `<div class="tool-card-note">${esc(m)}</div>`).join('')}
+            ${meas.data_gaps ? `<div style="margin-top:0.4rem;font-size:0.78rem;color:var(--muted)"><strong>Data gaps:</strong> ${esc(meas.data_gaps)}</div>` : ''}
+          </div>`;
+        const anal = d.analyse ?? {};
+        document.getElementById('dmaic-analyse').innerHTML =
+          `<div class="tool-card">
+            ${(anal.likely_root_causes||[]).map(c => `<div class="tool-card-note">${esc(c)}</div>`).join('')}
+            ${anal.recommended_analysis ? `<div style="margin-top:0.4rem;font-size:0.78rem"><strong>Next step:</strong> ${esc(anal.recommended_analysis)}</div>` : ''}
+          </div>`;
+        const impr = d.improve ?? {};
+        renderList('dmaic-improve', impr.solution_options ?? [], opt =>
+          `<div class="tool-card">
+            <div class="tool-card-head">${esc(opt.option)}${tcTag('band', opt.effort)}</div>
+            <div class="tool-card-note">${esc(opt.expected_impact)}</div>
+          </div>`);
+        if (impr.pilot_approach) {
+          document.getElementById('dmaic-improve').innerHTML +=
+            `<div class="tool-card"><div style="font-size:0.78rem"><strong>Pilot:</strong> ${esc(impr.pilot_approach)}</div></div>`;
+        }
+        const ctrl = d.control ?? {};
+        document.getElementById('dmaic-control').innerHTML =
+          `<div class="tool-card">
+            ${(ctrl.control_measures||[]).map(m => `<div class="tool-card-note">${esc(m)}</div>`).join('')}
+            ${ctrl.success_criteria ? `<div style="margin-top:0.4rem;font-size:0.78rem"><strong>Success:</strong> ${esc(ctrl.success_criteria)}</div>` : ''}
+          </div>`;
+      });
+  });
+  document.getElementById('dmaic-clear').addEventListener('click', () =>
+    clearTool({ output:'dmaic-output', warning:'dmaic-warning', error:'dmaic-error', loading:'dmaic-loading' },
+              ['dmaic-problem','dmaic-context']));
 
   // ── SWOT ────────────────────────────────────────────────────────────────────
 
