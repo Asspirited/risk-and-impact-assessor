@@ -50,6 +50,7 @@
       font-family: 'Playfair Display', Georgia, serif;
       font-size: 1.6rem; font-weight: 600; font-style: italic;
       color: #fff; letter-spacing: 0.01em;
+      display: flex; align-items: center; justify-content: space-between;
     }
 
     /* ---- Step chrome ---- */
@@ -288,13 +289,441 @@
     .card-btn-load:hover { opacity: 0.88; }
     .card-btn-delete { background: transparent; color: var(--muted); }
     .card-btn-delete:hover { background: var(--critical-bg); color: var(--critical); border-color: var(--critical); }
+
+    /* ── Quality Tools Drawer ──────────────────────────────────────────────── */
+    .tools-toggle-btn {
+      background: transparent; border: 1px solid rgba(255,255,255,0.45);
+      color: #fff; border-radius: 4px; padding: 0.28rem 0.7rem;
+      font-size: 0.72rem; font-family: inherit; font-weight: 700;
+      letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer;
+      white-space: nowrap; flex-shrink: 0;
+    }
+    .tools-toggle-btn:hover { background: rgba(255,255,255,0.15); }
+
+    .tools-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.32); z-index: 90;
+      display: none;
+    }
+    .tools-overlay.open { display: block; }
+
+    .tools-drawer {
+      position: fixed; top: 0; left: 0; bottom: 0;
+      width: min(340px, 94vw);
+      background: var(--surface); border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      z-index: 100; transform: translateX(-100%);
+      transition: transform 0.2s ease;
+      overflow: hidden;
+    }
+    .tools-drawer.open { transform: translateX(0); }
+
+    .tools-drawer-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.8rem 1rem; border-bottom: 1px solid var(--border);
+      background: var(--brand); color: #fff; flex-shrink: 0;
+    }
+    .tools-drawer-title { font-size: 0.8rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; }
+    .tools-close-btn { background: transparent; border: none; color: rgba(255,255,255,0.7); font-size: 1.3rem; cursor: pointer; line-height: 1; padding: 0 0.2rem; }
+    .tools-close-btn:hover { color: #fff; }
+
+    .tools-nav { padding: 0.7rem 0.8rem 0.5rem; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 0.55rem; flex-shrink: 0; }
+    .tools-nav-group-label { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.2rem; }
+    .tools-nav-btns { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+    .tool-nav-btn {
+      padding: 0.28rem 0.65rem; border-radius: 3px;
+      border: 1px solid var(--border); background: transparent;
+      font-size: 0.75rem; font-family: inherit; cursor: pointer; color: var(--text);
+    }
+    .tool-nav-btn:hover:not(:disabled) { background: var(--brand-light); }
+    .tool-nav-btn.active { background: var(--teal); color: #fff; border-color: var(--teal); }
+    .tool-nav-btn:disabled { opacity: 0.38; cursor: default; font-style: italic; }
+
+    .tools-content { flex: 1; overflow-y: auto; padding: 1rem 1rem 2.5rem; }
+
+    .tool-panel { display: none; }
+    .tool-panel.active { display: block; }
+
+    .tool-panel-title { font-size: 0.92rem; font-weight: 700; color: var(--brand); margin-bottom: 0.2rem; }
+    .tool-panel-desc { font-size: 0.77rem; color: var(--muted); line-height: 1.5; margin-bottom: 0.85rem; }
+
+    .tool-field { margin-bottom: 0.75rem; }
+    .tool-field label { font-size: 0.78rem; font-weight: 500; display: block; margin-bottom: 0.25rem; }
+    .tool-field input[type="text"],
+    .tool-field textarea,
+    .tool-field select {
+      width: 100%; padding: 0.45rem 0.6rem;
+      border: 1px solid var(--border); border-radius: var(--radius);
+      font-size: 0.82rem; font-family: inherit; background: var(--surface); color: var(--text);
+    }
+    .tool-field textarea { resize: vertical; min-height: 3.5rem; }
+    .tool-field input:focus, .tool-field textarea:focus, .tool-field select:focus {
+      outline: 2px solid var(--teal); outline-offset: 1px; border-color: transparent;
+    }
+
+    .dora-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.55rem; margin-bottom: 0.75rem; }
+
+    .tool-actions { display: flex; gap: 0.45rem; align-items: center; margin-bottom: 0.6rem; }
+    .tool-btn-run {
+      padding: 0.4rem 0.85rem; border-radius: var(--radius); border: none;
+      background: var(--teal); color: #fff; font-size: 0.75rem; font-family: inherit;
+      font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; cursor: pointer;
+    }
+    .tool-btn-run:hover:not(:disabled) { opacity: 0.87; }
+    .tool-btn-run:disabled { opacity: 0.4; cursor: not-allowed; }
+    .tool-btn-clear {
+      padding: 0.4rem 0.75rem; border-radius: var(--radius);
+      border: 1px solid var(--border); background: transparent;
+      font-size: 0.75rem; font-family: inherit; color: var(--muted); cursor: pointer;
+    }
+    .tool-btn-clear:hover { background: var(--brand-light); }
+
+    .tool-msg { font-size: 0.78rem; margin-bottom: 0.4rem; }
+    .tool-warning { color: var(--high); }
+    .tool-error   { color: var(--critical); }
+    .tool-loading { color: var(--muted); font-style: italic; }
+
+    .tool-output { display: none; }
+    .tool-output.visible { display: block; }
+
+    .tool-section-lbl {
+      font-size: 0.62rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--muted); margin: 0.8rem 0 0.3rem;
+    }
+    .tool-card {
+      background: var(--bg); border-radius: var(--radius);
+      padding: 0.5rem 0.7rem; margin-bottom: 0.3rem; font-size: 0.8rem; line-height: 1.5;
+    }
+    .tool-card-head { font-weight: 600; color: var(--brand); margin-bottom: 0.1rem; }
+    .tool-card-note { color: var(--muted); font-size: 0.75rem; }
+    .tc-tag {
+      display: inline-block; padding: 0.08rem 0.38rem; border-radius: 2px;
+      font-size: 0.6rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+      margin-left: 0.35rem; vertical-align: middle;
+    }
+    .tc-high     { background: var(--high-bg);     color: var(--high); }
+    .tc-medium   { background: var(--medium-bg);   color: var(--medium); }
+    .tc-low      { background: var(--low-bg);       color: var(--low); }
+    .tc-critical { background: var(--critical-bg);  color: var(--critical); }
+    .tc-waste    { background: var(--high-bg);       color: var(--high); }
+    .tc-value    { background: var(--low-bg);        color: var(--low); }
+    .tc-elite    { background: var(--low-bg);        color: var(--low); }
+    .tc-band     { background: var(--brand-light);  color: var(--brand); }
+
+    .vsm-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 0.3rem; margin: 0.4rem 0 0.6rem; }
+    .vsm-stat { background: var(--bg); border-radius: var(--radius); padding: 0.45rem 0.6rem; }
+    .vsm-stat-lbl { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); }
+    .vsm-stat-val { font-size: 0.95rem; font-weight: 700; color: var(--brand); }
+
+    .dora-band-block { text-align: center; padding: 0.75rem 0.5rem 0.5rem; }
+    .dora-band-label { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.01em; }
+    .dora-band-elite  { color: var(--low); }
+    .dora-band-high   { color: var(--teal); }
+    .dora-band-medium { color: var(--medium); }
+    .dora-band-low    { color: var(--critical); }
+
+    .tool-backlog { text-align: center; padding: 2rem 1rem; color: var(--muted); }
+    .tool-backlog strong { display: block; font-size: 1rem; color: var(--brand); margin-bottom: 0.5rem; }
+    .tool-backlog-badge {
+      display: inline-block; padding: 0.18rem 0.6rem; border-radius: 3px;
+      background: var(--brand-light); color: var(--brand);
+      font-size: 0.68rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase;
+      margin-bottom: 0.65rem;
+    }
+
+    /* Tool recommender (shown after RAID analysis) */
+    .tool-recommend {
+      margin-top: 0.85rem; padding: 0.65rem 0.85rem;
+      background: var(--brand-light); border-radius: var(--radius);
+      font-size: 0.8rem;
+    }
+    .tool-recommend-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.3rem; }
+    .tool-recommend-btns { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.3rem; }
+    .tool-recommend-btn {
+      padding: 0.28rem 0.65rem; border-radius: 3px;
+      border: 1px solid var(--teal); background: transparent;
+      color: var(--teal); font-size: 0.75rem; font-family: inherit;
+      cursor: pointer; font-weight: 600;
+    }
+    .tool-recommend-btn:hover { background: var(--teal); color: #fff; }
   </style>
 </head>
 <body>
 
 <div class="top-banner">
-  <div class="top-banner-inner">Risk and Impact Assessor</div>
+  <div class="top-banner-inner">
+  <span>Risk and Impact Assessor</span>
+  <button class="tools-toggle-btn" id="tools-toggle-btn">Quality Tools</button>
 </div>
+</div>
+
+<div class="tools-overlay" id="tools-overlay"></div>
+<aside class="tools-drawer" id="tools-drawer">
+  <div class="tools-drawer-header">
+    <span class="tools-drawer-title">Quality Tools</span>
+    <button class="tools-close-btn" id="tools-close-btn" aria-label="Close">&#x2715;</button>
+  </div>
+  <div class="tools-nav">
+    <div>
+      <div class="tools-nav-group-label">Live tools</div>
+      <div class="tools-nav-btns">
+        <button class="tool-nav-btn active" data-tool="acc">ACC</button>
+        <button class="tool-nav-btn" data-tool="fmea">FMEA</button>
+        <button class="tool-nav-btn" data-tool="fivewhys">5 Whys</button>
+        <button class="tool-nav-btn" data-tool="ishikawa">Ishikawa</button>
+        <button class="tool-nav-btn" data-tool="pdca">PDCA</button>
+        <button class="tool-nav-btn" data-tool="vsm">VSM</button>
+        <button class="tool-nav-btn" data-tool="dora">DORA</button>
+      </div>
+    </div>
+    <div>
+      <div class="tools-nav-group-label">On the backlog</div>
+      <div class="tools-nav-btns">
+        <button class="tool-nav-btn" data-tool="cynefin" disabled>Cynefin</button>
+        <button class="tool-nav-btn" data-tool="toc" disabled>Theory of Constraints</button>
+        <button class="tool-nav-btn" data-tool="sevenwastes" disabled>7 Wastes</button>
+        <button class="tool-nav-btn" data-tool="dmaic" disabled>DMAIC</button>
+      </div>
+    </div>
+  </div>
+  <div class="tools-content">
+
+    <!-- ACC -->
+    <div class="tool-panel active" id="tp-acc">
+      <div class="tool-panel-title">ACC Analysis</div>
+      <div class="tool-panel-desc">Identify Assumptions, Constraints and Concerns in a proposed change or initiative.</div>
+      <div class="tool-field">
+        <label for="acc-title">Change or initiative</label>
+        <input type="text" id="acc-title" placeholder="e.g. Migrate billing to AWS">
+      </div>
+      <div class="tool-field">
+        <label for="acc-desc">Description</label>
+        <textarea id="acc-desc" placeholder="What are you doing and why?"></textarea>
+      </div>
+      <div class="tool-actions">
+        <button class="tool-btn-run" id="acc-run">Run ACC</button>
+        <button class="tool-btn-clear" id="acc-clear">Clear</button>
+      </div>
+      <div class="tool-msg tool-warning" id="acc-warning" hidden>Enter a change title first.</div>
+      <div class="tool-msg tool-loading" id="acc-loading" hidden>Analysing&#x2026;</div>
+      <div class="tool-msg tool-error" id="acc-error" hidden></div>
+      <div class="tool-output" id="acc-output">
+        <div class="tool-section-lbl">Assumptions</div><div id="acc-assumptions"></div>
+        <div class="tool-section-lbl">Constraints</div><div id="acc-constraints"></div>
+        <div class="tool-section-lbl">Concerns</div><div id="acc-concerns"></div>
+      </div>
+    </div>
+
+    <!-- FMEA -->
+    <div class="tool-panel" id="tp-fmea">
+      <div class="tool-panel-title">FMEA</div>
+      <div class="tool-panel-desc">Failure Mode and Effects Analysis — identify potential failures, their effects, and RPN scores.</div>
+      <div class="tool-field">
+        <label for="fmea-process">Process or system</label>
+        <input type="text" id="fmea-process" placeholder="e.g. Order fulfilment pipeline">
+      </div>
+      <div class="tool-field">
+        <label for="fmea-scope">Scope / context</label>
+        <textarea id="fmea-scope" placeholder="Key steps or components to analyse"></textarea>
+      </div>
+      <div class="tool-actions">
+        <button class="tool-btn-run" id="fmea-run">Run FMEA</button>
+        <button class="tool-btn-clear" id="fmea-clear">Clear</button>
+      </div>
+      <div class="tool-msg tool-warning" id="fmea-warning" hidden>Enter a process name first.</div>
+      <div class="tool-msg tool-loading" id="fmea-loading" hidden>Analysing&#x2026;</div>
+      <div class="tool-msg tool-error" id="fmea-error" hidden></div>
+      <div class="tool-output" id="fmea-output">
+        <div class="tool-section-lbl">Failure modes</div>
+        <div id="fmea-items"></div>
+      </div>
+    </div>
+
+    <!-- 5 Whys -->
+    <div class="tool-panel" id="tp-fivewhys">
+      <div class="tool-panel-title">5 Whys</div>
+      <div class="tool-panel-desc">Drill to the root cause of a problem by asking why five times.</div>
+      <div class="tool-field">
+        <label for="fivewhys-problem">Problem statement</label>
+        <textarea id="fivewhys-problem" placeholder="Describe the problem concisely"></textarea>
+      </div>
+      <div class="tool-actions">
+        <button class="tool-btn-run" id="fivewhys-run">Dig In</button>
+        <button class="tool-btn-clear" id="fivewhys-clear">Clear</button>
+      </div>
+      <div class="tool-msg tool-warning" id="fivewhys-warning" hidden>Enter a problem statement first.</div>
+      <div class="tool-msg tool-loading" id="fivewhys-loading" hidden>Digging&#x2026;</div>
+      <div class="tool-msg tool-error" id="fivewhys-error" hidden></div>
+      <div class="tool-output" id="fivewhys-output">
+        <div class="tool-section-lbl">Why chain</div>
+        <div id="fivewhys-chain"></div>
+        <div class="tool-section-lbl">Root Cause</div>
+        <div id="fivewhys-root"></div>
+        <div class="tool-section-lbl">Corrective Action</div>
+        <div id="fivewhys-corrective"></div>
+        <div class="tool-section-lbl">Preventive Action</div>
+        <div id="fivewhys-preventive"></div>
+      </div>
+    </div>
+
+    <!-- Ishikawa -->
+    <div class="tool-panel" id="tp-ishikawa">
+      <div class="tool-panel-title">Ishikawa</div>
+      <div class="tool-panel-desc">Fishbone diagram — map causes across six categories to a stated effect.</div>
+      <div class="tool-field">
+        <label for="ishikawa-effect">Effect / problem</label>
+        <input type="text" id="ishikawa-effect" placeholder="e.g. High defect rate in production">
+      </div>
+      <div class="tool-field">
+        <label for="ishikawa-context">Context</label>
+        <textarea id="ishikawa-context" placeholder="Any relevant background"></textarea>
+      </div>
+      <div class="tool-actions">
+        <button class="tool-btn-run" id="ishikawa-run">Build Fishbone</button>
+        <button class="tool-btn-clear" id="ishikawa-clear">Clear</button>
+      </div>
+      <div class="tool-msg tool-warning" id="ishikawa-warning" hidden>Enter the effect first.</div>
+      <div class="tool-msg tool-loading" id="ishikawa-loading" hidden>Building&#x2026;</div>
+      <div class="tool-msg tool-error" id="ishikawa-error" hidden></div>
+      <div class="tool-output" id="ishikawa-output">
+        <div id="ishikawa-bones"></div>
+        <div class="tool-section-lbl">Top Suspects</div>
+        <div id="ishikawa-suspects"></div>
+      </div>
+    </div>
+
+    <!-- PDCA -->
+    <div class="tool-panel" id="tp-pdca">
+      <div class="tool-panel-title">PDCA</div>
+      <div class="tool-panel-desc">Plan–Do–Check–Act cycle with hypothesis-driven framing and SMART actions.</div>
+      <div class="tool-field">
+        <label for="pdca-goal">Improvement goal</label>
+        <input type="text" id="pdca-goal" placeholder="e.g. Reduce deployment lead time by 50%">
+      </div>
+      <div class="tool-field">
+        <label for="pdca-context">Context</label>
+        <textarea id="pdca-context" placeholder="Current state, constraints, team size…"></textarea>
+      </div>
+      <div class="tool-actions">
+        <button class="tool-btn-run" id="pdca-run">Build PDCA Cycle</button>
+        <button class="tool-btn-clear" id="pdca-clear">Clear</button>
+      </div>
+      <div class="tool-msg tool-warning" id="pdca-warning" hidden>Enter an improvement goal first.</div>
+      <div class="tool-msg tool-loading" id="pdca-loading" hidden>Building&#x2026;</div>
+      <div class="tool-msg tool-error" id="pdca-error" hidden></div>
+      <div class="tool-output" id="pdca-output">
+        <div class="tool-section-lbl">Hypothesis</div><div id="pdca-hypothesis"></div>
+        <div class="tool-section-lbl">Plan</div><div id="pdca-plan"></div>
+        <div class="tool-section-lbl">Do</div><div id="pdca-do"></div>
+        <div class="tool-section-lbl">Check</div><div id="pdca-check"></div>
+        <div class="tool-section-lbl">Act</div><div id="pdca-act"></div>
+      </div>
+    </div>
+
+    <!-- VSM -->
+    <div class="tool-panel" id="tp-vsm">
+      <div class="tool-panel-title">Value Stream Map</div>
+      <div class="tool-panel-desc">Map flow steps, identify waste, and surface improvement opportunities.</div>
+      <div class="tool-field">
+        <label for="vsm-process">Process name</label>
+        <input type="text" id="vsm-process" placeholder="e.g. Software feature delivery">
+      </div>
+      <div class="tool-field">
+        <label for="vsm-detail">Key steps or context</label>
+        <textarea id="vsm-detail" placeholder="Describe the main steps or context"></textarea>
+      </div>
+      <div class="tool-actions">
+        <button class="tool-btn-run" id="vsm-run">Map the Stream</button>
+        <button class="tool-btn-clear" id="vsm-clear">Clear</button>
+      </div>
+      <div class="tool-msg tool-warning" id="vsm-warning" hidden>Enter a process name first.</div>
+      <div class="tool-msg tool-loading" id="vsm-loading" hidden>Mapping&#x2026;</div>
+      <div class="tool-msg tool-error" id="vsm-error" hidden></div>
+      <div class="tool-output" id="vsm-output">
+        <div id="vsm-stats-block"></div>
+        <div class="tool-section-lbl">Steps</div><div id="vsm-steps"></div>
+        <div class="tool-section-lbl">Improvement Opportunities</div><div id="vsm-improvements"></div>
+      </div>
+    </div>
+
+    <!-- DORA -->
+    <div class="tool-panel" id="tp-dora">
+      <div class="tool-panel-title">DORA Metrics</div>
+      <div class="tool-panel-desc">Assess your DevOps performance band across the four key DORA metrics.</div>
+      <div class="dora-grid">
+        <div class="tool-field">
+          <label for="dora-df">Deployment frequency</label>
+          <select id="dora-df">
+            <option value="">Select&#x2026;</option>
+            <option>On-demand (multiple/day)</option>
+            <option>Weekly</option>
+            <option>Monthly</option>
+            <option>Quarterly or less</option>
+          </select>
+        </div>
+        <div class="tool-field">
+          <label for="dora-lt">Lead time for changes</label>
+          <select id="dora-lt">
+            <option value="">Select&#x2026;</option>
+            <option>Less than 1 hour</option>
+            <option>Less than 1 day</option>
+            <option>1 day to 1 week</option>
+            <option>1 week to 1 month</option>
+            <option>More than 1 month</option>
+          </select>
+        </div>
+        <div class="tool-field">
+          <label for="dora-cfr">Change failure rate</label>
+          <select id="dora-cfr">
+            <option value="">Select&#x2026;</option>
+            <option>0&#x2013;5%</option>
+            <option>6&#x2013;15%</option>
+            <option>16&#x2013;45%</option>
+            <option>More than 45%</option>
+          </select>
+        </div>
+        <div class="tool-field">
+          <label for="dora-ttr">Time to restore</label>
+          <select id="dora-ttr">
+            <option value="">Select&#x2026;</option>
+            <option>Less than 1 hour</option>
+            <option>Less than 1 day</option>
+            <option>1 day to 1 week</option>
+            <option>More than 1 week</option>
+          </select>
+        </div>
+      </div>
+      <div class="tool-actions">
+        <button class="tool-btn-run" id="dora-run">Assess My DORA Band</button>
+        <button class="tool-btn-clear" id="dora-clear">Clear</button>
+      </div>
+      <div class="tool-msg tool-warning" id="dora-warning" hidden>Select all four metrics first.</div>
+      <div class="tool-msg tool-loading" id="dora-loading" hidden>Assessing&#x2026;</div>
+      <div class="tool-msg tool-error" id="dora-error" hidden></div>
+      <div class="tool-output" id="dora-output">
+        <div id="dora-band-block"></div>
+        <div class="tool-section-lbl">Metric breakdown</div>
+        <div id="dora-metrics"></div>
+        <div class="tool-section-lbl">Top action</div>
+        <div id="dora-action"></div>
+      </div>
+    </div>
+
+    <!-- Backlog stubs -->
+    <div class="tool-panel" id="tp-cynefin">
+      <div class="tool-backlog"><div class="tool-backlog-badge">On the backlog</div><strong>Cynefin Framework</strong>Categorise your situation into Simple, Complicated, Complex or Chaotic domains and choose the right response.</div>
+    </div>
+    <div class="tool-panel" id="tp-toc">
+      <div class="tool-backlog"><div class="tool-backlog-badge">On the backlog</div><strong>Theory of Constraints</strong>Identify and exploit the single biggest constraint limiting throughput in your system.</div>
+    </div>
+    <div class="tool-panel" id="tp-sevenwastes">
+      <div class="tool-backlog"><div class="tool-backlog-badge">On the backlog</div><strong>7 Wastes (Lean)</strong>Identify and eliminate the seven categories of waste: transport, inventory, motion, waiting, overproduction, overprocessing, defects.</div>
+    </div>
+    <div class="tool-panel" id="tp-dmaic">
+      <div class="tool-backlog"><div class="tool-backlog-badge">On the backlog</div><strong>DMAIC (Lean Six Sigma)</strong>Define, Measure, Analyse, Improve and Control — structured improvement with statistical rigour.</div>
+    </div>
+
+  </div><!-- .tools-content -->
+</aside>
 
 <main>
 
@@ -1084,6 +1513,7 @@
         out.textContent = data.commentary ?? '';
         raidItemOutputEl.innerHTML = '';
         raidItemOutputEl.appendChild(out);
+        showToolSuggestion(selectedRaidType);
       }
     } catch {
       raidItemOutputEl.innerHTML = '<span class="commentary-error">Could not reach the commentary service.</span>';
@@ -1139,6 +1569,354 @@
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
+
+  // ── Quality Tools ───────────────────────────────────────────────────────────
+
+  const toolsDrawerEl  = document.getElementById('tools-drawer');
+  const toolsOverlayEl = document.getElementById('tools-overlay');
+  const toolsToggleBtn = document.getElementById('tools-toggle-btn');
+  const toolsCloseBtn  = document.getElementById('tools-close-btn');
+
+  function openToolsDrawer()  { toolsDrawerEl.classList.add('open'); toolsOverlayEl.classList.add('open'); }
+  function closeToolsDrawer() { toolsDrawerEl.classList.remove('open'); toolsOverlayEl.classList.remove('open'); }
+
+  function switchTool(name) {
+    document.querySelectorAll('.tool-nav-btn').forEach(b => b.classList.toggle('active', !b.disabled && b.dataset.tool === name));
+    document.querySelectorAll('.tool-panel').forEach(p => p.classList.toggle('active', p.id === `tp-${name}`));
+  }
+
+  toolsToggleBtn.addEventListener('click', openToolsDrawer);
+  toolsCloseBtn.addEventListener('click', closeToolsDrawer);
+  toolsOverlayEl.addEventListener('click', closeToolsDrawer);
+  document.querySelectorAll('.tool-nav-btn:not([disabled])').forEach(b => {
+    b.addEventListener('click', () => switchTool(b.dataset.tool));
+  });
+
+  function esc(s) {
+    return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function tcTag(level, label) {
+    const cls = { high:'tc-high', medium:'tc-medium', low:'tc-low', critical:'tc-critical',
+                  waste:'tc-waste', 'non-value-add':'tc-waste', 'value-add':'tc-value',
+                  elite:'tc-elite', band:'tc-band' };
+    return `<span class="tc-tag ${cls[level] ?? 'tc-band'}">${esc(label ?? level.toUpperCase())}</span>`;
+  }
+
+  async function runToolCall(systemPrompt, userMessage, ids, renderFn) {
+    const { output, loading, error, warning } = ids;
+    document.getElementById(output).classList.remove('visible');
+    document.getElementById(error).hidden = true;
+    if (warning) document.getElementById(warning).hidden = true;
+    document.getElementById(loading).hidden = false;
+
+    try {
+      const res  = await fetch(WORKER_URL, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ systemPrompt, userMessage })
+      });
+      const data = await res.json();
+      document.getElementById(loading).hidden = true;
+      if (!res.ok) {
+        const el = document.getElementById(error);
+        el.textContent = data.error ?? `Error ${res.status}.`; el.hidden = false; return;
+      }
+      let parsed;
+      try { parsed = JSON.parse(data.commentary); }
+      catch {
+        const el = document.getElementById(error);
+        el.textContent = 'Could not parse the response — try again.'; el.hidden = false; return;
+      }
+      renderFn(parsed);
+      document.getElementById(output).classList.add('visible');
+    } catch {
+      document.getElementById(loading).hidden = true;
+      const el = document.getElementById(error);
+      el.textContent = 'Could not reach the service.'; el.hidden = false;
+    }
+  }
+
+  function clearTool(ids, fieldIds) {
+    const { output, warning, error, loading } = ids;
+    document.getElementById(output).classList.remove('visible');
+    document.getElementById(warning).hidden = true;
+    document.getElementById(error).hidden = true;
+    document.getElementById(loading).hidden = true;
+    for (const id of fieldIds) {
+      const el = document.getElementById(id);
+      if (el) { el.tagName === 'SELECT' ? el.value = '' : el.value = ''; }
+    }
+  }
+
+  function renderList(containerId, items, renderFn) {
+    const el = document.getElementById(containerId);
+    el.innerHTML = (items && items.length)
+      ? items.map(renderFn).join('')
+      : '<div style="font-size:0.78rem;color:var(--muted);font-style:italic">None identified.</div>';
+  }
+
+  // ── ACC ────────────────────────────────────────────────────────────────────
+
+  const ACC_SYS = `Analyse the given change for assumptions, constraints and concerns.
+Return ONLY valid JSON (no markdown, no extra text):
+{"assumptions":[{"item":"...","risk":"low|medium|high","note":"..."}],"constraints":[{"item":"...","source":"...","note":"..."}],"concerns":[{"item":"...","likelihood":"low|medium|high","note":"..."}]}
+3-4 items per section. Be concise.`;
+
+  document.getElementById('acc-run').addEventListener('click', () => {
+    const title = document.getElementById('acc-title').value.trim();
+    if (!title) { document.getElementById('acc-warning').hidden = false; return; }
+    document.getElementById('acc-warning').hidden = true;
+    const desc  = document.getElementById('acc-desc').value.trim();
+    runToolCall(ACC_SYS, `Analyse: ${title}. ${desc}`,
+      { output:'acc-output', loading:'acc-loading', error:'acc-error', warning:'acc-warning' },
+      (d) => {
+        renderList('acc-assumptions', d.assumptions, i =>
+          `<div class="tool-card"><div class="tool-card-head">${esc(i.item)}${tcTag(i.risk)}</div><div class="tool-card-note">${esc(i.note)}</div></div>`);
+        renderList('acc-constraints', d.constraints, i =>
+          `<div class="tool-card"><div class="tool-card-head">${esc(i.item)}${tcTag('band', i.source)}</div><div class="tool-card-note">${esc(i.note)}</div></div>`);
+        renderList('acc-concerns', d.concerns, i =>
+          `<div class="tool-card"><div class="tool-card-head">${esc(i.item)}${tcTag(i.likelihood)}</div><div class="tool-card-note">${esc(i.note)}</div></div>`);
+      });
+  });
+  document.getElementById('acc-clear').addEventListener('click', () =>
+    clearTool({ output:'acc-output', warning:'acc-warning', error:'acc-error', loading:'acc-loading' },
+              ['acc-title','acc-desc']));
+
+  // ── FMEA ───────────────────────────────────────────────────────────────────
+
+  const FMEA_SYS = `Perform FMEA on the described process or system.
+Return ONLY valid JSON (no markdown, no extra text):
+{"items":[{"step":"...","failure_mode":"...","effect":"...","cause":"...","severity":1,"occurrence":1,"detectability":1,"rpn":1,"action":"..."}]}
+severity, occurrence, detectability: integers 1-10. rpn = S*O*D. 3-4 items. Be concise.`;
+
+  document.getElementById('fmea-run').addEventListener('click', () => {
+    const process = document.getElementById('fmea-process').value.trim();
+    if (!process) { document.getElementById('fmea-warning').hidden = false; return; }
+    document.getElementById('fmea-warning').hidden = true;
+    const scope = document.getElementById('fmea-scope').value.trim();
+    runToolCall(FMEA_SYS, `Process: ${process}. ${scope}`,
+      { output:'fmea-output', loading:'fmea-loading', error:'fmea-error', warning:'fmea-warning' },
+      (d) => {
+        renderList('fmea-items', d.items, i => {
+          const rpn = (i.rpn ?? i.severity * i.occurrence * i.detectability);
+          const critical = rpn >= 200 ? tcTag('critical', 'CRITICAL') : '';
+          return `<div class="tool-card">
+            <div class="tool-card-head">${esc(i.failure_mode)}${critical}</div>
+            <div style="font-size:0.75rem;color:var(--muted);margin-bottom:0.2rem">${esc(i.step)}</div>
+            <div style="font-size:0.78rem;margin-bottom:0.15rem"><strong>Effect:</strong> ${esc(i.effect)}</div>
+            <div style="font-size:0.78rem;margin-bottom:0.15rem"><strong>Cause:</strong> ${esc(i.cause)}</div>
+            <div style="font-size:0.78rem;margin-bottom:0.15rem">S:${esc(i.severity)} O:${esc(i.occurrence)} D:${esc(i.detectability)} &mdash; RPN: <strong>${esc(rpn)}</strong></div>
+            <div class="tool-card-note"><strong>Action:</strong> ${esc(i.action)}</div>
+          </div>`;
+        });
+      });
+  });
+  document.getElementById('fmea-clear').addEventListener('click', () =>
+    clearTool({ output:'fmea-output', warning:'fmea-warning', error:'fmea-error', loading:'fmea-loading' },
+              ['fmea-process','fmea-scope']));
+
+  // ── 5 Whys ─────────────────────────────────────────────────────────────────
+
+  const FIVEWHYS_SYS = `Apply the 5 Whys technique to the problem.
+Return ONLY valid JSON (no markdown, no extra text):
+{"problem":"...","whys":[{"level":1,"why":"...","answer":"..."},{"level":2,"why":"...","answer":"..."},{"level":3,"why":"...","answer":"..."},{"level":4,"why":"...","answer":"..."},{"level":5,"why":"...","answer":"..."}],"root_cause":"...","corrective_action":"...","preventive_action":"..."}
+Exactly 5 why levels. Be concise.`;
+
+  document.getElementById('fivewhys-run').addEventListener('click', () => {
+    const problem = document.getElementById('fivewhys-problem').value.trim();
+    if (!problem) { document.getElementById('fivewhys-warning').hidden = false; return; }
+    document.getElementById('fivewhys-warning').hidden = true;
+    runToolCall(FIVEWHYS_SYS, `Problem: ${problem}`,
+      { output:'fivewhys-output', loading:'fivewhys-loading', error:'fivewhys-error', warning:'fivewhys-warning' },
+      (d) => {
+        renderList('fivewhys-chain', d.whys ?? [], w =>
+          `<div class="tool-card"><div class="tool-card-head">Why ${esc(w.level)}: ${esc(w.why)}</div><div class="tool-card-note">${esc(w.answer)}</div></div>`);
+        document.getElementById('fivewhys-root').innerHTML =
+          `<div class="tool-card"><div class="tool-card-note">${esc(d.root_cause)}</div></div>`;
+        document.getElementById('fivewhys-corrective').innerHTML =
+          `<div class="tool-card"><div class="tool-card-note">${esc(d.corrective_action)}</div></div>`;
+        document.getElementById('fivewhys-preventive').innerHTML =
+          `<div class="tool-card"><div class="tool-card-note">${esc(d.preventive_action)}</div></div>`;
+      });
+  });
+  document.getElementById('fivewhys-clear').addEventListener('click', () =>
+    clearTool({ output:'fivewhys-output', warning:'fivewhys-warning', error:'fivewhys-error', loading:'fivewhys-loading' },
+              ['fivewhys-problem']));
+
+  // ── Ishikawa ───────────────────────────────────────────────────────────────
+
+  const ISHIKAWA_SYS = `Create an Ishikawa fishbone diagram for the stated effect.
+Return ONLY valid JSON (no markdown, no extra text):
+{"effect":"...","bones":{"people":[{"cause":"...","note":"..."}],"process":[{"cause":"...","note":"..."}],"equipment":[{"cause":"...","note":"..."}],"materials":[{"cause":"...","note":"..."}],"environment":[{"cause":"...","note":"..."}],"management":[{"cause":"...","note":"..."}]},"top_suspects":["..."]}
+2-3 causes per bone. top_suspects: top 2-3 causes. Be concise.`;
+
+  document.getElementById('ishikawa-run').addEventListener('click', () => {
+    const effect = document.getElementById('ishikawa-effect').value.trim();
+    if (!effect) { document.getElementById('ishikawa-warning').hidden = false; return; }
+    document.getElementById('ishikawa-warning').hidden = true;
+    const ctx = document.getElementById('ishikawa-context').value.trim();
+    runToolCall(ISHIKAWA_SYS, `Effect: ${effect}. ${ctx}`,
+      { output:'ishikawa-output', loading:'ishikawa-loading', error:'ishikawa-error', warning:'ishikawa-warning' },
+      (d) => {
+        const bones = d.bones ?? {};
+        const BONE_LABELS = { people:'People', process:'Process', equipment:'Equipment', materials:'Materials', environment:'Environment', management:'Management' };
+        let html = '';
+        for (const [key, label] of Object.entries(BONE_LABELS)) {
+          const items = bones[key] ?? [];
+          if (!items.length) continue;
+          html += `<div class="tool-section-lbl">${label}</div>`;
+          html += items.map(i => `<div class="tool-card"><div class="tool-card-head">${esc(i.cause)}</div><div class="tool-card-note">${esc(i.note)}</div></div>`).join('');
+        }
+        document.getElementById('ishikawa-bones').innerHTML = html;
+        renderList('ishikawa-suspects', d.top_suspects ?? [], s =>
+          `<div class="tool-card"><div class="tool-card-note">${esc(s)}</div></div>`);
+      });
+  });
+  document.getElementById('ishikawa-clear').addEventListener('click', () =>
+    clearTool({ output:'ishikawa-output', warning:'ishikawa-warning', error:'ishikawa-error', loading:'ishikawa-loading' },
+              ['ishikawa-effect','ishikawa-context']));
+
+  // ── PDCA ───────────────────────────────────────────────────────────────────
+
+  const PDCA_SYS = `Build a PDCA cycle with hypothesis-driven framing.
+Return ONLY valid JSON (no markdown, no extra text):
+{"goal":"...","plan":{"hypothesis":"...","actions":["..."],"measures":["..."],"risks":["..."]},"do":{"steps":["..."],"quick_wins":["..."]},"check":{"success_criteria":["..."],"review_questions":["..."]},"act":[{"finding":"...","action":"..."}]}
+2-3 items per array. hypothesis as "If we [do X] then [Y will happen] because [Z]". Be concise.`;
+
+  document.getElementById('pdca-run').addEventListener('click', () => {
+    const goal = document.getElementById('pdca-goal').value.trim();
+    if (!goal) { document.getElementById('pdca-warning').hidden = false; return; }
+    document.getElementById('pdca-warning').hidden = true;
+    const ctx = document.getElementById('pdca-context').value.trim();
+    runToolCall(PDCA_SYS, `Goal: ${goal}. Context: ${ctx}`,
+      { output:'pdca-output', loading:'pdca-loading', error:'pdca-error', warning:'pdca-warning' },
+      (d) => {
+        const p = d.plan ?? {};
+        document.getElementById('pdca-hypothesis').innerHTML =
+          `<div class="tool-card"><div class="tool-card-note">${esc(p.hypothesis)}</div></div>`;
+        const planItems = [...(p.actions||[]).map(a=>`Action: ${a}`), ...(p.measures||[]).map(m=>`Measure: ${m}`), ...(p.risks||[]).map(r=>`Risk: ${r}`)];
+        renderList('pdca-plan', planItems, s => `<div class="tool-card"><div class="tool-card-note">${esc(s)}</div></div>`);
+        const doData = d.do ?? {};
+        const doItems = [...(doData.steps||[]).map(s=>`Step: ${s}`), ...(doData.quick_wins||[]).map(q=>`Quick win: ${q}`)];
+        renderList('pdca-do', doItems, s => `<div class="tool-card"><div class="tool-card-note">${esc(s)}</div></div>`);
+        const chk = d.check ?? {};
+        const chkItems = [...(chk.success_criteria||[]).map(c=>`Criteria: ${c}`), ...(chk.review_questions||[]).map(q=>`Review: ${q}`)];
+        renderList('pdca-check', chkItems, s => `<div class="tool-card"><div class="tool-card-note">${esc(s)}</div></div>`);
+        renderList('pdca-act', d.act ?? [], i =>
+          `<div class="tool-card"><div class="tool-card-head">${esc(i.finding)}</div><div class="tool-card-note">${esc(i.action)}</div></div>`);
+      });
+  });
+  document.getElementById('pdca-clear').addEventListener('click', () =>
+    clearTool({ output:'pdca-output', warning:'pdca-warning', error:'pdca-error', loading:'pdca-loading' },
+              ['pdca-goal','pdca-context']));
+
+  // ── VSM ────────────────────────────────────────────────────────────────────
+
+  const VSM_SYS = `Map the value stream for the described process.
+Return ONLY valid JSON (no markdown, no extra text):
+{"process":"...","steps":[{"name":"...","value_add":true,"type":"value-add|wait|inspection|rework","time_proportion":"...%","issues":["..."]}],"summary":{"total_steps":0,"value_add_steps":0,"estimated_waste_pct":"...%","biggest_bottleneck":"..."},"improvements":[{"priority":1,"action":"...","expected_benefit":"...","effort":"low|medium|high"}]}
+4-5 steps. 2-3 improvements. Be concise.`;
+
+  document.getElementById('vsm-run').addEventListener('click', () => {
+    const process = document.getElementById('vsm-process').value.trim();
+    if (!process) { document.getElementById('vsm-warning').hidden = false; return; }
+    document.getElementById('vsm-warning').hidden = true;
+    const detail = document.getElementById('vsm-detail').value.trim();
+    runToolCall(VSM_SYS, `Process: ${process}. ${detail}`,
+      { output:'vsm-output', loading:'vsm-loading', error:'vsm-error', warning:'vsm-warning' },
+      (d) => {
+        const s = d.summary ?? {};
+        document.getElementById('vsm-stats-block').innerHTML = `
+          <div class="vsm-stats">
+            <div class="vsm-stat"><div class="vsm-stat-lbl">Estimated Waste</div><div class="vsm-stat-val">${esc(s.estimated_waste_pct ?? '—')}</div></div>
+            <div class="vsm-stat"><div class="vsm-stat-lbl">Value-Add Steps</div><div class="vsm-stat-val">${esc(s.value_add_steps ?? '—')}/${esc(s.total_steps ?? '—')}</div></div>
+          </div>`;
+        renderList('vsm-steps', d.steps ?? [], step => {
+          const tag = step.value_add ? tcTag('value-add', 'VALUE') : tcTag('waste', 'WASTE');
+          return `<div class="tool-card">
+            <div class="tool-card-head">${esc(step.name)}${tag}</div>
+            <div style="font-size:0.75rem;color:var(--muted)">${esc(step.type)} &bull; ${esc(step.time_proportion)}</div>
+            ${(step.issues||[]).length ? `<div class="tool-card-note">${step.issues.map(esc).join('; ')}</div>` : ''}
+          </div>`;
+        });
+        renderList('vsm-improvements', d.improvements ?? [], i =>
+          `<div class="tool-card">
+            <div class="tool-card-head">#${esc(i.priority)} ${esc(i.action)}${tcTag('band', i.effort)}</div>
+            <div class="tool-card-note">${esc(i.expected_benefit)}</div>
+          </div>`);
+      });
+  });
+  document.getElementById('vsm-clear').addEventListener('click', () =>
+    clearTool({ output:'vsm-output', warning:'vsm-warning', error:'vsm-error', loading:'vsm-loading' },
+              ['vsm-process','vsm-detail']));
+
+  // ── DORA ───────────────────────────────────────────────────────────────────
+
+  const DORA_SYS = `Assess the DORA metrics profile.
+Return ONLY valid JSON (no markdown, no extra text):
+{"deployment_frequency":{"band":"elite|high|medium|low","commentary":"..."},"lead_time":{"band":"elite|high|medium|low","commentary":"..."},"change_failure_rate":{"band":"elite|high|medium|low","commentary":"..."},"mttr":{"band":"elite|high|medium|low","commentary":"..."},"overall_band":"elite|high|medium|low","overall_commentary":"...","top_action":"..."}
+commentary: max 1 sentence each. Be concise.`;
+
+  document.getElementById('dora-run').addEventListener('click', () => {
+    const df = document.getElementById('dora-df').value;
+    const lt = document.getElementById('dora-lt').value;
+    const cfr = document.getElementById('dora-cfr').value;
+    const ttr = document.getElementById('dora-ttr').value;
+    if (!df || !lt || !cfr || !ttr) { document.getElementById('dora-warning').hidden = false; return; }
+    document.getElementById('dora-warning').hidden = true;
+    runToolCall(DORA_SYS,
+      `Deployment frequency: ${df}. Lead time: ${lt}. Change failure rate: ${cfr}. Time to restore: ${ttr}.`,
+      { output:'dora-output', loading:'dora-loading', error:'dora-error', warning:'dora-warning' },
+      (d) => {
+        const band = (d.overall_band ?? 'low').toLowerCase();
+        document.getElementById('dora-band-block').innerHTML =
+          `<div class="dora-band-block"><div class="dora-band-label dora-band-${band}">${band.toUpperCase()}</div><div style="font-size:0.78rem;color:var(--muted);margin-top:0.25rem">${esc(d.overall_commentary)}</div></div>`;
+        const METRIC_LABELS = { deployment_frequency:'Deployment Frequency', lead_time:'Lead Time for Changes', change_failure_rate:'Change Failure Rate', mttr:'Time to Restore' };
+        let metricHtml = '';
+        for (const [key, label] of Object.entries(METRIC_LABELS)) {
+          const m = d[key] ?? {};
+          metricHtml += `<div class="tool-card"><div class="tool-card-head">${label}${tcTag((m.band||'low'), (m.band||'').toUpperCase())}</div><div class="tool-card-note">${esc(m.commentary)}</div></div>`;
+        }
+        document.getElementById('dora-metrics').innerHTML = metricHtml;
+        document.getElementById('dora-action').innerHTML =
+          `<div class="tool-card"><div class="tool-card-note">${esc(d.top_action)}</div></div>`;
+      });
+  });
+  document.getElementById('dora-clear').addEventListener('click', () =>
+    clearTool({ output:'dora-output', warning:'dora-warning', error:'dora-error', loading:'dora-loading' },
+              ['dora-df','dora-lt','dora-cfr','dora-ttr']));
+
+  // ── Tool recommender ────────────────────────────────────────────────────────
+
+  const TOOL_SUGGESTIONS = {
+    risk:       [{ tool:'fmea', label:'FMEA' }, { tool:'fivewhys', label:'5 Whys' }],
+    assumption: [{ tool:'acc',  label:'ACC Analysis' }, { tool:'pdca', label:'PDCA' }],
+    issue:      [{ tool:'fivewhys', label:'5 Whys' }, { tool:'ishikawa', label:'Ishikawa' }, { tool:'pdca', label:'PDCA' }],
+    dependency: [{ tool:'vsm', label:'Value Stream Map' }, { tool:'acc', label:'ACC Analysis' }],
+    change:     [{ tool:'pdca', label:'PDCA' }, { tool:'fmea', label:'FMEA' }],
+  };
+
+  function showToolSuggestion(raidType) {
+    const suggestions = TOOL_SUGGESTIONS[raidType];
+    if (!suggestions) return;
+    const existing = document.getElementById('tool-recommend-block');
+    if (existing) existing.remove();
+    const block = document.createElement('div');
+    block.id = 'tool-recommend-block';
+    block.className = 'tool-recommend';
+    block.innerHTML = `<div class="tool-recommend-label">Quality tools that could help</div>
+      <div class="tool-recommend-btns">${suggestions.map(s =>
+        `<button class="tool-recommend-btn" data-suggest-tool="${esc(s.tool)}">${esc(s.label)}</button>`
+      ).join('')}</div>`;
+    raidItemOutputEl.appendChild(block);
+    block.querySelectorAll('.tool-recommend-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        switchTool(btn.dataset.suggestTool);
+        openToolsDrawer();
+      });
+    });
+  }
+
 </script>
 </body>
 </html>
