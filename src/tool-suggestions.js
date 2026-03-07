@@ -11,7 +11,7 @@
  *    suggestions are grounded in what the analysis actually found.
  */
 
-export const VALID_TOOLS = new Set(['acc', 'fmea', 'fivewhys', 'ishikawa', 'pdca', 'vsm', 'dora', 'socratic', 'premortem', 'bowtie', 'kt', 'gqm', 'flowmetrics', 'wsjf', 'spc', 'testquadrants', 'fta', 'space', 'swot', 'dmaic', 'cynefin', 'toc', 'sevenwastes', 'montecarlo']);
+export const VALID_TOOLS = new Set(['acc', 'fmea', 'fivewhys', 'ishikawa', 'pdca', 'vsm', 'dora', 'socratic', 'premortem', 'bowtie', 'kt', 'gqm', 'flowmetrics', 'wsjf', 'spc', 'testquadrants', 'fta', 'space', 'swot', 'dmaic', 'cynefin', 'toc', 'sevenwastes', 'montecarlo', 'okr']);
 
 // ── Static suggestions by RAID type ─────────────────────────────────────────
 
@@ -202,6 +202,15 @@ export const TOOL_SIGNALS = {
       'goal', 'measure', 'metric', 'measurement', 'what to measure', 'how to measure',
       'quality attribute', 'observable', 'baseline', 'threshold', 'traceability',
       'measurement plan', 'quality goal', 'success criteria', 'kpi',
+    ],
+  },
+  okr: {
+    label: 'Set objectives with measurable key results',
+    keywords: [
+      'objective', 'key result', 'okr', 'goal', 'target', 'measure what matters',
+      'doerr', 'grove', 'stretch goal', 'ambitious', 'outcome', 'success criteria',
+      'quarterly', 'alignment', 'north star', 'mission', 'strategic goal',
+      'what does good look like', 'how will we know', 'measurable outcome',
     ],
   },
   montecarlo: {

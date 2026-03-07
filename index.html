@@ -640,6 +640,7 @@
         <button class="tool-nav-btn" data-tool="pdca"><span class="tool-nav-btn-label">PDCA</span><span class="tool-nav-btn-desc">Plan–Do–Check–Act — structured improvement cycle with measurable hypotheses</span></button>
         <button class="tool-nav-btn" data-tool="vsm"><span class="tool-nav-btn-label">VSM</span><span class="tool-nav-btn-desc">Value Stream Mapping — find waste and friction slowing your flow</span></button>
         <button class="tool-nav-btn" data-tool="wsjf"><span class="tool-nav-btn-label">WSJF / CD3</span><span class="tool-nav-btn-desc">Cost of Delay ÷ Duration — rank work by what you lose from delaying it</span></button>
+        <button class="tool-nav-btn" data-tool="okr"><span class="tool-nav-btn-label">OKR</span><span class="tool-nav-btn-desc">Objectives and Key Results — one inspiring direction, measurable proof you got there</span></button>
       </div>
     </div>
     <div>
@@ -1615,6 +1616,48 @@
       </div>
     </div>
 
+    <!-- OKR -->
+    <div class="tool-panel" id="tp-okr">
+      <div class="tool-panel-title">OKR — Objectives &amp; Key Results</div>
+      <div class="tool-panel-desc">Turn a vague goal into a structured commitment. The Objective sets inspiring direction. Each Key Result is a precise, measurable signal that tells you whether you got there — not an activity, not a milestone, but an outcome with a number attached.</div>
+      <details class="tool-guidance">
+        <summary></summary>
+        <div class="tool-guidance-body">
+          <ol class="tool-guidance-steps">
+            <li>Describe your Objective in a single inspiring sentence — no numbers, no percentages. It should make people want to work on it</li>
+            <li>Ask: "How will we know we've achieved this?" — each answer is a Key Result candidate</li>
+            <li>Good Key Results are outcome-based (user retention up 20%) not output-based ("launch feature X"). If it's an activity, it's not a KR</li>
+            <li>At the start of a cycle, your confidence in each KR should be around 50%. Too confident and it's sand-bagging; too low and it's fantasy</li>
+            <li>Check in weekly or fortnightly — OKRs fail silently without regular scoring</li>
+          </ol>
+          <div class="tool-guidance-source"><strong>Source:</strong> Andy Grove, <em>High Output Management</em> (1983) — originated OKRs at Intel. John Doerr, <em>Measure What Matters</em> (2018) — popularised at Google. Christina Wodtke, <em>Radical Focus</em> (2016).</div>
+        </div>
+      </details>
+      <div class="tool-field">
+        <label for="okr-goal">What is the goal or direction?</label>
+        <textarea id="okr-goal" placeholder="e.g. We want to become the most reliable service in our sector. Or: Our deployment pipeline is fragile and blocking the team."></textarea>
+      </div>
+      <div class="tool-field">
+        <label for="okr-context">Context (optional)</label>
+        <input type="text" id="okr-context" placeholder="e.g. 3-month cycle, team of 8, currently 15% deploy failure rate, regulated industry">
+      </div>
+      <div class="tool-actions">
+        <button class="tool-btn-run" id="okr-run">Build OKR</button>
+        <button class="tool-btn-clear" id="okr-clear">Clear</button>
+      </div>
+      <div class="tool-msg tool-warning" id="okr-warning" hidden>Enter a goal or direction first.</div>
+      <div class="tool-msg tool-loading" id="okr-loading" hidden>Building your OKR&#x2026;</div>
+      <div class="tool-msg tool-error" id="okr-error" hidden></div>
+      <div class="tool-output" id="okr-output">
+        <div class="tool-section-lbl">Objective</div>
+        <div id="okr-objective"></div>
+        <div class="tool-section-lbl">Key Results</div>
+        <div id="okr-krs"></div>
+        <div class="tool-section-lbl">Watch-outs</div>
+        <div id="okr-watchouts"></div>
+      </div>
+    </div>
+
     <!-- Monte Carlo -->
     <div class="tool-panel" id="tp-montecarlo">
       <div class="tool-panel-title">Monte Carlo Simulation</div>
@@ -1866,7 +1909,7 @@
            DORA_SYS, SEVENWASTES_SYS, TOC_SYS, CYNEFIN_SYS, DMAIC_SYS, SWOT_SYS,
            SPACE_SYS, FTA_SYS, SPC_SYS, TESTQUADRANTS_SYS, WSJF_SYS, FLOWMETRICS_SYS,
            GQM_SYS, KT_SYS, BOWTIE_SYS, PREMORTEM_SYS, SOCRATIC_SYS,
-           MONTECARLO_SYS } from './src/tool-prompts.js';
+           MONTECARLO_SYS, OKR_SYS } from './src/tool-prompts.js';
   import {
     saveProject, listProjects, loadProject, deleteProject, clearAllProjects,
     saveProjectState, loadProjectState, clearProjectState
@@ -3283,6 +3326,45 @@
   document.getElementById('wsjf-clear').addEventListener('click', () =>
     clearTool({ output:'wsjf-output', warning:'wsjf-warning', error:'wsjf-error', loading:'wsjf-loading' },
               ['wsjf-items']));
+
+  // ── OKR ─────────────────────────────────────────────────────────────────────
+
+  document.getElementById('okr-run').addEventListener('click', () => {
+    const goal = document.getElementById('okr-goal').value.trim();
+    if (!goal) { document.getElementById('okr-warning').hidden = false; return; }
+    document.getElementById('okr-warning').hidden = true;
+    const ctx = document.getElementById('okr-context').value.trim();
+    runToolCall(OKR_SYS, `Goal: ${goal}${ctx ? `\nContext: ${ctx}` : ''}`,
+      { output:'okr-output', loading:'okr-loading', error:'okr-error', warning:'okr-warning' },
+      (d) => {
+        document.getElementById('okr-objective').innerHTML =
+          `<div class="tool-card"><div class="tool-card-head">${esc(d.objective)}</div><div class="tool-card-note">${esc(d.objective_rationale)}</div></div>`;
+        renderList('okr-krs', d.key_results ?? [], kr => {
+          const pct = Math.round((kr.confidence ?? 0.5) * 100);
+          const conf_colour = pct >= 70 ? '#16a34a' : pct >= 40 ? 'var(--brand)' : '#dc2626';
+          const stretchBadge = kr.stretch ? tcTag('warn', 'STRETCH') : '';
+          return `<div class="tool-card">
+            <div class="tool-card-head">${esc(kr.kr)}${stretchBadge}</div>
+            <div style="font-size:0.75rem;display:grid;grid-template-columns:1fr 1fr;gap:0.2rem 0.6rem;margin:0.35rem 0">
+              <div><span style="color:var(--muted)">Measure:</span> ${esc(kr.measurement)}</div>
+              <div><span style="color:var(--muted)">Baseline:</span> ${esc(kr.baseline)}</div>
+              <div><span style="color:var(--muted)">Target:</span> ${esc(kr.target)}</div>
+              <div><span style="color:var(--muted)">Confidence:</span> <strong style="color:${conf_colour}">${pct}%</strong></div>
+            </div>
+            <div class="tool-card-note"><strong>Risk:</strong> ${esc(kr.risk)}</div>
+          </div>`;
+        });
+        renderList('okr-watchouts', d.watch_outs ?? [], w =>
+          `<div class="tool-card"><div class="tool-card-note">${esc(w)}</div></div>`);
+        if (d.cadence) {
+          document.getElementById('okr-watchouts').insertAdjacentHTML('beforebegin',
+            `<div class="tool-section-lbl">Recommended cadence</div><div class="tool-card"><div class="tool-card-note">${esc(d.cadence)}</div></div>`);
+        }
+      });
+  });
+  document.getElementById('okr-clear').addEventListener('click', () =>
+    clearTool({ output:'okr-output', warning:'okr-warning', error:'okr-error', loading:'okr-loading' },
+              ['okr-goal','okr-context']));
 
   // ── Monte Carlo ─────────────────────────────────────────────────────────────
 
