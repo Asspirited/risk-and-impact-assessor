@@ -1930,8 +1930,13 @@
     Your project context saves automatically between sessions.
     <br><br>
     <strong>Step 2</strong> is the repeatable part: describe a specific item and get contextual analysis
-    grounded in your project's risk profile. Each question stands alone — ask as many as you need
+    grounded in your project's risk profile. Our panel of roles assesses different stakeholder perspectives
+    and surfaces potential conflicts for you to consider. Each question stands alone — ask as many as you need
     without re-running the full assessment.
+    <br><br>
+    <strong>Step 3</strong> — after your question is answered, the app will suggest the tools from the RIA Toolkit
+    it thinks could help your situation the most. Alternatively, you can browse and select any tool directly
+    using the amber <strong>RIA Toolkit</strong> button.
     <br><br>
     Working across multiple projects? Each context saves separately and can be reloaded from the project list below.
   </div>
@@ -2870,6 +2875,13 @@ Project context: ${currentReport.projectName} | ${currentReport.archetypeLabel ?
           .replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '');
         let q = null;
         try { q = JSON.parse(raw); } catch { /* fall through */ }
+        if (!q) {
+          // Fallback: extract JSON object substring in case of surrounding text or truncation marker
+          const start = raw.indexOf('{'); const end = raw.lastIndexOf('}');
+          if (start !== -1 && end > start) {
+            try { q = JSON.parse(raw.slice(start, end + 1)); } catch { /* fall through */ }
+          }
+        }
 
         if (!q) {
           qqOutputEl.innerHTML = `<div class="raid-panel-card" style="padding:1rem;font-size:0.85rem">${esc(raw)}</div>`;

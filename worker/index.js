@@ -15,7 +15,7 @@ const CORS_HEADERS = {
 };
 
 const MODEL = 'claude-sonnet-4-6';
-const MAX_TOKENS = 1024;
+const MAX_TOKENS = 2048;
 
 function json(body, status = 200) {
   return new Response(JSON.stringify(body), {
