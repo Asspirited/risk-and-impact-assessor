@@ -1112,7 +1112,7 @@
   import { ARCHETYPE_LABELS }     from './src/archetypes.js';
   import { DIMENSION_LABELS }     from './src/dimensions.js';
   import { RAID_ITEM_TYPES, buildRaidItemPrompt } from './src/raid-item.js';
-  import { TOOL_SUGGESTIONS } from './src/tool-suggestions.js';
+  import { TOOL_SUGGESTIONS, suggestToolsFromText } from './src/tool-suggestions.js';
   import {
     saveProject, listProjects, loadProject, deleteProject, clearAllProjects,
     saveProjectState, loadProjectState, clearProjectState
@@ -1767,12 +1767,15 @@
       if (!res.ok) {
         raidItemOutputEl.innerHTML = `<span class="commentary-error">${data.error ?? `Error ${res.status}.`}</span>`;
       } else {
+        const commentary = data.commentary ?? '';
         const out = document.createElement('div');
         out.className = 'raid-result';
-        out.textContent = data.commentary ?? '';
+        out.textContent = commentary;
         raidItemOutputEl.innerHTML = '';
         raidItemOutputEl.appendChild(out);
-        showToolSuggestion(selectedRaidType);
+        // Text-based suggestions — grounded in what the analysis found
+        const textMatches = suggestToolsFromText(commentary);
+        showToolSuggestion(textMatches.length ? textMatches : null, selectedRaidType);
       }
     } catch {
       raidItemOutputEl.innerHTML = '<span class="commentary-error">Could not reach the commentary service.</span>';
@@ -2204,16 +2207,19 @@ commentary: max 1 sentence each. Be concise.`;
 
   // ── Tool recommender ────────────────────────────────────────────────────────
 
-  function showToolSuggestion(raidType) {
-    const suggestions = TOOL_SUGGESTIONS[raidType];
-    if (!suggestions) return;
+  // suggestions: array of {tool, label} — from text-based scoring or static fallback
+  // fallbackRaidType: used when suggestions array is null (pre-response hint)
+  function showToolSuggestion(suggestions, fallbackRaidType) {
+    const resolved = suggestions ?? TOOL_SUGGESTIONS[fallbackRaidType];
+    if (!resolved?.length) return;
     const existing = document.getElementById('tool-recommend-block');
     if (existing) existing.remove();
+    const isTextBased = !!suggestions;
     const block = document.createElement('div');
     block.id = 'tool-recommend-block';
     block.className = 'tool-recommend';
-    block.innerHTML = `<div class="tool-recommend-label">Quality tools that could help</div>
-      <div class="tool-recommend-btns">${suggestions.map(s =>
+    block.innerHTML = `<div class="tool-recommend-label">${isTextBased ? 'Based on this analysis, these tools could help' : 'Quality tools that could help'}</div>
+      <div class="tool-recommend-btns">${resolved.map(s =>
         `<button class="tool-recommend-btn" data-suggest-tool="${esc(s.tool)}">${esc(s.label)}</button>`
       ).join('')}</div>`;
     raidItemOutputEl.appendChild(block);

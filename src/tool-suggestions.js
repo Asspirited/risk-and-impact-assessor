@@ -1,11 +1,19 @@
 /**
  * tool-suggestions.js
  *
- * Maps each RAID item type to the quality tools most relevant for analysis.
- * Extracted from index.html so it can be unit-tested independently.
+ * Two suggestion strategies:
+ *
+ * 1. TOOL_SUGGESTIONS — static map from RAID item type to relevant tools.
+ *    Used as a fallback / early hint before analysis runs.
+ *
+ * 2. TOOL_SIGNALS + suggestToolsFromText() — keyword-based matching against
+ *    the actual analysis output text. Returns the highest-scoring tools so
+ *    suggestions are grounded in what the analysis actually found.
  */
 
 export const VALID_TOOLS = new Set(['acc', 'fmea', 'fivewhys', 'ishikawa', 'pdca', 'vsm', 'dora']);
+
+// ── Static suggestions by RAID type ─────────────────────────────────────────
 
 export const TOOL_SUGGESTIONS = {
   risk:       [{ tool: 'fmea',      label: 'FMEA' },            { tool: 'fivewhys',  label: '5 Whys' }],
@@ -16,3 +24,86 @@ export const TOOL_SUGGESTIONS = {
 };
 
 export const RAID_TYPES = Object.keys(TOOL_SUGGESTIONS);
+
+// ── Signal definitions — keywords that indicate a tool would help ────────────
+
+export const TOOL_SIGNALS = {
+  acc: {
+    label: 'Map test coverage',
+    keywords: [
+      'coverage', 'untested', 'test plan', 'quality attribute', 'component', 'capability',
+      'testing strategy', 'what to test', 'verification', 'coverage gap', 'test approach',
+      'test design', 'coverage matrix', 'scope of testing',
+    ],
+  },
+  fmea: {
+    label: 'Analyse failure modes',
+    keywords: [
+      'failure', 'failure mode', 'severity', 'likelihood', 'impact', 'what could go wrong',
+      'effects', 'consequence', 'critical', 'catastrophic', 'risk priority', 'rpn',
+      'potential failure', 'single point of failure', 'high severity',
+    ],
+  },
+  fivewhys: {
+    label: 'Drill to root cause',
+    keywords: [
+      'root cause', 'underlying cause', 'recurring', 'reason', 'investigate', 'investigation',
+      'cause', 'repeating', 'systemic cause', 'drill down', 'why', 'repeated problem',
+      'keeps happening', 'reoccurring', 'not the first time',
+    ],
+  },
+  ishikawa: {
+    label: 'Map contributing causes',
+    keywords: [
+      'contributing factor', 'multiple cause', 'cause and effect', 'people', 'process',
+      'method', 'environment', 'measurement', 'systemic', 'categories of cause',
+      'combination of factors', 'several factors', 'complex cause',
+    ],
+  },
+  pdca: {
+    label: 'Run an improvement cycle',
+    keywords: [
+      'improve', 'improvement', 'iterate', 'hypothesis', 'experiment', 'change management',
+      'pilot', 'trial', 'continuous improvement', 'remediation', 'corrective action',
+      'action plan', 'monitor', 'review', 'implement', 'measure the effect',
+    ],
+  },
+  vsm: {
+    label: 'Map flow and find waste',
+    keywords: [
+      'flow', 'handoff', 'lead time', 'bottleneck', 'waste', 'delay', 'value stream',
+      'throughput', 'efficiency', 'pipeline', 'queue', 'waiting', 'process step',
+      'hand over', 'cycle time', 'non-value', 'blockage',
+    ],
+  },
+  dora: {
+    label: 'Assess delivery performance',
+    keywords: [
+      'deployment', 'release frequency', 'lead time', 'change failure', 'recovery time',
+      'devops', 'ci/cd', 'delivery performance', 'restore service', 'mean time to recover',
+      'deploy', 'pipeline', 'release cadence', 'time to deploy', 'incident recovery',
+    ],
+  },
+};
+
+// ── Text-based suggestion scoring ────────────────────────────────────────────
+
+/**
+ * Score the analysis output text against each tool's signal keywords.
+ * Returns up to maxResults tools sorted by match score, score > 0 only.
+ *
+ * @param {string} text - the analysis output to scan
+ * @param {number} maxResults - maximum number of tools to return (default 2)
+ * @returns {{ tool: string, label: string, score: number }[]}
+ */
+export function suggestToolsFromText(text, maxResults = 2) {
+  const lower = text.toLowerCase();
+  const scores = Object.entries(TOOL_SIGNALS).map(([tool, { label, keywords }]) => {
+    const score = keywords.reduce((n, kw) => n + (lower.includes(kw) ? 1 : 0), 0);
+    return { tool, label, score };
+  });
+  return scores
+    .filter(s => s.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, maxResults);
+}
